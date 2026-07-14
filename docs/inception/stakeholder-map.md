@@ -1,0 +1,17 @@
+# Stakeholder Map
+
+| Stakeholder | Rol | Interes | Influencia (Alta/Media/Baja) | Expectativas | Frecuencia de contacto |
+|------------|-----|---------|------------------------------|-------------|----------------------|
+| **Administrador de Club/Comunidad** | Usuario primario B2B | Gestionar miembros, eventos, cobros, torneos y analitica de su comunidad desde una herramienta unificada | Alta | Reduccion de carga operativa, dashboard de engagement, control de membresias, herramientas de monetizacion | Diaria (uso de plataforma) |
+| **Capitan / Lider de Equipo** | Usuario intermedio | Coordinar su equipo/grupo: planificar entrenamientos, confirmar asistencia, evaluar jugadores | Media | Visibilidad de asistencia y rendimiento de su equipo, herramientas de comunicacion grupal | Diaria / Semanal |
+| **Entrenador / Coach** | Usuario especializado | Evaluar progreso tecnico, planificar sesiones, asignar retos especificos | Media | Herramientas de seguimiento tecnico, estadisticas de rendimiento, historial de jugadores | Semanal |
+| **Deportista / Jugador** | Usuario primario B2C | Registrar actividad, acumular XP, ganar insignias, competir en rankings, canjear beneficios | Alta | Experiencia motivadora, reconocimiento social, visibilidad de su progreso, acceso a beneficios | Diaria (uso de plataforma) |
+| **Dueño de Club / Organizacion Deportiva** | Decisor B2B | Monetizar la comunidad, profesionalizar operaciones, retener miembros | Alta | Retorno de inversion (ROI), retencion de miembros, profesionalizacion de la imagen del club | Mensual / Trimestral |
+| **Marca Aliada / Sponsor** | Stakeholder externo | Exponer productos/servicios a comunidades deportivas segmentadas | Baja | Conversion de redenciones en ventas, exposicion de marca cualificada | Trimestral |
+| **Desarrollador / Equipo de Ingenieria** | Stakeholder interno | Construir, mantener y evolucionar la plataforma con calidad y velocidad | Alta | Arquitectura limpia, tooling moderno, deuda tecnica controlada, CI/CD robusto | Diaria (standups, desarrollo) |
+| **Product Owner / Product Manager** | Stakeholder interno | Priorizar features, maximizar valor entregado, alinear negocio y tecnologia | Alta | Backlog priorizado y claro, metricas de producto accionables, feedback loop con usuarios | Diaria / Semanal |
+| **DevOps / SRE** | Stakeholder interno | Operar la plataforma con alta disponibilidad, seguridad y eficiencia de costos | Media | Observabilidad completa, alertas significativas, infraestructura como codigo, costos predecibles | Semanal |
+| **QA / Tester** | Stakeholder interno | Garantizar calidad funcional y no funcional de cada release | Media | Criterios de aceptacion claros (BDD), ambientes de prueba estables, trazabilidad de defects | Diaria |
+| **Usuario Administrativo de Soporte** | Stakeholder interno | Atender incidencias de usuarios, gestionar cuentas, moderar contenido | Baja | Backoffice funcional, herramientas de administracion de usuarios, dashboards de soporte | Diaria |
+| **Inversor / Stakeholder Financiero** | Decisor estrategico | Retorno de inversion, traccion, crecimiento y metricas de negocio | Alta | KPIs financieros claros, proyecciones de crecimiento, burn rate controlado | Mensual / Trimestral |
+| **Regulador / Autoridad de Proteccion de Datos** | Stakeholder regulatorio | Cumplimiento de normativas de privacidad y proteccion de datos (GDPR, LOPD) | Alta (en caso de incumplimiento) | Cumplimiento documentado, brechas notificadas, derechos de usuarios ejercitables | Bajo demanda (auditorias) |

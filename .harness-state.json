@@ -1,11 +1,12 @@
 {
-  "project": "",
-  "createdAt": null,
-  "updatedAt": null,
+  "project": "SportHub Connect",
+  "createdAt": "2026-07-13T00:00:00Z",
+  "updatedAt": "2026-07-13T00:00:00Z",
   "humanInTheLoop": false,
   "inception": {
-    "status": "pending",
-    "approved": false
+    "status": "in_progress",
+    "approved": false,
+    "startedAt": "2026-07-13T00:00:00Z"
   },
   "features": []
 }
