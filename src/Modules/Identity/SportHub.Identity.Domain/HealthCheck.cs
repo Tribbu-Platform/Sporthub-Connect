@@ -7,13 +7,17 @@ namespace SportHub.Identity.Domain;
 /// </summary>
 public sealed class HealthCheck : Shared.Abstractions.Entity
 {
+    /// <inheritdoc/>
     public string ServiceName { get; private set; } = string.Empty;
+    /// <inheritdoc/>
     public string Status { get; private set; } = string.Empty;
+    /// <inheritdoc/>
     public DateTime CheckedAt { get; private set; }
 
     // EF Core parameterless constructor
     private HealthCheck() { }
 
+    /// <inheritdoc/>
     public static HealthCheck Create(string serviceName)
     {
         return new HealthCheck

@@ -13,11 +13,13 @@ public class HandleAsyncTests
     private readonly Mock<ICommunityRepository> _repositoryMock = new();
     private readonly GetCommunityInfoHandler _sut;
 
+    /// <inheritdoc/>
     public HandleAsyncTests()
     {
         _sut = new GetCommunityInfoHandler(_repositoryMock.Object);
     }
 
+    /// <inheritdoc/>
     [Fact]
     public async Task Should_ReturnCommunityInfo_When_CommunityExists()
     {
@@ -44,6 +46,7 @@ public class HandleAsyncTests
         result.Value.Status.Should().Be("Connected");
     }
 
+    /// <inheritdoc/>
     [Fact]
     public async Task Should_ReturnCommunityInfo_WithCorrectTimestamp_When_CommunityReturned()
     {

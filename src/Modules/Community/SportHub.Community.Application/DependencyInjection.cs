@@ -7,6 +7,7 @@ namespace SportHub.Community.Application;
 /// </summary>
 public static class DependencyInjection
 {
+    /// <inheritdoc/>
     public static IServiceCollection AddCommunityApplication(this IServiceCollection services)
     {
         services.AddMediatR(cfg =>

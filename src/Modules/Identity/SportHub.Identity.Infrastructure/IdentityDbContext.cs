@@ -9,10 +9,13 @@ namespace SportHub.Identity.Infrastructure;
 /// </summary>
 public class IdentityDbContext : DbContext
 {
+    /// <inheritdoc/>
     public DbSet<HealthCheck> HealthChecks => Set<HealthCheck>();
 
+    /// <inheritdoc/>
     public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options) { }
 
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("identity");

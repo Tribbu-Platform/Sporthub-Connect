@@ -34,9 +34,13 @@ public interface IAggregateRoot
 /// <typeparam name="T">The aggregate root type.</typeparam>
 public interface IRepository<T> where T : IAggregateRoot
 {
+    /// <inheritdoc/>
     Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    /// <inheritdoc/>
     Task AddAsync(T aggregate, CancellationToken cancellationToken = default);
+    /// <inheritdoc/>
     void Update(T aggregate);
+    /// <inheritdoc/>
     void Delete(T aggregate);
 }
 
@@ -45,7 +49,9 @@ public interface IRepository<T> where T : IAggregateRoot
 /// </summary>
 public interface IUnitOfWork
 {
+    /// <inheritdoc/>
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    /// <inheritdoc/>
     Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default);
 }
 
@@ -54,24 +60,31 @@ public interface IUnitOfWork
 /// </summary>
 public abstract class Entity
 {
+    /// <inheritdoc/>
     public Guid Id { get; protected set; }
+    /// <inheritdoc/>
     public DateTime CreatedAt { get; protected set; }
+    /// <inheritdoc/>
     public DateTime? UpdatedAt { get; protected set; }
 
     private readonly List<IDomainEvent> _domainEvents = [];
 
+    /// <inheritdoc/>
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
+    /// <inheritdoc/>
     protected void AddDomainEvent(IDomainEvent domainEvent)
     {
         _domainEvents.Add(domainEvent);
     }
 
+    /// <inheritdoc/>
     public void ClearDomainEvents()
     {
         _domainEvents.Clear();
     }
 
+    /// <inheritdoc/>
     public override bool Equals(object? obj)
     {
         if (obj is not Entity other)
@@ -86,11 +99,13 @@ public abstract class Entity
         return Id != Guid.Empty && Id == other.Id;
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
         return Id.GetHashCode();
     }
 
+    /// <inheritdoc/>
     public static bool operator ==(Entity? left, Entity? right)
     {
         if (left is null && right is null)
@@ -100,6 +115,7 @@ public abstract class Entity
         return left.Equals(right);
     }
 
+    /// <inheritdoc/>
     public static bool operator !=(Entity? left, Entity? right)
     {
         return !(left == right);
@@ -111,8 +127,10 @@ public abstract class Entity
 /// </summary>
 public abstract class ValueObject
 {
+    /// <inheritdoc/>
     protected abstract IEnumerable<object> GetEqualityComponents();
 
+    /// <inheritdoc/>
     public override bool Equals(object? obj)
     {
         if (obj is null || obj.GetType() != GetType())
@@ -122,6 +140,7 @@ public abstract class ValueObject
         return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
     }
 
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
         return GetEqualityComponents()
@@ -129,6 +148,7 @@ public abstract class ValueObject
             .Aggregate((x, y) => x ^ y);
     }
 
+    /// <inheritdoc/>
     public static bool operator ==(ValueObject? left, ValueObject? right)
     {
         if (left is null && right is null)
@@ -138,6 +158,7 @@ public abstract class ValueObject
         return left.Equals(right);
     }
 
+    /// <inheritdoc/>
     public static bool operator !=(ValueObject? left, ValueObject? right)
     {
         return !(left == right);

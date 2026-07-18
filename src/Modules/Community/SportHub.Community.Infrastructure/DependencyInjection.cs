@@ -10,6 +10,7 @@ namespace SportHub.Community.Infrastructure;
 /// </summary>
 public static class DependencyInjection
 {
+    /// <inheritdoc/>
     public static IServiceCollection AddCommunityInfrastructure(
         this IServiceCollection services,
         string connectionString)

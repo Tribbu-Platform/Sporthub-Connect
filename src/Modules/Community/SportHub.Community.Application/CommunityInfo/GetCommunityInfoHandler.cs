@@ -12,11 +12,13 @@ public sealed class GetCommunityInfoHandler : IRequestHandler<GetCommunityInfoQu
 {
     private readonly ICommunityRepository _repository;
 
+    /// <inheritdoc/>
     public GetCommunityInfoHandler(ICommunityRepository repository)
     {
         _repository = repository;
     }
 
+    /// <inheritdoc/>
     public async Task<Result<CommunityInfoDto>> Handle(GetCommunityInfoQuery request, CancellationToken ct)
     {
         var community = await _repository.GetDefaultAsync(ct);

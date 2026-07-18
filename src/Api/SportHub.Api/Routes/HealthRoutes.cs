@@ -7,8 +7,9 @@ namespace SportHub.Api.Routes;
 /// Maps the health check endpoints for the SportHub Connect API.
 /// Demonstrates the full walking skeleton: API → Application → Domain → Infrastructure → Database.
 /// </summary>
-public static class HealthRoutes
+internal static class HealthRoutes
 {
+    /// <inheritdoc/>
     public static void MapHealthEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/health")

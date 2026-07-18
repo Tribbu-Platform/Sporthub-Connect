@@ -6,13 +6,17 @@ namespace SportHub.Community.Domain;
 /// </summary>
 public sealed class CommunityAggregate : Shared.Abstractions.Entity
 {
+    /// <inheritdoc/>
     public string Name { get; private set; } = string.Empty;
+    /// <inheritdoc/>
     public string Description { get; private set; } = string.Empty;
+    /// <inheritdoc/>
     public int MemberCount { get; private set; }
 
     // EF Core parameterless constructor
     private CommunityAggregate() { }
 
+    /// <inheritdoc/>
     public static CommunityAggregate Create(string name, string description, int memberCount = 0)
     {
         return new CommunityAggregate

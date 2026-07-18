@@ -11,6 +11,7 @@ namespace SportHub.Identity.Infrastructure;
 /// </summary>
 public static class DependencyInjection
 {
+    /// <inheritdoc/>
     public static IServiceCollection AddIdentityInfrastructure(
         this IServiceCollection services,
         string connectionString)

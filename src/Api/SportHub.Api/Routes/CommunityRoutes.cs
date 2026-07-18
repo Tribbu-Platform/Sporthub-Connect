@@ -7,8 +7,9 @@ namespace SportHub.Api.Routes;
 /// Maps the Community endpoints for the SportHub Connect API.
 /// Provides community information to the frontend landing page.
 /// </summary>
-public static class CommunityRoutes
+internal static class CommunityRoutes
 {
+    /// <inheritdoc/>
     public static void MapCommunityEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/community")

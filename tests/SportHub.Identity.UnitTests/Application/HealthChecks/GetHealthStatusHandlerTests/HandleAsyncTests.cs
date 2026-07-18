@@ -13,11 +13,13 @@ public class HandleAsyncTests
     private readonly Mock<IHealthCheckRepository> _repositoryMock = new();
     private readonly GetHealthStatusHandler _sut;
 
+    /// <inheritdoc/>
     public HandleAsyncTests()
     {
         _sut = new GetHealthStatusHandler(_repositoryMock.Object);
     }
 
+    /// <inheritdoc/>
     [Fact]
     public async Task Should_ReturnHealthStatus_When_ServiceIsHealthy()
     {
@@ -46,6 +48,7 @@ public class HandleAsyncTests
         result.Value.ServerTime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
     }
 
+    /// <inheritdoc/>
     [Fact]
     public async Task Should_StoreHealthCheck_InDatabase()
     {

@@ -102,7 +102,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: .NET Format Check
-        run: dotnet format --verify-no-changes --verbosity diagnostic
+        run: dotnet format whitespace --verify-no-changes --verbosity diagnostic
 
       - name: Restore dotnet tools
         run: dotnet tool restore || true

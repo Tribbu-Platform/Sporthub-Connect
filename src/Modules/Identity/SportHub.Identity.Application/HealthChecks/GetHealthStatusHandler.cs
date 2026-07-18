@@ -12,11 +12,13 @@ public sealed class GetHealthStatusHandler : IRequestHandler<GetHealthStatusQuer
 {
     private readonly IHealthCheckRepository _repository;
 
+    /// <inheritdoc/>
     public GetHealthStatusHandler(IHealthCheckRepository repository)
     {
         _repository = repository;
     }
 
+    /// <inheritdoc/>
     public async Task<Result<HealthStatusDto>> Handle(GetHealthStatusQuery request, CancellationToken ct)
     {
         var healthCheck = HealthCheck.Create("SportHub Connect");

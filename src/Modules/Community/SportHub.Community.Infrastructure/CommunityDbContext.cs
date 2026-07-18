@@ -9,10 +9,13 @@ namespace SportHub.Community.Infrastructure;
 /// </summary>
 public class CommunityDbContext : DbContext
 {
+    /// <inheritdoc/>
     public DbSet<CommunityAggregate> Communities => Set<CommunityAggregate>();
 
+    /// <inheritdoc/>
     public CommunityDbContext(DbContextOptions<CommunityDbContext> options) : base(options) { }
 
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("community");

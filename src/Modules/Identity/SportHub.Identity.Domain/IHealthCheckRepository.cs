@@ -6,6 +6,8 @@ namespace SportHub.Identity.Domain;
 /// </summary>
 public interface IHealthCheckRepository
 {
+    /// <inheritdoc/>
     Task<HealthCheck?> GetLatestAsync(CancellationToken ct = default);
+    /// <inheritdoc/>
     Task AddAsync(HealthCheck healthCheck, CancellationToken ct = default);
 }
