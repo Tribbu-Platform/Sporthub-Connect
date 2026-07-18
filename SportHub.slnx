@@ -1,0 +1,76 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Api/">
+    <Project Path="src/Api/SportHub.Api/SportHub.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Community/">
+    <Project Path="src/Modules/Community/SportHub.Community.Application/SportHub.Community.Application.csproj" />
+    <Project Path="src/Modules/Community/SportHub.Community.Contracts/SportHub.Community.Contracts.csproj" />
+    <Project Path="src/Modules/Community/SportHub.Community.Domain/SportHub.Community.Domain.csproj" />
+    <Project Path="src/Modules/Community/SportHub.Community.Infrastructure/SportHub.Community.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/EventPlanning/">
+    <Project Path="src/Modules/EventPlanning/SportHub.EventPlanning.Application/SportHub.EventPlanning.Application.csproj" />
+    <Project Path="src/Modules/EventPlanning/SportHub.EventPlanning.Contracts/SportHub.EventPlanning.Contracts.csproj" />
+    <Project Path="src/Modules/EventPlanning/SportHub.EventPlanning.Domain/SportHub.EventPlanning.Domain.csproj" />
+    <Project Path="src/Modules/EventPlanning/SportHub.EventPlanning.Infrastructure/SportHub.EventPlanning.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Gamification/">
+    <Project Path="src/Modules/Gamification/SportHub.Gamification.Application/SportHub.Gamification.Application.csproj" />
+    <Project Path="src/Modules/Gamification/SportHub.Gamification.Contracts/SportHub.Gamification.Contracts.csproj" />
+    <Project Path="src/Modules/Gamification/SportHub.Gamification.Domain/SportHub.Gamification.Domain.csproj" />
+    <Project Path="src/Modules/Gamification/SportHub.Gamification.Infrastructure/SportHub.Gamification.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/">
+    <Project Path="src/Modules/Identity/SportHub.Identity.Application/SportHub.Identity.Application.csproj" />
+    <Project Path="src/Modules/Identity/SportHub.Identity.Contracts/SportHub.Identity.Contracts.csproj" />
+    <Project Path="src/Modules/Identity/SportHub.Identity.Domain/SportHub.Identity.Domain.csproj" />
+    <Project Path="src/Modules/Identity/SportHub.Identity.Infrastructure/SportHub.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Integrations/">
+    <Project Path="src/Modules/Integrations/SportHub.Integrations.Application/SportHub.Integrations.Application.csproj" />
+    <Project Path="src/Modules/Integrations/SportHub.Integrations.Contracts/SportHub.Integrations.Contracts.csproj" />
+    <Project Path="src/Modules/Integrations/SportHub.Integrations.Domain/SportHub.Integrations.Domain.csproj" />
+    <Project Path="src/Modules/Integrations/SportHub.Integrations.Infrastructure/SportHub.Integrations.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Leaderboards/">
+    <Project Path="src/Modules/Leaderboards/SportHub.Leaderboards.Application/SportHub.Leaderboards.Application.csproj" />
+    <Project Path="src/Modules/Leaderboards/SportHub.Leaderboards.Contracts/SportHub.Leaderboards.Contracts.csproj" />
+    <Project Path="src/Modules/Leaderboards/SportHub.Leaderboards.Domain/SportHub.Leaderboards.Domain.csproj" />
+    <Project Path="src/Modules/Leaderboards/SportHub.Leaderboards.Infrastructure/SportHub.Leaderboards.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Notifications/">
+    <Project Path="src/Modules/Notifications/SportHub.Notifications.Application/SportHub.Notifications.Application.csproj" />
+    <Project Path="src/Modules/Notifications/SportHub.Notifications.Contracts/SportHub.Notifications.Contracts.csproj" />
+    <Project Path="src/Modules/Notifications/SportHub.Notifications.Domain/SportHub.Notifications.Domain.csproj" />
+    <Project Path="src/Modules/Notifications/SportHub.Notifications.Infrastructure/SportHub.Notifications.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payments/">
+    <Project Path="src/Modules/Payments/SportHub.Payments.Application/SportHub.Payments.Application.csproj" />
+    <Project Path="src/Modules/Payments/SportHub.Payments.Contracts/SportHub.Payments.Contracts.csproj" />
+    <Project Path="src/Modules/Payments/SportHub.Payments.Domain/SportHub.Payments.Domain.csproj" />
+    <Project Path="src/Modules/Payments/SportHub.Payments.Infrastructure/SportHub.Payments.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/SportHub.Shared.Abstractions/SportHub.Shared.Abstractions.csproj" />
+    <Project Path="src/Shared/SportHub.Shared.Contracts/SportHub.Shared.Contracts.csproj" />
+    <Project Path="src/Shared/SportHub.Shared.Infrastructure/SportHub.Shared.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SportHub.Api.ContractTests/SportHub.Api.ContractTests.csproj" />
+    <Project Path="tests/SportHub.Community.IntegrationTests/SportHub.Community.IntegrationTests.csproj" />
+    <Project Path="tests/SportHub.Community.UnitTests/SportHub.Community.UnitTests.csproj" />
+    <Project Path="tests/SportHub.E2ETests/SportHub.E2ETests.csproj" />
+    <Project Path="tests/SportHub.EventPlanning.IntegrationTests/SportHub.EventPlanning.IntegrationTests.csproj" />
+    <Project Path="tests/SportHub.EventPlanning.UnitTests/SportHub.EventPlanning.UnitTests.csproj" />
+    <Project Path="tests/SportHub.Gamification.IntegrationTests/SportHub.Gamification.IntegrationTests.csproj" />
+    <Project Path="tests/SportHub.Gamification.UnitTests/SportHub.Gamification.UnitTests.csproj" />
+    <Project Path="tests/SportHub.Identity.IntegrationTests/SportHub.Identity.IntegrationTests.csproj" />
+    <Project Path="tests/SportHub.Identity.UnitTests/SportHub.Identity.UnitTests.csproj" />
+    <Project Path="tests/SportHub.Leaderboards.IntegrationTests/SportHub.Leaderboards.IntegrationTests.csproj" />
+    <Project Path="tests/SportHub.Leaderboards.UnitTests/SportHub.Leaderboards.UnitTests.csproj" />
+    <Project Path="tests/SportHub.Payments.IntegrationTests/SportHub.Payments.IntegrationTests.csproj" />
+    <Project Path="tests/SportHub.Payments.UnitTests/SportHub.Payments.UnitTests.csproj" />
+  </Folder>
+</Solution>

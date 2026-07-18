@@ -148,14 +148,12 @@ Eres el guardian del archivo `.harness-state.json`. El leader te invoca para ges
 1. **Al iniciar sesion (resume)**
    - Leer `.harness-state.json`
    - Reportar al `leader`: estado de inception, features activas, HUs activas dentro de cada feature, fase en progreso de cada feature y HU, punto exacto de TDD si aplica
-   - Si hay `tdd` activo en alguna HU, reportar: paso (RED/GREEN/REFACTOR), archivo de test, escenario actual, escenarios completados y pendientes
    - Si el archivo no existe, crear la plantilla inicial con `inception.status = "pending"`
 
 2. **Durante la ejecucion**
    - **Iniciar feature**: crea rama `feature/{id}-{slug}` desde `develop`, registra el bloque `phases` con las 2 fases feature en `pending`, marca feature `in_progress`, registra `startedAt` y `branch`. `userStories` inicia como array vacio `[]`
    - **Crear HU**: tras `analysis`, registra las HUs identificadas en `userStories[]` con sus `phases` HU en `pending` y `tdd: null`. No crea rama HU aun
-   - **Iniciar HU**: crea rama `hu/{featureId}-{huId}-{slug}` desde la rama feature, marca `develop` de la HU como `in_progress`, registra `branch` y `startedAt`
-   - **Guardar progreso TDD**: `develop` te invoca con `tdd save` cada vez que completa un paso RED, GREEN o REFACTOR dentro de una HU
+   - **Iniciar HU**: crea rama `hu/{featureId}-{huId}-{slug}` desde la rama feature, marca la fase `develop` de la HU como `in_progress`, registra `branch` y `startedAt`
    - **Completar HU**: push de la rama `hu/*`, crea PR hacia la rama feature, marca HU `in_review`, registra `prUrl`
    - **Mergear HU**: tras aprobacion del PR, mergea a la feature, elimina rama local, marca HU `done`, limpia `tdd`
    - **Completar feature**: todas las HUs `done` + feature phases completas. Push de la rama feature, crea PR hacia `develop`, marca `in_review`

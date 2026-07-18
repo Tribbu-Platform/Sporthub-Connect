@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "skills": {
+    "feature-arch": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/feature-arch/SKILL.md",
+      "computedHash": "d3ac2e20aa639cebaa4ede4ea80f1c453cb7189d479a4414c6454a427cb901ec"
+    },
+    "msw": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/msw/SKILL.md",
+      "computedHash": "a4286f2cd350ef44932f77e9b5df438ac03da0b7e5ac83541e4b671aa6efd139"
+    },
+    "nextjs": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nextjs/SKILL.md",
+      "computedHash": "55635f2b85cee1393136cac6aed391b68815f72aa31886cd328d2118c95fb117"
+    },
+    "nuqs": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nuqs/SKILL.md",
+      "computedHash": "08b26ec1e75c57d7f944d67e0c22d1303fe33cf2aa631ef1ba568c94292f4991"
+    },
+    "playwright": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/playwright/SKILL.md",
+      "computedHash": "e0a96e542befd9e6d5f335adb5f19aa7c3951caf7a40fc78b44d75109621f174"
+    },
+    "react": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react/SKILL.md",
+      "computedHash": "491887f1711377bfd5653f55dcffb53cad704d5902809031b50e4b22dcc25bb2"
+    },
+    "react-hook-form": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-hook-form/SKILL.md",
+      "computedHash": "6e849cdca27ed45b6597f2b047a4d5998481ce3f1c7d36e5c8597a05aa48d814"
+    },
+    "shadcn": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "e0c552de66070fcbbb19733fee7384fced474dfea6fa31a597cf89322fc660a5"
+    },
+    "tailwind": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tailwind/SKILL.md",
+      "computedHash": "95cf36e4c8a982bad5e7b81eb2c7adb2990791c83444cff48cae85a9ea9efc70"
+    },
+    "tanstack-query": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tanstack-query/SKILL.md",
+      "computedHash": "846fed056c840736f01778c6387d6058a74a2ece7ea24994f3738dcc6e0c50ce"
+    },
+    "tdd": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/tdd/SKILL.md",
+      "computedHash": "3796b630bf67466d3eddcb28cf52a88c00509cda9d6b8f6202cecfe8c4f0c18e"
+    },
+    "typescript": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/typescript/SKILL.md",
+      "computedHash": "942d957571356ba1b6a6f8fd32a6298859f406272269102dbf85fea26f1c29a7"
+    },
+    "ui-design": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ui-design/SKILL.md",
+      "computedHash": "8cca5b58f3fb0247e7dc6d2c7722cda853df6001832d7e18aeec82ed986109c4"
+    },
+    "vercel-composition-patterns": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vercel-composition-patterns/SKILL.md",
+      "computedHash": "32d1c2c225405318aaf653519b1cd908f69632bc2d9d7e22029ddd7da204c091"
+    },
+    "vercel-react-best-practices": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vercel-react-best-practices/SKILL.md",
+      "computedHash": "2846b05bc32a392d905129b63c6652c9575b6e78a117edcff2f43c3d6377d8b7"
+    },
+    "vitest": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "2059955042761f6ce9e0a3958a0597b3f7dde90ccd20b8da7ee89e30f2f309b3"
+    },
+    "web-design-guidelines": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "computedHash": "d8e7d3afe37dcc8a97b99ffb5afdb4d0919ae0092ea8b68f44eb201f035e33ac"
+    },
+    "zod": {
+      "source": "Pythoughts-labs/react-frontend-skills",
+      "sourceType": "github",
+      "skillPath": "skills/zod/SKILL.md",
+      "computedHash": "37e8745c67b83ff0a7e7e3d08e293a4af73aa2badb95e289b701df8777771e38"
+    }
+  }
+}

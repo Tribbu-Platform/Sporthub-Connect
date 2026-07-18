@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\SportHub.Integrations.Application\SportHub.Integrations.Application.csproj" />
+    <ProjectReference Include="..\SportHub.Integrations.Domain\SportHub.Integrations.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Shared\SportHub.Shared.Infrastructure\SportHub.Shared.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

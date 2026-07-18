@@ -12,7 +12,7 @@ El proyecto se desarrolla como **monorepo** con la siguiente matriz de decisione
 
 | Capa | Opciones evaluadas | Decision | Justificacion |
 |------|-------------------|----------|---------------|
-| **Backend API** | .NET, Python, Go, Node.js, Java, Rust | **C# / .NET 8** | Tipado fuerte para modelo de dominio complejo (DDD), excelente ORM (EF Core), SignalR para real-time, rendimiento nativo, madurez enterprise, skill `dotnet-microservice` disponible |
+| **Backend API** | .NET, Python, Go, Node.js, Java, Rust | **C# / .NET 10 LTS** | Tipado fuerte para modelo de dominio complejo (DDD), excelente ORM (EF Core), SignalR para real-time, rendimiento nativo, madurez enterprise, skill `dotnet-microservice` disponible, soporte LTS hasta Nov 2028 |
 | **Frontend Web** | Blazor, React, Angular, Vue, Svelte | **React + TypeScript** | Ecosistema mas maduro para PWAs, amplia disponibilidad de talento, excelente SSR/SSG con Next.js, integracion robusta con APIs REST |
 | **Base de Datos Principal** | PostgreSQL, SQL Server, MySQL, MongoDB | **PostgreSQL** | Open source, excelente soporte JSON/Document, full-text search, GIS (geolocalizacion), CTEs recursivas (leaderboards), RLS (multi-tenant) |
 | **Cache / Sesiones** | Redis, Memcached | **Redis** | Leaderboards en tiempo real con Sorted Sets, caché distribuido, SignalR backplane, pub/sub para eventos |
@@ -24,7 +24,7 @@ El proyecto se desarrolla como **monorepo** con la siguiente matriz de decisione
 
 | Stack | Skill Backend | Skill TDD | Skill BDD | Cobertura |
 |-------|--------------|-----------|-----------|-----------|
-| .NET 8 | `dotnet-microservice` | `tdd-dotnet` | `bdd-dotnet` | ✅ Completa |
+| .NET 10 LTS | `dotnet-microservice` | `tdd-dotnet` | `bdd-dotnet` | ✅ Completa |
 | Python | `python-fastapi` | `tdd-pytest` | `bdd-python` | ✅ Completa |
 | Go | `go-chi` | `tdd-go` | — | ⚠️ Sin BDD |
 | Node.js | `node-express` | `tdd-jest` | `bdd-javascript` | ✅ Completa |
@@ -33,15 +33,15 @@ El proyecto se desarrolla como **monorepo** con la siguiente matriz de decisione
 
 ### Decision de stack:
 
-**Stack principal: C# / .NET 8 + React/TypeScript** con PostgreSQL, Redis y RabbitMQ.
+**Stack principal: C# / .NET 10 LTS + React 19 / TypeScript + Next.js 16** con PostgreSQL, Redis y RabbitMQ.
 
 Justificacion detallada:
 1. **Dominio complejo → Tipado fuerte:** SportHub tiene un modelo de dominio denso (comunidades, eventos, gamificacion, pagos, rankings). C# con su sistema de tipos, records, pattern matching y LINQ permite expresar reglas de negocio de forma concisa y segura.
 2. **EF Core para persistencia:** El ORM mas maduro del ecosistema .NET. Soporta herencia (TPH/TPT), owned types (value objects de DDD), shadow properties, intercepciones. Ideal para un modelo DDD complejo.
 3. **SignalR para real-time:** Leaderboards en vivo, notificaciones push, actualizaciones de RSVP. Sin dependencias externas adicionales.
-4. **Alto rendimiento:** .NET 8 es uno de los runtimes mas rapidos (TechEmpower benchmarks top 10). GC de baja latencia, compilacion AOT disponible si es necesario.
+4. **Alto rendimiento:** .NET 10 LTS es uno de los runtimes mas rapidos (TechEmpower benchmarks top 10). GC de baja latencia, compilacion AOT madura para cold starts optimizados en contenedores.
 5. **Skills completos:** `dotnet-microservice`, `tdd-dotnet` y `bdd-dotnet` estan disponibles.
-6. **Frontend React/TypeScript:** Aunque no tiene skill en `.opencode/skills/` (solo backend), TypeScript aporta tipado fuerte en frontend alineandose con la filosofia del backend. El ecosistema React es el mas probado para PWAs.
+6. **Frontend React 19/TypeScript + Next.js 16:** Skills completos instalados (20 skills). TypeScript aporta tipado fuerte alineado con backend. React 19 con Server Components y Actions. Next.js 16 con App Router y cache avanzado. Ecosistema React es el mas probado para PWAs.
 
 ## 3. Proveedores Cloud
 

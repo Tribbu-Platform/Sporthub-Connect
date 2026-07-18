@@ -1,0 +1,223 @@
+{
+  "rabbit_version": "3.13",
+  "users": [
+    {
+      "name": "sporthub",
+      "password_hash": "PLACEHOLDER",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "sporthub",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "sport-hub.domain-events",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false
+    },
+    {
+      "name": "sport-hub.dlx",
+      "vhost": "/",
+      "type": "fanout",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false
+    }
+  ],
+  "queues": [
+    {
+      "name": "gamification.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "sport-hub.dlx",
+        "x-message-ttl": 604800000
+      }
+    },
+    {
+      "name": "leaderboards.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "sport-hub.dlx",
+        "x-message-ttl": 604800000
+      }
+    },
+    {
+      "name": "notifications.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "sport-hub.dlx",
+        "x-message-ttl": 604800000
+      }
+    },
+    {
+      "name": "payments.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "sport-hub.dlx",
+        "x-message-ttl": 604800000
+      }
+    },
+    {
+      "name": "identity.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "sport-hub.dlx",
+        "x-message-ttl": 604800000
+      }
+    },
+    {
+      "name": "community.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "sport-hub.dlx",
+        "x-message-ttl": 604800000
+      }
+    },
+    {
+      "name": "events.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "sport-hub.dlx",
+        "x-message-ttl": 604800000
+      }
+    },
+    {
+      "name": "integrations.events",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "sport-hub.dlx",
+        "x-message-ttl": 604800000
+      }
+    }
+  ],
+  "bindings": [
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "gamification.events",
+      "destination_type": "queue",
+      "routing_key": "events.checkin-recorded",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "gamification.events",
+      "destination_type": "queue",
+      "routing_key": "community.member-joined",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "gamification.events",
+      "destination_type": "queue",
+      "routing_key": "leaderboards.xp-earned",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "leaderboards.events",
+      "vhost": "/",
+      "destination_type": "queue",
+      "routing_key": "gamification.xp-earned",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "leaderboards.events",
+      "destination_type": "queue",
+      "routing_key": "gamification.badge-earned",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "leaderboards.events",
+      "destination_type": "queue",
+      "routing_key": "events.checkin-recorded",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "notifications.events",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "payments.events",
+      "destination_type": "queue",
+      "routing_key": "payments.#",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "identity.events",
+      "destination_type": "queue",
+      "routing_key": "identity.#",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "community.events",
+      "destination_type": "queue",
+      "routing_key": "community.#",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "events.events",
+      "destination_type": "queue",
+      "routing_key": "events.#",
+      "arguments": {}
+    },
+    {
+      "source": "sport-hub.domain-events",
+      "vhost": "/",
+      "destination": "integrations.events",
+      "destination_type": "queue",
+      "routing_key": "integrations.#",
+      "arguments": {}
+    }
+  ]
+}

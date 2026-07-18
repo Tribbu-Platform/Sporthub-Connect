@@ -1,0 +1,182 @@
+version: "3.9"
+
+services:
+  # ============================================================
+  # SportHub API - ASP.NET Core 10 Minimal API
+  # ============================================================
+  api:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile.api
+      target: development
+    container_name: sporthub-api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=sporthub;Username=sporthub;Password=sporthub_dev
+      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__RabbitMQ=amqp://sporthub:sporthub_dev@rabbitmq:5672
+      - Auth0__Domain=${AUTH0_DOMAIN:-sporthub-dev.auth0.com}
+      - Auth0__Audience=${AUTH0_AUDIENCE:-https://api.sporthub.local}
+    volumes:
+      - ..:/src
+      - /src/src/Api/SportHub.Api/bin
+      - /src/src/Api/SportHub.Api/obj
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - sporthub-network
+    restart: unless-stopped
+
+  # ============================================================
+  # SportHub Web - Next.js 16 Frontend
+  # ============================================================
+  web:
+    build:
+      context: ../frontend/sport-hub-web
+      dockerfile: Dockerfile
+      target: development
+    container_name: sporthub-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NODE_ENV=development
+    volumes:
+      - ../frontend/sport-hub-web:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) })"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+    networks:
+      - sporthub-network
+    restart: unless-stopped
+
+  # ============================================================
+  # PostgreSQL 16 - Base de datos principal
+  # ============================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: sporthub-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: sporthub
+      POSTGRES_PASSWORD: sporthub_dev
+      POSTGRES_DB: sporthub
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sporthub -d sporthub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks:
+      - sporthub-network
+    restart: unless-stopped
+
+  # ============================================================
+  # Redis 7 - Cache y leaderboards
+  # ============================================================
+  redis:
+    image: redis:7-alpine
+    container_name: sporthub-redis
+    ports:
+      - "6380:6379"
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - redis-data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - sporthub-network
+    restart: unless-stopped
+
+  # ============================================================
+  # RabbitMQ 3.13 - Message Broker
+  # ============================================================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: sporthub-rabbitmq
+    ports:
+      - "5673:5672"    # AMQP
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: sporthub
+      RABBITMQ_DEFAULT_PASS: sporthub_dev
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - sporthub-network
+    restart: unless-stopped
+
+  # ============================================================
+  # Nginx - Reverse proxy (local dev)
+  # ============================================================
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: sporthub-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sporthub-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+
+networks:
+  sporthub-network:
+    driver: bridge

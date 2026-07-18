@@ -1,0 +1,101 @@
+# ============================================================
+# Stage 1: Build
+# ============================================================
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+# Copy csproj files for layer caching
+COPY SportHub.slnx ./
+COPY src/Api/SportHub.Api/SportHub.Api.csproj src/Api/SportHub.Api/
+COPY src/Shared/SportHub.Shared.Abstractions/SportHub.Shared.Abstractions.csproj src/Shared/SportHub.Shared.Abstractions/
+COPY src/Shared/SportHub.Shared.Infrastructure/SportHub.Shared.Infrastructure.csproj src/Shared/SportHub.Shared.Infrastructure/
+COPY src/Shared/SportHub.Shared.Contracts/SportHub.Shared.Contracts.csproj src/Shared/SportHub.Shared.Contracts/
+
+COPY src/Modules/Identity/SportHub.Identity.Domain/SportHub.Identity.Domain.csproj src/Modules/Identity/SportHub.Identity.Domain/
+COPY src/Modules/Identity/SportHub.Identity.Application/SportHub.Identity.Application.csproj src/Modules/Identity/SportHub.Identity.Application/
+COPY src/Modules/Identity/SportHub.Identity.Infrastructure/SportHub.Identity.Infrastructure.csproj src/Modules/Identity/SportHub.Identity.Infrastructure/
+COPY src/Modules/Identity/SportHub.Identity.Contracts/SportHub.Identity.Contracts.csproj src/Modules/Identity/SportHub.Identity.Contracts/
+
+COPY src/Modules/Community/SportHub.Community.Domain/SportHub.Community.Domain.csproj src/Modules/Community/SportHub.Community.Domain/
+COPY src/Modules/Community/SportHub.Community.Application/SportHub.Community.Application.csproj src/Modules/Community/SportHub.Community.Application/
+COPY src/Modules/Community/SportHub.Community.Infrastructure/SportHub.Community.Infrastructure.csproj src/Modules/Community/SportHub.Community.Infrastructure/
+COPY src/Modules/Community/SportHub.Community.Contracts/SportHub.Community.Contracts.csproj src/Modules/Community/SportHub.Community.Contracts/
+
+COPY src/Modules/EventPlanning/SportHub.EventPlanning.Domain/SportHub.EventPlanning.Domain.csproj src/Modules/EventPlanning/SportHub.EventPlanning.Domain/
+COPY src/Modules/EventPlanning/SportHub.EventPlanning.Application/SportHub.EventPlanning.Application.csproj src/Modules/EventPlanning/SportHub.EventPlanning.Application/
+COPY src/Modules/EventPlanning/SportHub.EventPlanning.Infrastructure/SportHub.EventPlanning.Infrastructure.csproj src/Modules/EventPlanning/SportHub.EventPlanning.Infrastructure/
+COPY src/Modules/EventPlanning/SportHub.EventPlanning.Contracts/SportHub.EventPlanning.Contracts.csproj src/Modules/EventPlanning/SportHub.EventPlanning.Contracts/
+
+COPY src/Modules/Gamification/SportHub.Gamification.Domain/SportHub.Gamification.Domain.csproj src/Modules/Gamification/SportHub.Gamification.Domain/
+COPY src/Modules/Gamification/SportHub.Gamification.Application/SportHub.Gamification.Application.csproj src/Modules/Gamification/SportHub.Gamification.Application/
+COPY src/Modules/Gamification/SportHub.Gamification.Infrastructure/SportHub.Gamification.Infrastructure.csproj src/Modules/Gamification/SportHub.Gamification.Infrastructure/
+COPY src/Modules/Gamification/SportHub.Gamification.Contracts/SportHub.Gamification.Contracts.csproj src/Modules/Gamification/SportHub.Gamification.Contracts/
+
+COPY src/Modules/Leaderboards/SportHub.Leaderboards.Domain/SportHub.Leaderboards.Domain.csproj src/Modules/Leaderboards/SportHub.Leaderboards.Domain/
+COPY src/Modules/Leaderboards/SportHub.Leaderboards.Application/SportHub.Leaderboards.Application.csproj src/Modules/Leaderboards/SportHub.Leaderboards.Application/
+COPY src/Modules/Leaderboards/SportHub.Leaderboards.Infrastructure/SportHub.Leaderboards.Infrastructure.csproj src/Modules/Leaderboards/SportHub.Leaderboards.Infrastructure/
+COPY src/Modules/Leaderboards/SportHub.Leaderboards.Contracts/SportHub.Leaderboards.Contracts.csproj src/Modules/Leaderboards/SportHub.Leaderboards.Contracts/
+
+COPY src/Modules/Payments/SportHub.Payments.Domain/SportHub.Payments.Domain.csproj src/Modules/Payments/SportHub.Payments.Domain/
+COPY src/Modules/Payments/SportHub.Payments.Application/SportHub.Payments.Application.csproj src/Modules/Payments/SportHub.Payments.Application/
+COPY src/Modules/Payments/SportHub.Payments.Infrastructure/SportHub.Payments.Infrastructure.csproj src/Modules/Payments/SportHub.Payments.Infrastructure/
+COPY src/Modules/Payments/SportHub.Payments.Contracts/SportHub.Payments.Contracts.csproj src/Modules/Payments/SportHub.Payments.Contracts/
+
+COPY src/Modules/Notifications/SportHub.Notifications.Domain/SportHub.Notifications.Domain.csproj src/Modules/Notifications/SportHub.Notifications.Domain/
+COPY src/Modules/Notifications/SportHub.Notifications.Application/SportHub.Notifications.Application.csproj src/Modules/Notifications/SportHub.Notifications.Application/
+COPY src/Modules/Notifications/SportHub.Notifications.Infrastructure/SportHub.Notifications.Infrastructure.csproj src/Modules/Notifications/SportHub.Notifications.Infrastructure/
+COPY src/Modules/Notifications/SportHub.Notifications.Contracts/SportHub.Notifications.Contracts.csproj src/Modules/Notifications/SportHub.Notifications.Contracts/
+
+COPY src/Modules/Integrations/SportHub.Integrations.Domain/SportHub.Integrations.Domain.csproj src/Modules/Integrations/SportHub.Integrations.Domain/
+COPY src/Modules/Integrations/SportHub.Integrations.Application/SportHub.Integrations.Application.csproj src/Modules/Integrations/SportHub.Integrations.Application/
+COPY src/Modules/Integrations/SportHub.Integrations.Infrastructure/SportHub.Integrations.Infrastructure.csproj src/Modules/Integrations/SportHub.Integrations.Infrastructure/
+COPY src/Modules/Integrations/SportHub.Integrations.Contracts/SportHub.Integrations.Contracts.csproj src/Modules/Integrations/SportHub.Integrations.Contracts/
+
+# Restore dependencies
+RUN dotnet restore src/Api/SportHub.Api/SportHub.Api.csproj
+
+# Copy full source code
+COPY src/ src/
+
+# Build & publish
+RUN dotnet publish src/Api/SportHub.Api/SportHub.Api.csproj -c Release -o /app/publish --no-restore
+
+# ============================================================
+# Stage 2: Production Runtime
+# ============================================================
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS production
+WORKDIR /app
+EXPOSE 8080
+
+# Create non-root user
+RUN addgroup --system --gid 1000 sporthub \
+    && adduser --system --uid 1000 --gid 1000 sporthub
+
+COPY --from=build /app/publish ./
+RUN chown -R sporthub:sporthub /app
+
+USER sporthub
+
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["dotnet", "SportHub.Api.dll"]
+
+# ============================================================
+# Stage 3: Development (used by docker-compose)
+# ============================================================
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS development
+WORKDIR /src
+
+# Install dev tools and curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN dotnet tool install -g dotnet-ef --version 10.* || true
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://+:8080
+
+ENTRYPOINT ["dotnet", "watch", "run", "--project", "src/Api/SportHub.Api/SportHub.Api.csproj", "--no-launch-profile"]

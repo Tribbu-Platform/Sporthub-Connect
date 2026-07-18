@@ -1,287 +1,163 @@
-# Harness Engineering — Plantilla de Ingenieria de Software con Agentes
+# SportHub Connect
 
-Plantilla de ingenieria de arneses con opencode que orquesta el ciclo de vida completo de software mediante agentes especializados. Agnostica a tecnologias: el stack se define en la fase de diseno.
+![.NET](https://img.shields.io/badge/.NET-10.0_LTS-512BD4?logo=dotnet)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.13-FF6600?logo=rabbitmq)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker)
 
-## Requisitos previos
+Plataforma SaaS integral que unifica la gestion de comunidades deportivas en un solo ecosistema: gestion operativa (miembros, eventos), engagement social (gamificacion, rankings) y monetizacion (suscripciones, beneficios).
 
-- [opencode](https://opencode.ai) instalado
-- Docker Desktop (opcional, para contenerizacion)
-- Git
+## Arquitectura
+
+- **Backend**: .NET 10 LTS, Clean Architecture modular con 8 bounded contexts (DDD)
+- **Frontend**: React 19 + TypeScript + Next.js 16 (App Router)
+- **Persistencia**: PostgreSQL 16 (un schema por modulo) + Redis 7 (cache/rankings)
+- **Mensajeria**: RabbitMQ 3.13 (Domain Events entre modulos)
+- **Contenedores**: Docker + Docker Compose
+
+[Documentacion de arquitectura](docs/architecture.md)
+
+## Requisitos
+
+- [.NET SDK 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [Node.js 22+](https://nodejs.org/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Git](https://git-scm.com/)
 
 ## Inicio rapido
 
-### 1. Clona o copia esta plantilla en tu proyecto
-
 ```powershell
-cp -Recurse C:\@idsanchezf\harness-engineering\* .\mi-microservicio\
-cd .\mi-microservicio
+# 1. Clonar repositorio
+git clone https://github.com/tu-org/sport-hub-connect.git
+cd sport-hub-connect
+
+# 2. Iniciar infraestructura
+docker compose -f infrastructure/docker-compose.yml up -d postgres redis rabbitmq
+
+# 3. Backend API
+dotnet restore
+dotnet build
+dotnet run --project src/Api/SportHub.Api/
+
+# 4. Frontend Web
+cd frontend/sport-hub-web
+npm ci
+npm run dev
+
+# Abrir http://localhost:3000
 ```
 
-### 2. Inicia opencode en el directorio
-
-```powershell
-opencode
-```
-
-El agente lider `leader` se activa automaticamente como agente por defecto. Al iniciar:
-
-- Lee `.harness-state.json` para conocer el estado del proyecto
-- Si el archivo no existe, lo crea e inicia en fase `analysis`
-- Si existe, retoma desde la fase/feature donde se quedo
-
-### 3. Comienza con una solicitud
-
-Escribe en lenguaje natural lo que necesitas:
+## Estructura del monorepo
 
 ```
-Crear un microservicio de gestion de pedidos para un e-commerce
-```
-
-El lider evaluara la solicitud y delegara al subagente correspondiente.
-
-## Agentes disponibles
-
-| Agente | Invocacion directa | Capacidad |
-|--------|-------------------|-----------|
-| `leader` | default (automatico) | Orquestador unico del proceso |
-| `features` | Gestion de backlog, ramas y estado | Transversal |
-| `analysis` | DDD, event storming, requerimientos | Ejecutor |
-| `architect` | Definicion de `architecture.md` (ADR, C4) | Ejecutor |
-| `design` | Contratos API, modelo de datos, integracion | Ejecutor |
-| `scaffold` | Creacion de solucion y Docker | Ejecutor |
-| `develop` | Implementacion de funcionalidad | Ejecutor |
-| `test` | Pruebas unitarias, integracion, carga | Ejecutor |
-| `quality` | Analisis estatico, seguridad, deuda tecnica | Ejecutor |
-| `deploy` | CI/CD, Kubernetes, observabilidad | Ejecutor |
-
-### Invocar un subagente directamente
-
-Si necesitas una capacidad especifica:
-
-```
-@analysis necesito analizar el dominio de facturacion electronica
-@develop implementa el endpoint de creacion de facturas
-@test genera pruebas de integracion para el modulo de pagos
-```
-
-### Comandos de gestion de features
-
-El agente `features` gestiona el backlog y el archivo `.harness-state.json`:
-
-```
-@features status                    # Ver estado actual del proyecto
-@features list features             # Listar todas las features
-@features start F001                # Inicia feature + crea rama feature/F001-{slug}
-@features complete F001             # Push + crea PR hacia develop (marca in_review)
-@features merge F001                # Tras aprobacion del PR, mergea y marca done
-
-### Comandos de tareas (checklist)
-
-Cada feature tiene su `tasks.json` en `docs/features/{id}-{slug}/tasks.json`.
-
-@features tasks progress F001         # Barra de progreso por capa
-@features task done F001 T003          # Marcar tarea como completada
-@features task start F001 T004         # Iniciar siguiente tarea
-@features block F002 motivo="..."   # Bloquear feature
-@features phase complete F001 develop    # Marcar fase como completada
-@features phase start F001 test          # Iniciar siguiente fase
-```
-
-## Archivo de estado `.harness-state.json`
-
-Persiste el progreso entre sesiones. Si cierras opencode y vuelves a abrirlo, el lider lee este archivo y retoma exactamente donde quedaste.
-
-Cada feature tiene su propio tracking de fases, lo que permite trazabilidad independiente y multiples features en progreso simultaneamente.
-
-```json
-{
-  "project": "OrderService",
-  "createdAt": "2026-05-26T00:00:00Z",
-  "updatedAt": "2026-05-26T00:00:00Z",
-  "humanInTheLoop": true,
-  "features": [
-    {
-      "id": "F001",
-      "name": "Registro de usuarios con OAuth2",
-      "slug": "registro-usuarios-oauth2",
-      "description": "Implementar flujo de registro con Google y Microsoft",
-      "status": "in_progress",
-      "assignedTo": "develop",
-      "docsPath": "docs/features/F001-registro-usuarios-oauth2/",
-      "branch": "feature/F001-registro-usuarios-oauth2",
-      "createdAt": "2026-05-26T00:00:00Z",
-      "startedAt": "2026-05-26T02:00:00Z",
-      "phases": {
-        "analysis":   { "status": "completed",  "approved": true, "startedAt": "...", "completedAt": "..." },
-        "architect":  { "status": "completed",  "approved": true, "startedAt": "...", "completedAt": "..." },
-        "design":     { "status": "completed",  "approved": true, "startedAt": "...", "completedAt": "..." },
-        "scaffold":   { "status": "completed",  "approved": true, "startedAt": "...", "completedAt": "..." },
-        "develop":    { "status": "in_progress", "approved": false, "startedAt": "..." },
-        "test":       { "status": "pending",     "approved": false },
-        "quality":    { "status": "pending",     "approved": false },
-        "deploy":     { "status": "pending",     "approved": false }
-      },
-      "tdd": {
-        "step": "red",
-        "class": "CreateOrderHandler",
-        "method": "HandleAsync",
-        "testFile": "tests/OrderService.UnitTests/Application/Orders/CreateOrderHandlerTests/HandleAsyncTests.cs",
-        "scenario": "Should_ReturnError_When_ProductNotFound",
-        "scenariosCompleted": ["Should_CreateOrder_When_CommandIsValid"],
-        "scenariosPending": [
-          "Should_ReturnError_When_ProductNotFound",
-          "Should_RollbackInventory_When_PaymentFails"
-        ]
-      }
-    },
-    {
-      "id": "F002",
-      "name": "Integracion con pasarela de pago",
-      "slug": "integracion-pasarela-pago",
-      "description": "Integrar Stripe como proveedor de pagos",
-      "status": "in_progress",
-      "assignedTo": "develop",
-      "docsPath": "docs/features/F002-integracion-pasarela-pago/",
-      "branch": "feature/F002-integracion-pasarela-pago",
-      "createdAt": "2026-05-26T00:00:00Z",
-      "startedAt": "2026-05-26T02:00:00Z",
-      "phases": {
-        "analysis":   { "status": "completed",  "approved": true, "startedAt": "...", "completedAt": "..." },
-        "architect":  { "status": "pending",     "approved": false },
-        "design":     { "status": "pending",     "approved": false },
-        "scaffold":   { "status": "pending",     "approved": false },
-        "develop":    { "status": "pending",     "approved": false },
-        "test":       { "status": "pending",     "approved": false },
-        "quality":    { "status": "pending",     "approved": false },
-        "deploy":     { "status": "pending",     "approved": false }
-      }
-    }
-  ]
-}
-```
-
-### Estados validos
-
-**Fases (`phases.<fase>.status`):**
-
-| Estado | Significado |
-|--------|-------------|
-| `pending` | No se ha iniciado |
-| `in_progress` | El subagente correspondiente esta trabajando |
-| `completed` | Finalizada con exito |
-| `blocked` | Detenida por dependencia externa |
-
-**Features (`features[].status`):**
-
-| Estado | Significado |
-|--------|-------------|
-| `pending` | En backlog, no iniciada |
-| `in_progress` | Se esta implementando activamente |
-| `in_review` | Pull request creado, esperando aprobacion |
-| `done` | PR aprobado, mergeado y verificado |
-| `blocked` | Bloqueada por dependencia |
-
-## Flujo de trabajo tipico
-
-```
-1. "Crear un microservicio de catalogo de productos"
-   └─ leader -> analysis  (DDD, bounded contexts, eventos de dominio)
-
-2. (analysis completa)
-   └─ leader -> architect (docs/architecture.md, ADR, diagramas C4)
-
-3. (architect completa)
-   └─ leader -> design    (contratos, modelo de datos, patrones integracion)
-
-4. (design completa)
-   └─ leader -> scaffold  (creacion de solucion, Dockerfile, docker-compose)
-
-5. "Agregar feature: busqueda de productos por categoria"
-   └─ leader -> features  (crea rama feature/F004-busqueda-productos)
-   └─ leader -> develop   (implementacion con TDD)
-
-6. "Probar la feature F001"
-   └─ leader -> test      (unitarias, integracion, contract testing)
-
-7. "Revisar calidad del codigo"
-   └─ leader -> quality   (analisis estatico, seguridad, cobertura)
-
-8. "Preparar despliegue"
-   └─ leader -> deploy    (CI/CD pipeline, health checks)
-```
-
-## Estructura generada por `scaffold`
-
-```
-mi-proyecto/
-├── .harness-state.json
+sport-hub-connect/
+├── SportHub.slnx                        # Solucion .NET
 ├── src/
-│   ├── {Service}.Api/
-│   ├── {Service}.Application/
-│   ├── {Service}.Domain/
-│   ├── {Service}.Infrastructure/
-│   └── {Service}.Contracts/
-├── tests/
-│   ├── {Service}.UnitTests/
-│   ├── {Service}.IntegrationTests/
-│   └── {Service}.ContractTests/
-├── docs/
-│   ├── analysis/                           # Artefactos globales del proyecto
-│   │   ├── domain-model.md
-│   │   └── business-rules.md
-│   ├── architecture.md                     # ADRs, C4, stack tecnologico
-│   └── features/                           # Una carpeta por feature
-│       ├── F001-registro-usuarios-oauth2/
-│       │   ├── analysis.md
-│       │   ├── api-contract.yaml
-│       │   ├── data-model.md
-│       │   └── tasks.json
-│       └── F002-gestion-ordenes-compra/
-│           ├── analysis.md
-│           ├── api-contract.yaml
-│           ├── data-model.md
-│           └── tasks.json
-├── docker-compose.yml
-└── Dockerfile
+│   ├── Api/SportHub.Api/                # API Gateway / BFF (Minimal API + SignalR)
+│   ├── Modules/                         # 8 Bounded Contexts
+│   │   ├── Identity/                    # Usuarios, perfiles deportivos
+│   │   ├── Community/                   # Comunidades, membresias, sub-grupos
+│   │   ├── EventPlanning/               # Eventos, RSVP, check-in
+│   │   ├── Gamification/                # Insignias, XP, niveles, retos
+│   │   ├── Leaderboards/                # Rankings, SportCoins
+│   │   ├── Payments/                    # Suscripciones, Stripe
+│   │   ├── Notifications/               # Push/email/in-app, feed
+│   │   └── Integrations/                # Wearables, marketplace
+│   └── Shared/                          # Kernel compartido
+├── tests/                               # Tests (Unit, Integration, Contract, E2E)
+├── frontend/sport-hub-web/              # Next.js 16 PWA
+├── infrastructure/                      # Docker, NGINX, scripts SQL
+└── docs/                                # Documentacion, ADRs, modelo de dominio
 ```
 
-## Skills disponibles
+## Servicios
 
-Los skills se activan automaticamente segun el contexto. La plantilla incluye skills para multiples stacks. El leader resuelve cual usar segun el stack definido en `architecture.md`.
+| Servicio | Puerto | Descripcion |
+|----------|--------|-------------|
+| API Backend | 5000 | ASP.NET Core Minimal API |
+| Web Frontend | 3000 | Next.js 16 (SSR/SSG) |
+| PostgreSQL | 5432 | Base de datos principal |
+| Redis | 6379 | Cache y leaderboards |
+| RabbitMQ | 5672 | Message broker |
+| RabbitMQ UI | 15672 | Management dashboard |
+| NGINX | 80 | Reverse proxy local |
 
-| Skill | Se activa cuando |
-|-------|-----------------|
-| `dotnet-microservice` | Cualquier tarea .NET Core (stack, estructura, patrones) |
-| `tdd-dotnet` | TDD para .NET (RED-GREEN-REFACTOR con xUnit + Moq) |
-| `bdd-dotnet` | BDD para .NET (Gherkin + Reqnroll) |
-| `python-fastapi` | Desarrollo con Python + FastAPI |
-| `tdd-pytest` | TDD para Python (pytest) |
-| `bdd-python` | BDD para Python (Behave) |
-| `go-chi` | Desarrollo con Go + Chi |
-| `tdd-go` | TDD para Go (testing + testify) |
-| `spring-boot` | Desarrollo con Java + Spring Boot |
-| `tdd-junit` | TDD para Java (JUnit 5 + Mockito) |
-| `node-express` | Desarrollo con Node.js + Express |
-| `tdd-jest` | TDD para Node.js (Jest) |
-| `bdd-javascript` | BDD para Node.js (Cucumber.js) |
-| `rust-axum` | Desarrollo con Rust + Axum |
-| `tdd-rust` | TDD para Rust (cargo test) |
-| `git-flow` | Gestion de ramas y versionado (feature/*, develop, release/*) |
+## Bounded Contexts
 
-Si el stack elegido no tiene skill, el leader ofrece cargarlo de la comunidad o crearlo en conjunto.
+| Modulo | Schema PostgreSQL | Responsabilidad |
+|--------|-----------------|-----------------|
+| Identity | `identity` | Usuarios, Auth0, perfiles deportivos |
+| Community | `community` | Comunidades, membresias, roles |
+| EventPlanning | `events` | Eventos, calendarios, RSVP, check-in |
+| Gamification | `gamification` | Insignias, XP, niveles, retos |
+| Leaderboards | `economy` | Rankings, SportCoins |
+| Payments | `payments` | Suscripciones, Stripe, facturacion |
+| Notifications | `notifications` | Push, email, in-app, feed |
+| Integrations | `integrations` | Wearables, marketplace beneficios |
 
-## Reglas del proceso
+## Desarrollo
 
-- **Fases por feature**: cada feature tiene su propio tracking de fases, con trazabilidad independiente
-- **Multiples features en progreso**: se permite que mas de una feature este `in_progress` simultaneamente
-- **Una fase a la vez por feature**: dentro de una feature, no se avanza a la siguiente fase sin completar la actual
-- **Rama por feature**: `@features start` crea automaticamente `feature/{id}-{slug}` desde `develop`
-- **Git Flow**: `feature/*` -> `develop` -> `release/*` -> `main`
-- **TDD obligatorio**: RED -> GREEN -> REFACTOR en cada tarea de implementacion
-- **BDD para aceptacion**: criterios en Gherkin antes de implementar
-- **architecture.md vivo**: cada decision arquitectonica genera un ADR en `docs/architecture.md`
-- **Stack tecnologico en architecture.md**: la tecnologia y stack se definen durante la fase `design` y se persisten en `docs/architecture.md` en la seccion "Stack tecnologico". La plantilla es agnostica a tecnologias.
-- **Checklist de tareas**: generada por `design`, marcada por `develop` al completar cada tarea en `docs/features/{id}-{slug}/tasks.json`
-- **Persistencia automatica**: cada cambio de fase, feature, tarea o TDD se guarda en `.harness-state.json`
-- **Resiliencia entre sesiones**: al reabrir opencode se retoma el estado anterior, incluyendo la tarea y el paso TDD exacto
-- **Human in the Loop (HITL)**: opcional. Si esta activo, cada fase requiere aprobacion explicita del usuario antes de avanzar
+```powershell
+# Backend: Compilar y ejecutar tests
+dotnet build
+dotnet test
+
+# Backend: Ejecutar API en watch mode
+dotnet watch run --project src/Api/SportHub.Api/
+
+# Frontend: Desarrollo
+cd frontend/sport-hub-web
+npm run dev
+npm run test
+npm run lint
+
+# Docker: Entorno completo
+docker compose -f infrastructure/docker-compose.yml up -d
+docker compose -f infrastructure/docker-compose.yml down
+
+# EF Core: Migraciones (Identity como ejemplo)
+dotnet ef migrations add InitialCreate \
+  --project src/Modules/Identity/SportHub.Identity.Infrastructure \
+  --startup-project src/Api/SportHub.Api
+```
+
+## CI/CD
+
+| Pipeline | Archivo | Disparador |
+|----------|---------|-----------|
+| CI (Build + Test + Lint) | `.github/workflows/ci.yml` | Push a `develop`, `feature/*`, `hu/*` |
+| CD Staging | `.github/workflows/cd-staging.yml` | Push a `develop` |
+| CD Production | `.github/workflows/cd-production.yml` | Push a `main` o tag `v*` |
+
+## Stack tecnologico
+
+### Backend
+| Capa | Tecnologia |
+|------|-----------|
+| Runtime | .NET 10.0 LTS |
+| API | ASP.NET Core Minimal API |
+| ORM | Entity Framework Core 10 |
+| CQRS | MediatR 12 |
+| Validacion | FluentValidation |
+| Mensajeria | MassTransit + RabbitMQ |
+| Cache | Redis (IDistributedCache) |
+| Logging | Serilog |
+| Testing | xUnit + Moq + FluentAssertions + Testcontainers |
+
+### Frontend
+| Capa | Tecnologia |
+|------|-----------|
+| Framework | React 19 + TypeScript 5 |
+| Meta-framework | Next.js 16 (App Router) |
+| Estado | Zustand |
+| UI | Tailwind CSS 4 + shadcn/ui |
+| Data Fetching | TanStack Query |
+| Testing | Vitest + Testing Library + Playwright |
+
+## Licencia
+
+Propietario. Todos los derechos reservados.

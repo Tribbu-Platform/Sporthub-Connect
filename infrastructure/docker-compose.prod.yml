@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile.api
+      target: production
+    container_name: sporthub-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    env_file:
+      - .env.production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1GB
+        reservations:
+          cpus: "0.5"
+          memory: 256MB
+
+  web:
+    build:
+      context: ../frontend/sport-hub-web
+      dockerfile: Dockerfile
+      target: production
+    container_name: sporthub-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env.production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512MB
+        reservations:
+          cpus: "0.25"
+          memory: 128MB

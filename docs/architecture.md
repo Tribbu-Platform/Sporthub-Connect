@@ -16,9 +16,9 @@ El sistema sigue un modelo **freemium multi-tenant**: cada comunidad es un tenan
 Este documento define la arquitectura del sistema completo: backend, frontend, infraestructura, patrones transversales y decisiones arquitectonicas (ADRs). El alcance incluye:
 
 - **8 Bounded Contexts** siguiendo Domain-Driven Design
-- **Monorepo .NET** con estructura modular preparada para evolucion a microservicios
+- **Monorepo .NET 10 LTS** con estructura modular preparada para evolucion a microservicios
 - **API RESTful** con OpenAPI 3.0 + SignalR para comunicacion en tiempo real
-- **SPA/PWA** en React + TypeScript para frontend web
+- **SPA/PWA** en React 19 + TypeScript + Next.js 16 para frontend web
 - **Infraestructura cloud-native** con Docker, contenedores y servicios gestionados
 
 ### 1.3 Stakeholders arquitectonicos
@@ -79,16 +79,16 @@ C4Container
     System_Ext(stripe, "Stripe", "Pasarela de Pagos")
 
     Container_Boundary(platform, "SportHub Connect Platform") {
-        Container(webapp, "Web Application", "React + TypeScript + Next.js", "SPA/PWA que consume la API REST y SignalR. SSR/SSG para SEO de comunidades publicas. Service Worker para capacidades offline basicas.")
-        Container(api, "API Gateway / BFF", "ASP.NET Core 8 Minimal API + YARP", "Entry point unificado. Enruta requests a los modulos internos. Autenticacion JWT. Rate limiting. OpenAPI 3.0. SignalR hub central.")
-        Container(identity, "Identity Module", "ASP.NET Core 8 (Clean Architecture)", "Gestion de usuarios, perfiles deportivos, niveles de habilidad. Consume Auth0 para autenticacion.")
-        Container(community, "Community Module", "ASP.NET Core 8 (Clean Architecture)", "Gestion de comunidades, membresias, roles comunitarios y sub-grupos.")
-        Container(event, "Event Module", "ASP.NET Core 8 (Clean Architecture)", "Planificacion de eventos, calendario, RSVP, check-in con QR/geolocalizacion. SAGA de asistencia.")
-        Container(gamification, "Gamification Module", "ASP.NET Core 8 (Clean Architecture)", "Motor de insignias, reglas, XP, niveles y retos dinamicos. Evaluacion de BadgeRules.")
-        Container(leaderboard, "Leaderboard Module", "ASP.NET Core 8 (Clean Architecture)", "Rankings en tiempo real con Redis Sorted Sets. Gestion de SportCoins y transacciones.")
-        Container(payments, "Payments Module", "ASP.NET Core 8 (Clean Architecture)", "Suscripciones, facturacion, integracion con Stripe. Feature gating por plan.")
-        Container(notifications, "Notifications Module", "ASP.NET Core 8 (Clean Architecture)", "Envio de notificaciones push/email/in-app. Feed de actividad de comunidad. Preferencias de notificacion.")
-        Container(integrations, "Integrations Module", "ASP.NET Core 8 (Clean Architecture)", "Conexion con wearables, marketplace de beneficios y aliados comerciales.")
+        Container(webapp, "Web Application", "React 19 + TypeScript + Next.js 16", "SPA/PWA que consume la API REST y SignalR. SSR/SSG para SEO de comunidades publicas. Service Worker para capacidades offline basicas.")
+        Container(api, "API Gateway / BFF", "ASP.NET Core 10 Minimal API + YARP", "Entry point unificado. Enruta requests a los modulos internos. Autenticacion JWT. Rate limiting. OpenAPI 3.0. SignalR hub central.")
+        Container(identity, "Identity Module", "ASP.NET Core 10 (Clean Architecture)", "Gestion de usuarios, perfiles deportivos, niveles de habilidad. Consume Auth0 para autenticacion.")
+        Container(community, "Community Module", "ASP.NET Core 10 (Clean Architecture)", "Gestion de comunidades, membresias, roles comunitarios y sub-grupos.")
+        Container(event, "Event Module", "ASP.NET Core 10 (Clean Architecture)", "Planificacion de eventos, calendario, RSVP, check-in con QR/geolocalizacion. SAGA de asistencia.")
+        Container(gamification, "Gamification Module", "ASP.NET Core 10 (Clean Architecture)", "Motor de insignias, reglas, XP, niveles y retos dinamicos. Evaluacion de BadgeRules.")
+        Container(leaderboard, "Leaderboard Module", "ASP.NET Core 10 (Clean Architecture)", "Rankings en tiempo real con Redis Sorted Sets. Gestion de SportCoins y transacciones.")
+        Container(payments, "Payments Module", "ASP.NET Core 10 (Clean Architecture)", "Suscripciones, facturacion, integracion con Stripe. Feature gating por plan.")
+        Container(notifications, "Notifications Module", "ASP.NET Core 10 (Clean Architecture)", "Envio de notificaciones push/email/in-app. Feed de actividad de comunidad. Preferencias de notificacion.")
+        Container(integrations, "Integrations Module", "ASP.NET Core 10 (Clean Architecture)", "Conexion con wearables, marketplace de beneficios y aliados comerciales.")
         ContainerDb(postgres, "PostgreSQL Database", "PostgreSQL 16", "Base de datos relacional principal. Un schema por bounded context. Full-Text Search para busquedas. Row-Level Security para multi-tenant.")
         ContainerDb(redis, "Redis Cache", "Redis 7", "Cache distribuido. Sorted Sets para leaderboards en tiempo real. SignalR backplane. Pub/Sub interno.")
         ContainerDb(rabbitmq, "RabbitMQ", "RabbitMQ 3.13", "Message broker para eventos de dominio entre bounded contexts. Exchange de topicos con colas durables.")
@@ -146,7 +146,7 @@ sport-hub-connect/
 │
 ├── src/
 │   ├── Api/                                # API Gateway / BFF
-│   │   └── SportHub.Api/                   # ASP.NET Core 8 Minimal API + YARP
+│   │   └── SportHub.Api/                   # ASP.NET Core 10 Minimal API + YARP
 │   │       ├── Program.cs                  # Composition root, middleware pipeline
 │   │       ├── appsettings.json
 │   │       ├── Routes/                     # Endpoint definitions per module
@@ -223,7 +223,7 @@ sport-hub-connect/
 │   └── SportHub.E2ETests/                  # Pruebas end-to-end (Playwright + API)
 │
 ├── frontend/
-│   └── sport-hub-web/                      # React + TypeScript + Next.js PWA
+│   └── sport-hub-web/                      # React 19 + TypeScript + Next.js 16 PWA
 │       ├── src/
 │       │   ├── app/                        # Next.js App Router (pages/layouts)
 │       │   ├── components/                 # Componentes React reutilizables
@@ -318,22 +318,22 @@ Cada modulo tiene su propio `DbContext` de EF Core configurado con `HasDefaultSc
 
 | Capa | Tecnologia | Version | Justificacion | Skill |
 |------|-----------|---------|---------------|-------|
-| Runtime | .NET | 8.0 LTS | Alto rendimiento (TechEmpower top 10), tipado fuerte para dominio DDD complejo, compilacion AOT disponible, soporte empresarial LTS hasta 2026 | `dotnet-microservice` |
-| Framework API | ASP.NET Core (Minimal API) | 8.0 | Minimal APIs reducen boilerplate, excelente performance, OpenAPI 3.0 nativo con Swashbuckle/Scalar, middleware pipeline maduro | `dotnet-microservice` |
-| ORM | Entity Framework Core | 8.0 | Migraciones, change tracking, owned types para Value Objects (DDD), TPH/TPT para herencia, intercepciones, LINQ | `dotnet-microservice` |
+| Runtime | .NET | 10.0 LTS | Alto rendimiento (TechEmpower top 10), tipado fuerte para dominio DDD complejo, compilacion AOT madura, soporte empresarial LTS hasta Nov 2028 | `dotnet-microservice` |
+| Framework API | ASP.NET Core (Minimal API) | 10.0 | Minimal APIs reducen boilerplate, excelente performance, OpenAPI 3.0 nativo con Swashbuckle/Scalar, middleware pipeline maduro | `dotnet-microservice` |
+| ORM | Entity Framework Core | 10.0 | Migraciones, change tracking, owned types para Value Objects (DDD), TPH/TPT para herencia, intercepciones, LINQ | `dotnet-microservice` |
 | CQRS / Mediator | MediatR | 12.x | Separacion limpia de Commands (escritura) y Queries (lectura). Behaviors para validacion, logging, y transaction handling cross-cutting | `dotnet-microservice` |
-| Real-time | SignalR | 8.0 | WebSockets nativos con fallback a SSE/Long Polling. Leaderboards en vivo, notificaciones push, actualizaciones de RSVP | `dotnet-microservice` |
+| Real-time | SignalR | 10.0 | WebSockets nativos con fallback a SSE/Long Polling. Leaderboards en vivo, notificaciones push, actualizaciones de RSVP | `dotnet-microservice` |
 | Message Broker Client | MassTransit + RabbitMQ | 8.x + 3.13 | Abstraccion sobre RabbitMQ con soporte para sagas, retry policies, DLQ. Tipado fuerte para eventos de dominio | `dotnet-microservice` |
-| Serializacion | System.Text.Json | 8.0 | Nativo de .NET, source generators para AOT, rendimiento superior a Newtonsoft | `dotnet-microservice` |
+| Serializacion | System.Text.Json | 10.0 | Nativo de .NET, source generators para AOT, rendimiento superior a Newtonsoft | `dotnet-microservice` |
 | Validacion | FluentValidation | 11.x | Validacion declarativa de commands y DTOs. Integracion nativa con MediatR pipeline | `dotnet-microservice` |
 | Mapping | Mapster / Mapperly | 7.x / 3.x | Mapeo objeto-objeto con source generators (compilacion AOT), rendimiento superior a AutoMapper | `dotnet-microservice` |
 | Identity Provider SDK | Auth0 SDK / Microsoft.Identity.Web | — | Integracion OAuth2/OIDC con el Identity Provider externo. Validacion JWT y claims transformation | `dotnet-microservice` |
 | Gateway / Proxy | YARP (Reverse Proxy) | 2.x | Reverse proxy ligero para enrutamiento entre modulos cuando se extraigan como servicios independientes. Rate limiting integrado. | `dotnet-microservice` |
 | Observability | OpenTelemetry | 1.x | Trazas distribuidas, metricas y logs exportados a Azure Monitor/Datadog/Jaeger. Instrumentacion automatica de ASP.NET Core, EF Core, HttpClient | `dotnet-microservice` |
-| Health Checks | ASP.NET Core Health Checks | 8.0 | Liveness, readiness y startup probes. Checks para PostgreSQL, Redis, RabbitMQ y APIs externas | `dotnet-microservice` |
+| Health Checks | ASP.NET Core Health Checks | 10.0 | Liveness, readiness y startup probes. Checks para PostgreSQL, Redis, RabbitMQ y APIs externas | `dotnet-microservice` |
 | Background Jobs | Hangfire / Quartz.NET | 1.x / 3.x | Procesamiento nocturno de leaderboards, expiracion de notificaciones, envio de recordatorios de eventos | `dotnet-microservice` |
 | Testing (Unit) | xUnit + Moq + AutoFixture | 2.x + 4.x + 4.x | TDD con RED-GREEN-REFACTOR. Moq para mockeo estricto. AutoFixture para datos de prueba | `tdd-dotnet` |
-| Testing (BDD) | Reqnroll (SpecFlow fork) | 2.x | Criterios de aceptacion en Gherkin (Given-When-Then). Sucesor mantenido de SpecFlow con soporte .NET 8 | `bdd-dotnet` |
+| Testing (BDD) | Reqnroll (SpecFlow fork) | 2.x | Criterios de aceptacion en Gherkin (Given-When-Then). Sucesor mantenido de SpecFlow con soporte .NET 10 | `bdd-dotnet` |
 | Testing (Integration) | xUnit + Testcontainers | 2.x + 3.x | Testcontainers para PostgreSQL, Redis y RabbitMQ en integration tests. Tests reproducibles sin dependencias externas | `tdd-dotnet` |
 | Testing (Contract) | PactNet / custom | 4.x | Consumer-driven contract testing entre modulos | `tdd-dotnet` |
 
@@ -341,16 +341,16 @@ Cada modulo tiene su propio `DbContext` de EF Core configurado con `HasDefaultSc
 
 | Capa | Tecnologia | Version | Justificacion | Skill |
 |------|-----------|---------|---------------|-------|
-| Framework | React + TypeScript | 18.x + 5.x | Ecosistema maduro para PWAs, amplia disponibilidad de talento, SSR/SSG con Next.js, tipado fuerte | *(No hay skill especifico para frontend en `.opencode/skills/`)* |
-| Meta-framework | Next.js | 14.x | App Router, SSR para SEO de comunidades publicas, SSG para paginas estaticas, API routes como BFF ligero, optimizacion de imagenes | *(Sin skill)* |
-| Estado global | Zustand | 4.x | Ligero (1 KB), API minimalista, soporte TypeScript, sin boilerplate de Redux | *(Sin skill)* |
+| Framework | React + TypeScript | 19.x + 5.x | Ecosistema maduro para PWAs, Server Components, Actions, tipado fuerte | `react` + `typescript` |
+| Meta-framework | Next.js | 16.x | App Router, SSR/SSG, cache avanzado, Server Actions, optimizacion de imagenes | `nextjs` |
+| Estado global | Zustand | 5.x | Ligero (~1 KB), API minimalista, soporte TypeScript | *(Sin skill)* |
 | Real-time | SignalR JavaScript Client | 8.0 | Conexion WebSocket para leaderboards en vivo, notificaciones push, actualizaciones de eventos | *(Sin skill)* |
-| UI Components | shadcn/ui + Tailwind CSS | — + 3.x | Componentes accesibles (WCAG 2.1 AA), personalizables, tailwind para estilos utilitarios | *(Sin skill)* |
-| Data Fetching | TanStack Query (React Query) | 5.x | Cache, refetching, paginacion infinita, mutaciones optimistas. Integracion con SignalR para invalidacion de cache | *(Sin skill)* |
-| Formularios | React Hook Form + Zod | 7.x + 3.x | Manejo de formularios con validacion de esquema Zod. Tipos inferidos automaticamente | *(Sin skill)* |
-| Testing | Vitest + Testing Library | 1.x + 14.x | Tests unitarios y de componentes. Vitest es compatible con el ecosistema Vite y significativamente mas rapido que Jest | *(Sin skill)* |
-| E2E | Playwright | 1.x | Tests end-to-end cross-browser. Soporte para PWA, geolocalizacion mock, y parallel execution | *(Sin skill)* |
-| PWA | next-pwa + Workbox | — + 7.x | Service worker, cache offline, instalacion como app nativa. Workbox para estrategias de cache | *(Sin skill)* |
+| UI Components | shadcn/ui + Tailwind CSS | — + 4.x | Componentes accesibles (WCAG 2.1 AA), personalizables, tailwind para estilos utilitarios | `shadcn` + `tailwind` |
+| Data Fetching | TanStack Query (React Query) | 5.x | Cache, refetching, paginacion infinita, mutaciones optimistas. Integracion con SignalR para invalidacion de cache | `tanstack-query` |
+| Formularios | React Hook Form + Zod | 7.x + 3.x | Manejo de formularios con validacion de esquema Zod. Tipos inferidos automaticamente | `react-hook-form` + `zod` |
+| Testing | Vitest + Testing Library | 2.x + 16.x | Tests unitarios y de componentes. Compatible con ecosistema Vite. Mas rapido que Jest | `vitest` |
+| E2E | Playwright | 1.x | Tests end-to-end cross-browser. PWA, geolocalizacion mock, parallel execution | `playwright` |
+| PWA | next-pwa + Workbox | — + 7.x | Service worker, cache offline, instalacion como app nativa | *(Sin skill)* |
 
 ### 5.3 Infraestructura y DevOps
 
@@ -367,7 +367,7 @@ Cada modulo tiene su propio `DbContext` de EF Core configurado con `HasDefaultSc
 
 ### Nota sobre skills de frontend
 
-Los skills disponibles en `.opencode/skills/` cubren exclusivamente stacks backend. Para el frontend React + TypeScript, no existe un skill especifico. Esto implica que las tareas de frontend requeriran instrucciones manuales o la creacion de un skill `react-pwa` en el futuro. Las tareas de backend estan completamente cubiertas por `dotnet-microservice`, `tdd-dotnet` y `bdd-dotnet`.
+Los skills de frontend estan completamente cubiertos: 18 skills de `Pythoughts-labs/react-frontend-skills` (React 19, Next.js 16, TypeScript, Tailwind v4, shadcn/ui, TanStack Query, React Hook Form, Zod, Vitest, Playwright, MSW, TDD, feature-arch) + 2 skills complementarios (`react-architecture-checklist`, `react-security-review`). Las tareas de backend estan cubiertas por `dotnet-microservice`, `tdd-dotnet`, `bdd-dotnet`, `ef-migration-manager`, `dotnet-architecture-checklist`, `dotnet-security-review` y `minimal-api-scaffolder`.
 
 ---
 
@@ -525,6 +525,56 @@ ALTER ROLE sport_hub_app SET search_path = identity, community, events, gamifica
 
 ---
 
+### ADR-004: Quality Gate local con Roslyn Analyzers (sin SonarQube server)
+
+**Estado**: Aceptado
+**Fecha**: 2026-07-17
+
+**Contexto**:
+El proyecto requiere analisis estatico de codigo, seguridad y calidad para cada feature y user story durante la fase `quality` del pipeline. Existen dos enfoques principales:
+
+1. **SonarQube Community Edition en contenedor**: Servidor SonarQube local con PostgreSQL dedicado, `dotnet-sonarscanner` para enviar resultados. Requiere ~2GB RAM, Elasticsearch, y mantenimiento de infraestructura adicional.
+2. **Roslyn Analyzers en build (sin servidor)**: Analisis estatico integrado en el compilador via `Directory.Build.props` y `.editorconfig`. Los resultados se obtienen directamente en `dotnet build`. Sin infraestructura adicional.
+
+**Decision**:
+Se elige la **opcion 2: Roslyn Analyzers sin servidor SonarQube**, complementado con un script `quality-gate.ps1` unificado.
+
+**Justificacion**:
+- **Simplicidad**: No requiere infraestructura adicional. El analisis ocurre en cada `dotnet build`.
+- **Inmediatez**: Los desarrolladores ven los issues en tiempo real en el IDE (Visual Studio / Rider / VS Code con C# Dev Kit).
+- **CI/CD nativo**: Los mismos analyzers corren en GitHub Actions sin necesidad de un servicio externo.
+- **Personalizacion granular**: `.editorconfig` permite configurar severidad por regla (error, warning, suggestion) con granularidad de proyecto.
+- **Costo cero**: No consume recursos adicionales en el entorno de desarrollo.
+- **Alineado con el pipeline Harness**: La fase `quality` de cada HU ejecuta `quality-gate.ps1` que incluye Roslyn Analyzers, tests, SCA y formateo.
+
+**Configuracion implementada**:
+
+| Componente | Detalle |
+|-----------|---------|
+| `Directory.Build.props` | `<AnalysisLevel>latest-all</AnalysisLevel>`, `<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>`, `SonarAnalyzer.CSharp` v10.9.0 global |
+| `.editorconfig` | 60+ reglas de seguridad CA5350-CA5403 como **error**, 40+ reglas Sonar como error/warning, 30+ reglas de calidad como warning/suggestion |
+| `scripts/quality-gate.ps1` | Script unificado: formateo → Roslyn build → tests → SCA. Exit code 0/1 compatible con CI/CD |
+| `docs/quality/baseline/` | Baseline de calidad inicial (2026-07-17) para comparar evolucion |
+
+**Quality Gates configurados**:
+
+| Metrica | Herramienta | Umbral |
+|---------|-------------|--------|
+| Complejidad ciclomatica | SonarAnalyzer S1541 | < 10 |
+| Complejidad cognitiva | SonarAnalyzer S3776 | < 15 |
+| Parametros por metodo | SonarAnalyzer S107 | < 7 |
+| Profundidad de herencia | SonarAnalyzer S110 | < 5 |
+| Duplicacion | Revision manual en PR | < 3% |
+| Cobertura de tests | coverlet / c8 | >= 70% |
+| Vulnerabilidades | `dotnet list package --vulnerable` / `npm audit` | 0 high/critical |
+
+**Consecuencias**:
+- **Positivas**: Sin infraestructura adicional. Feedback inmediato en IDE. CI/CD simple (sin servicio externo). Facil de mantener (puro config en repositorio). Alineado con la filosofia "todo en codigo" del proyecto.
+- **Negativas**: Sin dashboard centralizado de calidad historica (mitigado con baseline JSON en `docs/quality/baseline/`). Sin analisis de duplicacion automatico (mitigado con revision en PR). Sin soporte para multiples lenguajes en un mismo dashboard.
+- **Riesgos**: Si el proyecto crece a 20+ desarrolladores, puede ser necesario migrar a SonarQube para obtener dashboards historicos. La migracion es trivial: agregar `dotnet-sonarscanner` al pipeline sin cambiar las reglas.
+
+---
+
 ## 7. Patrones transversales
 
 ### 7.1 Autenticacion y Autorizacion
@@ -613,7 +663,7 @@ La piramide de testing de SportHub Connect sigue los principios de la **piramide
 | TC-01 | PWA first, no app nativa en MVP | La plataforma debe funcionar como PWA con soporte offline basico (cache de eventos, perfil). No se desarrolla app nativa movil en v1.0. El diseño debe ser responsive y mobile-first. | El frontend debe implementar Service Worker con Workbox. No se requiere soporte para funcionalidades nativas (push notifications nativas, deep links, biometrics) en MVP. |
 | TC-02 | Navegadores soportados | Chrome, Firefox, Safari, Edge (ultimas 2 versiones principales). Soporte movil completo. | Limita APIs web utilizables (sin Web Bluetooth, sin Web NFC). Polyfills solo cuando sea estrictamente necesario. |
 | TC-03 | API RESTful con OpenAPI 3.0 | Toda la API debe documentarse en OpenAPI 3.0 (Swagger/Scalar). Los contratos se definen antes de implementar (API-first). | Los DTOs deben tener anotaciones Swagger o usar Scalar para documentacion interactiva. El API Gateway es el unico punto de entrada externo. |
-| TC-04 | Monorepo .NET unico | Todo el backend se desarrolla en una unica solucion .NET 8. | Estructura de proyectos estandarizada por modulo. CI/CD unificado. Versionado unico con SemVer. |
+| TC-04 | Monorepo .NET unico | Todo el backend se desarrolla en una unica solucion .NET 10. | Estructura de proyectos estandarizada por modulo. CI/CD unificado. Versionado unico con SemVer. |
 | TC-05 | Desarrollo local con Docker | El entorno de desarrollo requiere Docker Compose con PostgreSQL, Redis, RabbitMQ y la API. | Los desarrolladores necesitan Docker Desktop. Los integration tests usan Testcontainers (no requieren Docker Compose). |
 
 ### 8.2 Restricciones de compliance

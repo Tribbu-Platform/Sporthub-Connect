@@ -1,0 +1,33 @@
+{
+  "baseline": "2026-07-17",
+  "project": "SportHub Connect",
+  "phase": "Post-Inception (Walking Skeleton)",
+  "modulesActive": ["Identity", "Community"],
+  "modulesPending": ["EventPlanning", "Gamification", "Leaderboards", "Payments", "Notifications", "Integrations"],
+  "backend": {
+    "architecture": { "grade": "C", "critical": 7, "high": 10, "medium": 11, "low": 1 },
+    "security": { "grade": "D", "critical": 4, "high": 15, "medium": 10, "low": 4 }
+  },
+  "frontend": {
+    "architecture": { "grade": "B", "critical": 0, "high": 2, "medium": 9, "low": 6 },
+    "security": { "grade": "C", "critical": 2, "high": 4, "medium": 4, "low": 3 }
+  },
+  "dependencies": {
+    "nuget": { "high": 2, "critical": 0, "details": ["Microsoft.OpenApi 2.0.0 (GHSA-v5pm-xwqc-g5wc)", "SQLitePCLRaw.lib.e_sqlite3 2.1.11 (GHSA-2m69-gcr7-jv3q)"] },
+    "npm": { "high": 0, "critical": 0, "moderate": 2, "details": ["postcss <8.5.10 (GHSA-qx2v-qp2m-jg93 via next)"] }
+  },
+  "qualityGates": {
+    "roslynAnalyzers": "SonarAnalyzer.CSharp 10.9.0 + .NET latest-all",
+    "formatCheck": "dotnet format --verify-no-changes",
+    "tests": "dotnet test + vitest --coverage",
+    "sca": "dotnet list package --vulnerable + npm audit --audit-level=high",
+    "script": "scripts/quality-gate.ps1"
+  },
+  "targets": {
+    "backendArchitectureGrade": "A",
+    "backendSecurityGrade": "B",
+    "frontendArchitectureGrade": "A",
+    "frontendSecurityGrade": "B",
+    "testCoverage": ">=70%"
+  }
+}

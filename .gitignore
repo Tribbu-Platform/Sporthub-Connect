@@ -1,0 +1,148 @@
+# ============================================================
+# .gitignore - SportHub Connect
+# .NET + Node.js + Docker monorepo
+# ============================================================
+
+# ============================================================
+# .NET
+# ============================================================
+[Oo]bj/
+[Bb]in/
+*.user
+*.suo
+*.userprefs
+*.userosscache
+*.sln.docstates
+*.sln.cache
+*.sln.ide/
+.vs/
+*.user
+*.rsuser
+
+# NuGet
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nupkg
+**/[Pp]ackages/repositories.config
+nuget.exe
+*.nuget.props
+*.nuget.targets
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json
+
+# Entity Framework
+*.jfm
+*.dbmdl
+*.mdf
+*.ldf
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ============================================================
+# Node.js / Frontend
+# ============================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+frontend/sport-hub-web/.next/
+frontend/sport-hub-web/out/
+
+# Build output
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env*.local
+!.env.example
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Coverage
+coverage/
+*.lcov
+
+# Playwright
+playwright-report/
+test-results/
+frontend/sport-hub-web/playwright-report/
+frontend/sport-hub-web/test-results/
+
+# ============================================================
+# Docker
+# ============================================================
+docker-compose.override.yml
+*.dockerignore
+
+# ============================================================
+# Terraform / IaC
+# ============================================================
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.plan
+
+# ============================================================
+# Test Results
+# ============================================================
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# ============================================================
+# Logs
+# ============================================================
+logs/
+*.log
+serilog/
+
+# ============================================================
+# Secrets & Certificates
+# ============================================================
+*.pfx
+*.pem
+*.key
+*.crt
+secrets.json
+appsettings.*.local.json
+
+# ============================================================
+# Temporary
+# ============================================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+~$*
+
+# graphify-axet
+.graphify/

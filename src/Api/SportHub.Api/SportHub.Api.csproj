@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Identity\SportHub.Identity.Infrastructure\SportHub.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Identity\SportHub.Identity.Application\SportHub.Identity.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Community\SportHub.Community.Infrastructure\SportHub.Community.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Community\SportHub.Community.Application\SportHub.Community.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\EventPlanning\SportHub.EventPlanning.Infrastructure\SportHub.EventPlanning.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\EventPlanning\SportHub.EventPlanning.Application\SportHub.EventPlanning.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Gamification\SportHub.Gamification.Infrastructure\SportHub.Gamification.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Gamification\SportHub.Gamification.Application\SportHub.Gamification.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Leaderboards\SportHub.Leaderboards.Infrastructure\SportHub.Leaderboards.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Leaderboards\SportHub.Leaderboards.Application\SportHub.Leaderboards.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Payments\SportHub.Payments.Infrastructure\SportHub.Payments.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Payments\SportHub.Payments.Application\SportHub.Payments.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\SportHub.Notifications.Infrastructure\SportHub.Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\SportHub.Notifications.Application\SportHub.Notifications.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Integrations\SportHub.Integrations.Infrastructure\SportHub.Integrations.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Integrations\SportHub.Integrations.Application\SportHub.Integrations.Application.csproj" />
+    <ProjectReference Include="..\..\Shared\SportHub.Shared.Infrastructure\SportHub.Shared.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Shared\SportHub.Shared.Abstractions\SportHub.Shared.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
