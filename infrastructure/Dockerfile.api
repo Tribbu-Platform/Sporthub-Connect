@@ -67,9 +67,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS production
 WORKDIR /app
 EXPOSE 8080
 
-# Create non-root user
-RUN addgroup --system --gid 1000 sporthub \
-    && adduser --system --uid 1000 --gid 1000 sporthub
+# Install curl for health checks and create non-root user
+RUN apt-get update && apt-get install -y curl --no-install-recommends && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 1000 sporthub \
+    && useradd --system --uid 1000 --gid 1000 sporthub
 
 COPY --from=build /app/publish ./
 RUN chown -R sporthub:sporthub /app
