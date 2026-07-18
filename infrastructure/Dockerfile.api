@@ -70,9 +70,9 @@ EXPOSE 8080
 # Copy curl from SDK image (avoids apt-get issues with Ubuntu repos)
 COPY --from=build /usr/bin/curl /usr/bin/curl
 
-# Create non-root user (UID/GID 1654 to avoid conflicts with pre-existing users in aspnet image)
-RUN groupadd --system --gid 1654 sporthub \
-    && useradd --system --uid 1654 --gid 1654 sporthub
+# Create non-root user (no explicit GID/UID — let system assign to avoid conflicts with built-in app user)
+RUN groupadd --system sporthub \
+    && useradd --system --gid sporthub sporthub
 
 COPY --from=build /app/publish ./
 RUN chown -R sporthub:sporthub /app
