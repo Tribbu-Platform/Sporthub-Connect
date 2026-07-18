@@ -1,0 +1,22 @@
+# ============================================================
+# .gitattributes - SportHub Connect
+# Line ending normalization
+# ============================================================
+
+# Normalize all text files to LF in the repo
+* text=auto eol=lf
+
+# Specific binary types
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.zip binary
+*.tar.gz binary
+*.pdf binary
