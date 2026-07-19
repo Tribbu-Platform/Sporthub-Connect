@@ -19,7 +19,7 @@ on:
     types:
       - completed
     branches:
-      - main
+      - master
       - develop
       - 'release/*'
   workflow_dispatch:
@@ -92,7 +92,7 @@ jobs:
             release/*)
               ENVIRONMENT="staging"
               ;;
-            main)
+            master)
               ENVIRONMENT="production"
               ;;
             *)
@@ -235,7 +235,7 @@ jobs:
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
   # ============================================================
-  # PRODUCTION — main
+  # PRODUCTION — master
   # ============================================================
   production:
     name: Deploy to Production

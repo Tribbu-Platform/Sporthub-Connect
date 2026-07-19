@@ -12,9 +12,9 @@ name: CI
 
 on:
   push:
-    branches: [main, develop, 'release/*']
+    branches: [master, develop, 'release/*']
   pull_request:
-    branches: [main, develop]
+    branches: [master, develop]
 
 env:
   DOTNET_VERSION: '10.0.x'
@@ -109,7 +109,7 @@ jobs:
     # Solo publica en push a branches principales (no en PRs)
     if: >
       github.event_name == 'push' &&
-      (github.ref_name == 'main' || github.ref_name == 'develop' || startsWith(github.ref_name, 'release/'))
+      (github.ref_name == 'master' || github.ref_name == 'develop' || startsWith(github.ref_name, 'release/'))
 
     permissions:
       contents: read
@@ -127,7 +127,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-,format=short
-            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'master' }}
 
       - name: Generate Docker metadata (Web)
         id: meta-web
@@ -137,7 +137,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-,format=short
-            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'master' }}
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
