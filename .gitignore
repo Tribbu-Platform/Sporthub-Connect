@@ -133,6 +133,7 @@ serilog/
 *.crt
 secrets.json
 appsettings.*.local.json
+*.direct.json
 
 # ============================================================
 # Temporary

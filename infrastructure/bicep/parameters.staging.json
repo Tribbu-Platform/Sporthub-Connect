@@ -1,0 +1,98 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "staging"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "redisSku": {
+      "value": "Standard"
+    },
+    "redisFamily": {
+      "value": "C"
+    },
+    "redisCapacity": {
+      "value": 1
+    },
+    "apiMinReplicas": {
+      "value": 0
+    },
+    "apiMaxReplicas": {
+      "value": 3
+    },
+    "webMinReplicas": {
+      "value": 0
+    },
+    "webMaxReplicas": {
+      "value": 3
+    },
+    "apiImageTag": {
+      "value": "staging"
+    },
+    "webImageTag": {
+      "value": "staging"
+    },
+    "nextPublicApiUrl": {
+      "value": ""
+    },
+    "postgresAdminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/SUBSCRIPTION_ID/resourceGroups/rg-sporthub-staging/providers/Microsoft.KeyVault/vaults/kv-sporthub-staging"
+        },
+        "secretName": "postgres-admin-password"
+      }
+    },
+    "ghcrUsername": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/SUBSCRIPTION_ID/resourceGroups/rg-sporthub-staging/providers/Microsoft.KeyVault/vaults/kv-sporthub-staging"
+        },
+        "secretName": "ghcr-username"
+      }
+    },
+    "ghcrPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/SUBSCRIPTION_ID/resourceGroups/rg-sporthub-staging/providers/Microsoft.KeyVault/vaults/kv-sporthub-staging"
+        },
+        "secretName": "ghcr-password"
+      }
+    },
+    "auth0Domain": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/SUBSCRIPTION_ID/resourceGroups/rg-sporthub-staging/providers/Microsoft.KeyVault/vaults/kv-sporthub-staging"
+        },
+        "secretName": "auth0-domain"
+      }
+    },
+    "auth0Audience": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/SUBSCRIPTION_ID/resourceGroups/rg-sporthub-staging/providers/Microsoft.KeyVault/vaults/kv-sporthub-staging"
+        },
+        "secretName": "auth0-audience"
+      }
+    },
+    "auth0ClientId": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/SUBSCRIPTION_ID/resourceGroups/rg-sporthub-staging/providers/Microsoft.KeyVault/vaults/kv-sporthub-staging"
+        },
+        "secretName": "auth0-client-id"
+      }
+    },
+    "auth0ClientSecret": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/SUBSCRIPTION_ID/resourceGroups/rg-sporthub-staging/providers/Microsoft.KeyVault/vaults/kv-sporthub-staging"
+        },
+        "secretName": "auth0-client-secret"
+      }
+    }
+  }
+}

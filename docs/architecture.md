@@ -749,6 +749,128 @@ El roadmap arquitectonico de SportHub Connect sigue una evolucion en 3 fases, al
 
 ---
 
+## 10. Preview Environments por User Story
+
+### 10.1 Estrategia
+
+Cada rama `hu/*` genera un **entorno de preview aislado** en Azure Container Apps, permitiendo a desarrolladores y QA probar cada HU en un entorno con URL pública antes de mergear a la feature.
+
+| Aspecto | Decision |
+|---------|----------|
+| **Modelo** | Container Apps dedicados por HU (API + Web) |
+| **Infraestructura compartida** | ACA Environment, PostgreSQL, Redis y Service Bus de staging |
+| **Ciclo de vida** | Automático: crear en push/PR → destruir al mergear/cerrar PR |
+| **Costo** | Mínimo (~$5-10/preview/mes). Escala a 0 cuando no se usa |
+| **Aislamiento de datos** | Misma BD staging, datos creados durante testing (cleanup manual o vía API) |
+
+### 10.2 Naming
+
+```
+Branch: hu/F001-US-001-registro-google-oauth2
+  → safe name: hu-f001-us-001-registro-google (32 chars max)
+  → Container App API:  ca-preview-hu-f001-us-001-api
+  → Container App Web:  ca-preview-hu-f001-us-001-web
+  → Image tag:          preview-hu-f001-us-001-a1b2c3d
+```
+
+### 10.3 Flujo CI/CD
+
+```
+1. Developer pushes to hu/F001-US-001-*
+   └─ GitHub Actions: preview.yml
+       ├── Build API image → ghcr.io/.../api:preview-{branch}-{sha}
+       ├── Build Web image → ghcr.io/.../web:preview-{branch}-{sha}
+       ├── Create Container Apps (API + Web) en ACA
+       │   ├── API: ingress externo, puerto 8080, probes /health
+       │   └── Web: ingress externo, puerto 3000, NEXT_PUBLIC_API_URL apunta al preview API
+       ├── Esperar health checks (hasta 3 min)
+       └── Comentar en PR: URLs de preview
+
+2. Developer actualiza la rama
+   └── preview.yml detecta que ya existe → az containerapp update (nuevas imágenes)
+
+3. PR es mergeado/cerrado
+   └── preview.yml detecta action=closed
+       ├── az containerapp delete (API + Web)
+       └── Comentario en PR: "Preview destroyed"
+```
+
+### 10.4 Arquitectura del preview
+
+```mermaid
+graph TB
+    subgraph "Azure Container Apps Environment (staging)"
+        subgraph "Staging (permanente)"
+            CA_STG_API["ca-sport-staging-api"]
+            CA_STG_WEB["ca-sport-staging-web"]
+        end
+        
+        subgraph "Preview HU-001"
+            CA_PRV1_API["ca-preview-hu-f001-us-001-api"]
+            CA_PRV1_WEB["ca-preview-hu-f001-us-001-web"]
+        end
+        
+        subgraph "Preview HU-002"
+            CA_PRV2_API["ca-preview-hu-f002-us-002-api"]
+            CA_PRV2_WEB["ca-preview-hu-f002-us-002-web"]
+        end
+    end
+    
+    subgraph "Servicios Compartidos"
+        PG[("PostgreSQL staging")]
+        RD[("Redis staging")]
+        SB[("Service Bus staging")]
+    end
+    
+    CA_PRV1_API --- PG
+    CA_PRV1_API --- RD
+    CA_PRV1_API --- SB
+    CA_PRV1_WEB --> CA_PRV1_API
+    
+    CA_PRV2_API --- PG
+    CA_PRV2_API --- RD
+    CA_PRV2_API --- SB
+    CA_PRV2_WEB --> CA_PRV2_API
+    
+    CA_STG_API --- PG
+    CA_STG_API --- RD
+    CA_STG_API --- SB
+    CA_STG_WEB --> CA_STG_API
+```
+
+### 10.5 Responsabilidades
+
+| Actor | Responsabilidad |
+|-------|----------------|
+| **Workflow `preview.yml`** | Orquestar build, deploy y destroy de previews. Comentar URLs en PR |
+| **Script `deploy-preview.ps1`** | Crear/configurar o eliminar Container Apps de preview |
+| **Developer** | Crear rama `hu/*`, hacer push, abrir PR. No gestiona infraestructura |
+| **Revisor de PR** | Acceder a URLs de preview para validar la HU antes de aprobar |
+| **QA** | Ejecutar pruebas funcionales/E2E contra las URLs de preview |
+
+### 10.6 Limitaciones
+
+| Limitacion | Mitigacion |
+|------------|------------|
+| **Datos compartidos con staging** | Los previews comparten la misma BD. Los datos creados durante testing pueden persistir. Se recomienda usar datos con prefijo `test-{huId}` |
+| **Sin aislamiento de performance** | Un preview con carga pesada puede afectar a otros previews y a staging. Mitigado con CPU/Memory limits por container |
+| **Sin secrets propios** | Los previews usan los mismos secrets que staging. No apto para pruebas de seguridad/penetration |
+| **Timeout de idle (0 réplicas)** | El primer request tras inactividad puede tardar ~10-30s (cold start) |
+| **Límite de Container Apps por Environment** | Azure permite hasta 30 Container Apps por Environment. Con ~10 HUs simultáneas, es suficiente |
+
+### 10.7 Costos
+
+| Recurso | Costo/Preview/mes |
+|---------|------------------|
+| Container App API (0.5 CPU / 1GB, escala a 0) | ~$3-5 |
+| Container App Web (0.25 CPU / 0.5GB, escala a 0) | ~$1-3 |
+| **Total por preview** | **~$4-8/mes** |
+| **10 previews simultáneos** | **~$40-80/mes** |
+
+> Los previews escalan a 0 réplicas cuando no reciben tráfico durante 5 minutos, por lo que el costo real suele ser menor.
+
+---
+
 ## Apendice A: Referencias
 
 | Documento | Ubicacion |
