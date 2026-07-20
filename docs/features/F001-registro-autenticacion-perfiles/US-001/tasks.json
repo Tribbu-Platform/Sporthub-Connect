@@ -282,6 +282,67 @@
       "files": [
         "frontend/sport-hub-web/e2e/register.spec.ts"
       ]
+    },
+    {
+      "id": "T024",
+      "layer": "BDD",
+      "title": "Crear feature file Gherkin para registro con email",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear archivo .feature con los 7 escenarios Gherkin de US-001 en tests/SportHub.Identity.AcceptanceTests/Features/Register.feature. Incluir Feature, Background con datos comunes, y todos los escenarios con Given/When/Then.",
+      "files": [
+        "tests/SportHub.Identity.AcceptanceTests/Features/Register.feature"
+      ]
+    },
+    {
+      "id": "T025",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para registro exitoso",
+      "status": "pending",
+      "dependsOn": ["T024", "T001", "T008"],
+      "tddStep": null,
+      "description": "Implementar step definitions en Steps/RegisterSteps.cs para los escenarios de registro exitoso y email duplicado. Incluir: Given/When/Then para creacion de usuario, verificacion de email unico, y respuesta del sistema. Usar Reqnroll [Binding] attributes y DI para inyectar dependencias.",
+      "files": [
+        "tests/SportHub.Identity.AcceptanceTests/Steps/RegisterSteps.cs"
+      ]
+    },
+    {
+      "id": "T026",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para validacion de password",
+      "status": "pending",
+      "dependsOn": ["T024", "T002", "T003"],
+      "tddStep": null,
+      "description": "Implementar step definitions para escenarios de validacion de password: corta, sin caracter especial. Verificar que el sistema rechaza con los codigos de error correctos.",
+      "files": [
+        "tests/SportHub.Identity.AcceptanceTests/Steps/PasswordValidationSteps.cs"
+      ]
+    },
+    {
+      "id": "T027",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para validacion de email y campos vacios",
+      "status": "pending",
+      "dependsOn": ["T024", "T002"],
+      "tddStep": null,
+      "description": "Implementar step definitions para escenarios: email invalido, campos vacios. Verificar errores de validacion del sistema.",
+      "files": [
+        "tests/SportHub.Identity.AcceptanceTests/Steps/EmailValidationSteps.cs"
+      ]
+    },
+    {
+      "id": "T028",
+      "layer": "BDD",
+      "title": "Configurar proyecto de tests BDD con Reqnroll + xUnit",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Crear proyecto SportHub.Identity.AcceptanceTests con xUnit + Reqnroll. Agregar paquetes NuGet: Reqnroll, Reqnroll.xUnit, Reqnroll.Microsoft.Extensions.DependencyInjection. Configurar Reqnroll.json con binding cultures. Configurar DI via Hooks con dependencias reales o mocks segun el escenario.",
+      "files": [
+        "tests/SportHub.Identity.AcceptanceTests/SportHub.Identity.AcceptanceTests.csproj",
+        "tests/SportHub.Identity.AcceptanceTests/reqnroll.json"
+      ]
     }
   ]
 }

@@ -44,9 +44,13 @@ Generar `docs/features/{id}-{slug}/data-model.md`.
 
 ### 5. Checklist de tareas por HU
 
-Al finalizar el diseno, generas un `tasks.json` **por cada HU** de la feature. Las tareas se desglosan por tier (Backend / Frontend) y layer (capa especifica). Cada tarea debe ser accionable por `develop` en un ciclo TDD.
+Al finalizar el diseno, generas un `tasks.json` **por cada HU** de la feature. Usa la plantilla en `templates/design/tasks.json` como base — esta define la estructura, tiers (Backend, Frontend, BDD) y layers esperados.
+
+Las tareas se desglosan por tier y layer. Cada tarea debe ser accionable por `develop` en un ciclo TDD.
 
 Ubicacion: `docs/features/{id}-{slug}/US-{huId}/tasks.json`
+
+**Importante**: Siempre incluir tareas BDD (T011-T013 del template) para automatizar los escenarios Gherkin definidos en `user-stories.md`.
 
 #### Tiers
 
@@ -54,6 +58,7 @@ Ubicacion: `docs/features/{id}-{slug}/US-{huId}/tasks.json`
 |------|-------------|--------|
 | `Backend` | API, logica de negocio, persistencia, integraciones | Domain, Application, Infrastructure, Api |
 | `Frontend` | UI, componentes, paginas, estado, consumo de APIs | Components, Pages, State, Services, Routing |
+| `BDD` | Automatizacion de criterios de aceptacion Gherkin (Given-When-Then) con Reqnroll | BDD |
 
 #### Backend — Origen y tareas por capa
 
@@ -80,7 +85,24 @@ Ubicacion: `docs/features/{id}-{slug}/US-{huId}/tasks.json`
 | Store / Estado | Crear store/slice con acciones, reducers, selectores | State |
 | Ruta | Configurar ruta con lazy loading y guards | Routing |
 
-Ejemplo de `tasks.json` con ambos tiers:
+#### BDD — Automatizacion de criterios de aceptacion
+
+**IMPORTANTE**: Siempre debes incluir tareas BDD para **todas las HUs** que tengan escenarios Gherkin definidos en `user-stories.md`. Las tareas BDD automatizan esos escenarios usando Reqnroll.
+
+| Origen | Tareas tipicas | Layer |
+|--------|---------------|-------|
+| Feature file | Crear archivo .feature con escenarios Gherkin de la HU (Given/When/Then del user-stories.md) | BDD |
+| Step Definitions | Implementar step definitions (clases con [Binding]) que conectan el Gherkin con el sistema | BDD |
+| Hooks / DI | Configurar hooks de Reqnroll (BeforeScenario, AfterScenario) e inyeccion de dependencias | BDD |
+| Proyecto tests | Crear o configurar proyecto xUnit + Reqnroll con paquetes NuGet | BDD |
+
+Reglas para generar tareas BDD:
+1. **Una tarea por archivo .feature** — cada HU genera su propio feature file
+2. **Una tarea por grupo de step definitions** — agrupar steps relacionados (ej. "Steps para registro exitoso", "Steps para validacion")
+3. **Configuracion de proyecto** — si es la primera HU de la feature con BDD, incluir tarea para crear/actualizar el proyecto de acceptance tests
+4. **Dependencias**: las tareas BDD dependen de que existan las entidades de dominio y los handlers de application (para que los steps puedan invocar la logica real)
+
+Ejemplo de `tasks.json` con todos los tiers (Backend, Frontend, BDD):
 
 ```json
 {
@@ -88,14 +110,16 @@ Ejemplo de `tasks.json` con ambos tiers:
   "huId": "US-001",
   "huTitle": "Registro con Google OAuth2",
   "tasks": [
-    { "id": "T001", "tier": "Backend",  "description": "Crear entidad OAuthToken con factory method Create()", "layer": "Domain", "status": "pending" },
-    { "id": "T002", "tier": "Backend",  "description": "Crear Value Object OAuthCode", "layer": "Domain", "status": "pending" },
-    { "id": "T003", "tier": "Backend",  "description": "Implementar GoogleOAuthHandler", "layer": "Application", "status": "pending" },
-    { "id": "T004", "tier": "Backend",  "description": "Implementar GoogleOAuthClient (infra)", "layer": "Infrastructure", "status": "pending" },
-    { "id": "T005", "tier": "Backend",  "description": "Exponer POST /api/auth/google", "layer": "Api", "status": "pending" },
-    { "id": "T006", "tier": "Frontend", "description": "Crear componente GoogleLoginButton con estados loading/error", "layer": "Components", "status": "pending" },
-    { "id": "T007", "tier": "Frontend", "description": "Crear pagina LoginPage con layout y consumo del endpoint", "layer": "Pages", "status": "pending" },
-    { "id": "T008", "tier": "Frontend", "description": "Crear servicio authApiClient con metodo loginWithGoogle()", "layer": "Services", "status": "pending" }
+    { "id": "T001", "tier": "Backend",  "description": "Crear entidad OAuthToken con factory method Create()",                    "layer": "Domain",        "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T002", "tier": "Backend",  "description": "Crear Value Object OAuthCode",                                            "layer": "Domain",        "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T003", "tier": "Backend",  "description": "Implementar GoogleOAuthHandler",                                         "layer": "Application",   "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T004", "tier": "Backend",  "description": "Implementar GoogleOAuthClient (infra)",                                  "layer": "Infrastructure", "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T005", "tier": "Backend",  "description": "Exponer POST /api/auth/google",                                          "layer": "Api",            "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T006", "tier": "Frontend", "description": "Crear componente GoogleLoginButton con estados loading/error",           "layer": "Components",    "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T007", "tier": "Frontend", "description": "Crear pagina LoginPage con layout y consumo del endpoint",               "layer": "Pages",          "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T008", "tier": "Frontend", "description": "Crear servicio authApiClient con metodo loginWithGoogle()",              "layer": "Services",      "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T009", "tier": "BDD",      "description": "Crear archivo .feature con escenarios Gherkin de login OAuth",           "layer": "BDD",            "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T010", "tier": "BDD",      "description": "Implementar step definitions para login OAuth exitoso y errores",        "layer": "BDD",            "status": "pending", "testFile": null, "startedAt": null, "completedAt": null }
   ]
 }
 ```

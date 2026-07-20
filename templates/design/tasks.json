@@ -109,6 +109,36 @@
       "testFile": null,
       "startedAt": null,
       "completedAt": null
+    },
+    {
+      "id": "T011",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con escenarios Gherkin de la HU (Given/When/Then desde user-stories.md)",
+      "layer": "BDD",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T012",
+      "tier": "BDD",
+      "description": "Implementar step definitions con [Binding] para escenarios de {nombre flujo}",
+      "layer": "BDD",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T013",
+      "tier": "BDD",
+      "description": "Configurar proyecto de tests BDD (Reqnroll + xUnit) o actualizar existente",
+      "layer": "BDD",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
     }
   ]
 }
@@ -123,6 +153,7 @@
 |------|-------------|
 | `Backend` | API, logica de negocio, persistencia, integraciones |
 | `Frontend` | UI, componentes, paginas, estado, consumo de APIs |
+| `BDD` | Automatizacion de criterios de aceptacion Gherkin (Given-When-Then) con Reqnroll |
 
 ## Backend — Capas y tareas tipicas
 
@@ -142,6 +173,23 @@
 | Validacion | Crear validador de request/command con reglas de negocio | Application |
 | Mapeo | Crear mapping profiles/extensions (entidad ↔ DTO) | Application |
 | Middleware | Agregar middleware de logging, exception handling, correlation | Api |
+
+## BDD — Automatizacion de criterios de aceptacion
+
+**Siempre incluir tareas BDD** para toda HU que tenga escenarios Gherkin definidos en `user-stories.md`. Las tareas BDD automatizan esos escenarios usando Reqnroll.
+
+| Origen | Tareas tipicas | Layer |
+|--------|---------------|-------|
+| Feature file | Crear archivo .feature con escenarios Gherkin de la HU | BDD |
+| Step Definitions | Implementar step definitions con [Binding] que conectan Gherkin con el sistema | BDD |
+| Proyecto tests | Configurar proyecto xUnit + Reqnroll con paquetes NuGet (si no existe) | BDD |
+| Hooks / DI | Configurar hooks (BeforeScenario, AfterScenario) e inyeccion de dependencias | BDD |
+
+Reglas:
+- Una tarea por archivo .feature (cada HU genera su propio feature file)
+- Una tarea por grupo de step definitions (agrupar steps relacionados)
+- Si es la primera HU de la feature con BDD, incluir tarea de creacion de proyecto
+- Las tareas BDD dependen de que existan las entidades de dominio y handlers (para que los steps invoquen logica real)
 
 ## Frontend — Capas y tareas tipicas
 
@@ -165,6 +213,6 @@
 ## Reglas de tareas
 - Una tarea por artefacto concreto. Nada de "implementar dominio" o "hacer frontend".
 - Cada tarea debe ser accionable por `develop` en un ciclo TDD (RED → GREEN → REFACTOR).
-- El campo `tier` identifica si es Backend o Frontend.
+- El campo `tier` identifica si es Backend, Frontend o BDD.
 - El campo `layer` identifica la capa especifica dentro del tier.
-- Las tareas se ordenan por precedencia y tier: primero Backend (Domain → Application → Infrastructure → Api), luego Frontend (Services → State → Components → Pages → Routing).
+- Las tareas se ordenan por precedencia y tier: primero Backend (Domain → Application → Infrastructure → Api), luego Frontend (Services → State → Components → Pages → Routing), y finalmente BDD (Feature file → Step Definitions → Proyecto).
