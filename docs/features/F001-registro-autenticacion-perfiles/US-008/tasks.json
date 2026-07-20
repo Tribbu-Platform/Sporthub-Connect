@@ -1,0 +1,121 @@
+{
+  "featureId": "F001",
+  "huId": "US-008",
+  "huTitle": "Gestion de Roles Globales",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Crear entidad UserRole con factory method",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear entidad UserRole con: Id, UserId, Role (enum GlobalRole), AssignedBy (UserId), AssignedAt. Factory Create(userId, role, assignedBy). Value Object GlobalRole con enum: Admin, Player, Captain, Coach.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/UserRole.cs",
+        "src/Modules/Identity/SportHub.Identity.Domain/Enums/GlobalRole.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Domain",
+      "title": "Agregar metodos de gestion de roles a User",
+      "status": "pending",
+      "dependsOn": ["T001", "US-001/T001"],
+      "tddStep": null,
+      "description": "Agregar a User lista de UserRoles. Metodo AssignRole(role, assignedBy). Metodo RemoveRole(role). Metodo HasRole(role). Metodo GetRoles(). Propiedad Roles. Evento UserRoleChanged.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/User.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Domain",
+      "title": "Crear evento UserRoleChanged",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Crear UserRoleChangedEvent con UserId, PreviousRoles, NewRoles, ChangedBy, ChangedAt.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Events/UserRoleChangedEvent.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Application",
+      "title": "Crear query GetUserRolesQuery y handler",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Crear GetUserRolesQuery con UserId. Handler: obtener usuario, retornar lista de roles. Solo accesible por Admin.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Queries/GetUserRoles/GetUserRolesQuery.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Queries/GetUserRoles/GetUserRolesQueryHandler.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Application",
+      "title": "Crear comando UpdateUserRolesCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T002", "T003"],
+      "tddStep": null,
+      "description": "Crear UpdateUserRolesCommand con UserId y Roles (lista). Validador: roles deben ser valores validos, no vacio. Handler: verificar que el usuario autenticado tiene rol Admin (autorizacion). Obtener usuario objetivo. Reemplazar roles. Registrar en audit log (oldRoles, newRoles, performedBy). Publicar UserRoleChanged. Retornar roles actualizados.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateUserRoles/UpdateUserRolesCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateUserRoles/UpdateUserRolesCommandValidator.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateUserRoles/UpdateUserRolesCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Infrastructure",
+      "title": "Implementar repositorio y configuracion EF Core para UserRole",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Configurar UserRole como owned collection dentro de User o tabla separada user_roles con FK a users.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Configurations/UserRoleConfiguration.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Infrastructure",
+      "title": "Implementar AuditLogRepository",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Implementar IAuditLogRepository. Configurar entidad AuditLog en IdentityDbContext con indice compuesto. La tabla es INSERT-only (trigger que previene UPDATE/DELETE).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Repositories/IAuditLogRepository.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Configurations/AuditLogConfiguration.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Repositories/AuditLogRepository.cs"
+      ]
+    },
+    {
+      "id": "T008",
+      "layer": "Infrastructure",
+      "title": "Agregar migracion UserRoles y AuditLogs",
+      "status": "pending",
+      "dependsOn": ["T006", "T007"],
+      "tddStep": null,
+      "description": "Generar migracion AddUserRolesAndAuditLogs. Tablas: user_roles, audit_logs en schema identity.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0008_AddUserRolesAndAuditLogs.cs"
+      ]
+    },
+    {
+      "id": "T009",
+      "layer": "Api",
+      "title": "Crear endpoints GET /api/identity/users/{userId}/roles y PUT /api/identity/users/{userId}/roles",
+      "status": "pending",
+      "dependsOn": ["T004", "T005"],
+      "tddStep": null,
+      "description": "Crear endpoints protegidos. GET requiere autenticacion (solo Admin). PUT requiere policy AdminRoleRequirement. Autorizacion con policies de ASP.NET Core.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/RolesEndpoints.cs"
+      ]
+    }
+  ]
+}

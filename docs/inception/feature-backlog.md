@@ -25,6 +25,7 @@
 | **F009** | Retos Dinamicos (Challenges) | Desafios temporales individuales y colectivos (ej. "Asiste a 10 entrenamientos este mes", "Corre 50km en grupo"). Creacion de retos personalizados por admin/capitan. Tracking de progreso. | Should Have | F005, F006 | 5 |
 | **F010** | Comunicacion y Notificaciones | Notificaciones push y email para eventos, insignias, retos cumplidos, recordatorios. Feed de actividad de la comunidad. Menciones y comentarios basicos en eventos. | Should Have | F003, F005, F009 | 4 |
 | **F011** | Panel de Administracion (Backoffice) | Dashboard de administracion para admins de club: miembros, eventos, estadisticas basicas de engagement, configuracion de comunidad. Exportacion de datos (CSV/PDF). | Should Have | F002 | 4 |
+| **F023** | Publicacion en Redes Sociales | Compartir logros (insignias ganadas, niveles alcanzados, XP milestones, posiciones en leaderboard) en Facebook e Instagram. Integracion con Graph API (Facebook) y Basic Display API (Instagram). Configuracion de privacidad y publicacion automatica/manual. | Should Have | F005, F006, F007 | 3 |
 
 ## Could Have (v2.0)
 

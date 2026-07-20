@@ -1,0 +1,156 @@
+{
+  "featureId": "F001",
+  "huId": "US-010",
+  "huTitle": "Eliminacion de Cuenta y Anonimizacion de Datos (GDPR)",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Crear entidad DeletionRequest con maquina de estados",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear entidad DeletionRequest con: Id, UserId, RequestedAt, ConfirmedAt, GracePeriodEnd (7 dias desde confirmacion), CancelledAt, ExecutedAt, Status (enum: Pending, Confirmed, Cancelled, Executed). Factory Create(userId) con status Pending. Metodo Confirm() que pasa a Confirmed + setea GracePeriodEnd. Metodo Cancel() que pasa a Cancelled. Metodo Execute() que pasa a Executed. Validar transiciones de estado.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/DeletionRequest.cs",
+        "src/Modules/Identity/SportHub.Identity.Domain/Enums/DeletionRequestStatus.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Domain",
+      "title": "Crear evento UserDeactivated",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear UserDeactivatedEvent con UserId, DeletionRequestId, AnonymizedAt.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Events/UserDeactivatedEvent.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Domain",
+      "title": "Crear interfaz IDeletionRequestRepository",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Definir interfaz con: GetByUserIdAsync(Guid), GetActiveByUserIdAsync(Guid), AddAsync(DeletionRequest), UpdateAsync(DeletionRequest).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Repositories/IDeletionRequestRepository.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Application",
+      "title": "Crear servicio IUserAnonymizationService (interfaz)",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Definir interfaz IUserAnonymizationService con: AnonymizeAsync(Guid userId).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Services/IUserAnonymizationService.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Application",
+      "title": "Crear comando RequestDeletionCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T003"],
+      "tddStep": null,
+      "description": "Crear RequestDeletionCommand (sin propiedades). Handler: obtener userId del claims. Validar que no haya una solicitud activa pendiente. Crear DeletionRequest con status Pending. Enviar email de confirmacion con token. No se inicia periodo de gracia aun.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/RequestDeletion/RequestDeletionCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/RequestDeletion/RequestDeletionCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Application",
+      "title": "Crear comando ConfirmDeletionCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T003"],
+      "tddStep": null,
+      "description": "Crear ConfirmDeletionCommand con Token. Handler: buscar DeletionRequest por token de confirmacion. Validar que exista y este en estado Pending. Llamar Confirm() que inicia periodo de gracia de 7 dias. Enviar email de notificacion con fecha de eliminacion. Retornar gracePeriodEnd.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ConfirmDeletion/ConfirmDeletionCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ConfirmDeletion/ConfirmDeletionCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Application",
+      "title": "Crear comando CancelDeletionCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T003"],
+      "tddStep": null,
+      "description": "Crear CancelDeletionCommand (sin propiedades). Handler: obtener userId del claims. Buscar DeletionRequest activa en estado Confirmed. Validar que no haya expirado el periodo de gracia. Llamar Cancel(). Enviar email de confirmacion de cancelacion. Retornar mensaje de exito.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/CancelDeletion/CancelDeletionCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/CancelDeletion/CancelDeletionCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T008",
+      "layer": "Infrastructure",
+      "title": "Implementar UserAnonymizationService",
+      "status": "pending",
+      "dependsOn": ["T004"],
+      "tddStep": null,
+      "description": "Implementar IUserAnonymizationService. Logica: display_name = 'Usuario Eliminado', avatar_url = null, bio = null, email = SHA256(email + salt), email_verified = false, password_hash = null, auth0_user_id = null, is_active = false. Preservar IDs y datos agregados. Publicar UserDeactivatedEvent.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Services/UserAnonymizationService.cs"
+      ]
+    },
+    {
+      "id": "T009",
+      "layer": "Infrastructure",
+      "title": "Implementar DeletionRequestRepository (EF Core)",
+      "status": "pending",
+      "dependsOn": ["T003"],
+      "tddStep": null,
+      "description": "Implementar IDeletionRequestRepository. Configurar entidad DeletionRequest en IdentityDbContext.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Configurations/DeletionRequestConfiguration.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Repositories/DeletionRequestRepository.cs"
+      ]
+    },
+    {
+      "id": "T010",
+      "layer": "Infrastructure",
+      "title": "Crear background job para ejecutar anonimizaciones vencidas",
+      "status": "pending",
+      "dependsOn": ["T008", "T009"],
+      "tddStep": null,
+      "description": "Crear DeletionExecutionJob (Hangfire/Quartz) que ejecuta diariamente. Query: buscar DeletionRequests con status Confirmed, grace_period_end < now, executed_at IS NULL. Ejecutar anonimizacion para cada una. Actualizar status a Executed.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/BackgroundJobs/DeletionExecutionJob.cs"
+      ]
+    },
+    {
+      "id": "T011",
+      "layer": "Infrastructure",
+      "title": "Agregar migracion DeletionRequests",
+      "status": "pending",
+      "dependsOn": ["T009"],
+      "tddStep": null,
+      "description": "Generar migracion AddDeletionRequests.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0009_AddDeletionRequests.cs"
+      ]
+    },
+    {
+      "id": "T012",
+      "layer": "Api",
+      "title": "Crear endpoints POST /api/identity/account/deletion-request, POST /api/identity/account/confirm-deletion, POST /api/identity/account/cancel-deletion",
+      "status": "pending",
+      "dependsOn": ["T005", "T006", "T007"],
+      "tddStep": null,
+      "description": "Crear endpoints. deletion-request: autenticado. confirm-deletion: publico (recibe token en body). cancel-deletion: autenticado. Configurar logging de auditoria para cada accion.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/AccountDeletionEndpoints.cs"
+      ]
+    }
+  ]
+}

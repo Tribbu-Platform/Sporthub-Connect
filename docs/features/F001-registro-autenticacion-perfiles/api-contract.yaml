@@ -1,0 +1,1438 @@
+openapi: "3.0.3"
+info:
+  title: SportHub Connect - Identity Module API
+  description: >
+    API del modulo Identity & Users. Gestiona registro, autenticacion, perfiles deportivos,
+    roles globales, sesiones y eliminacion de cuenta. Implementa OAuth2 con Auth0 como
+    Identity Provider externo.
+  version: "1.0.0"
+  contact:
+    name: SportHub Connect Team
+    url: https://sports-hub-connect.com
+  x-module: identity
+  x-schema: identity
+
+servers:
+  - url: https://api.sports-hub-connect.com/api/identity
+    description: Produccion
+  - url: https://staging-api.sports-hub-connect.com/api/identity
+    description: Staging
+  - url: http://localhost:5000/api/identity
+    description: Desarrollo local
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        JWT token obtenido de Auth0 via OAuth2 / OIDC.
+        Incluye claims: sub, email, email_verified, roles, name.
+
+  schemas:
+    # ============================================================
+    # SCHEMAS COMPARTIDOS
+    # ============================================================
+    ErrorResponse:
+      type: object
+      required:
+        - type
+        - title
+        - status
+        - traceId
+      properties:
+        type:
+          type: string
+          description: URI del tipo de error RFC 7807
+          example: https://sports-hub-connect.com/errors/validation-error
+        title:
+          type: string
+          description: Titulo del error
+          example: Error de validacion
+        status:
+          type: integer
+          description: Codigo HTTP
+          example: 400
+        detail:
+          type: string
+          description: Mensaje detallado del error
+          example: El email ya esta registrado
+        traceId:
+          type: string
+          description: Correlation ID para tracking
+          example: "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: email
+              message:
+                type: string
+                example: El formato del email no es valido
+              code:
+                type: string
+                example: Email.InvalidFormat
+
+    ValidationError:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            errors:
+              type: array
+              items:
+                $ref: '#/components/schemas/FieldError'
+
+    FieldError:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 20
+        totalCount:
+          type: integer
+          example: 150
+        totalPages:
+          type: integer
+          example: 8
+        hasNextPage:
+          type: boolean
+          example: true
+        hasPreviousPage:
+          type: boolean
+          example: false
+
+    # ============================================================
+    # US-001: REGISTRO EMAIL/PASSWORD
+    # ============================================================
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: Direccion de email del usuario
+          example: maria@example.com
+          maxLength: 255
+        password:
+          type: string
+          format: password
+          description: >
+            Contrasena segura. Debe tener al menos 8 caracteres, incluir mayuscula,
+            minuscula, numero y caracter especial.
+          example: Maria2026!Segura
+          minLength: 8
+          maxLength: 128
+        acceptTerms:
+          type: boolean
+          description: Aceptacion de terminos y condiciones
+          example: true
+      additionalProperties: false
+
+    RegisterResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          description: ID del usuario creado
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        email:
+          type: string
+          format: email
+          example: maria@example.com
+        accessToken:
+          type: string
+          description: JWT access token
+          example: eyJhbGciOiJSUzI1NiIsImtpZCI6I...
+        refreshToken:
+          type: string
+          description: Refresh token para renovar el access token
+          example: v1.abc123def456...
+        expiresIn:
+          type: integer
+          description: TTL del access token en segundos
+          example: 3600
+        emailVerified:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Cuenta creada exitosamente. Revise su email para verificar su cuenta."
+
+    # ============================================================
+    # US-002: VERIFICACION DE EMAIL
+    # ============================================================
+    ResendVerificationRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: luis@example.com
+
+    ResendVerificationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Se ha enviado un nuevo email de verificacion a luis@example.com"
+        retryAfterSeconds:
+          type: integer
+          example: 60
+
+    # ============================================================
+    # US-003: LOGIN EMAIL/PASSWORD
+    # ============================================================
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: sofia@example.com
+        password:
+          type: string
+          format: password
+          example: Sofia2026!Clave
+        deviceInfo:
+          type: string
+          description: Informacion del dispositivo para tracking de sesion
+          example: "Mozilla/5.0 Chrome/120 Windows 10"
+      additionalProperties: false
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJSUzI1NiIsImtpZCI6I...
+        refreshToken:
+          type: string
+          example: v1.abc123def456...
+        expiresIn:
+          type: integer
+          example: 3600
+        tokenType:
+          type: string
+          example: Bearer
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+            displayName:
+              type: string
+            roles:
+              type: array
+              items:
+                type: string
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          example: v1.abc123def456...
+
+    RefreshTokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresIn:
+          type: integer
+          example: 3600
+
+    RevokeTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          example: v1.abc123def456...
+
+    # ============================================================
+    # US-004: OAUTH2
+    # ============================================================
+    OAuthProvider:
+      type: string
+      enum: [google, microsoft, facebook, instagram]
+      description: Proveedor OAuth2
+
+    LinkAccountRequest:
+      type: object
+      required:
+        - provider
+        - code
+        - redirectUri
+      properties:
+        provider:
+          $ref: '#/components/schemas/OAuthProvider'
+        code:
+          type: string
+          description: Codigo de autorizacion OAuth2
+          example: 4/0AX4XfWg...
+        redirectUri:
+          type: string
+          format: uri
+          description: URI de redireccion configurada en Auth0
+          example: https://app.sports-hub-connect.com/auth/callback
+
+    LinkAccountResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Cuenta de Google vinculada exitosamente"
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/OAuthProvider'
+
+    # ============================================================
+    # US-005: RECUPERACION DE CONTRASENA
+    # ============================================================
+    ForgotPasswordRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          example: laura@example.com
+
+    ForgotPasswordResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Si el email existe, recibiras un enlace de restablecimiento"
+
+    ResetPasswordRequest:
+      type: object
+      required:
+        - token
+        - password
+        - confirmPassword
+      properties:
+        token:
+          type: string
+          description: Token de restablecimiento recibido por email
+          example: abc123def456...
+        password:
+          type: string
+          format: password
+          description: Nueva contrasena (debe cumplir politicas de seguridad)
+          example: NuevaClave2026!Segura
+          minLength: 8
+          maxLength: 128
+        confirmPassword:
+          type: string
+          format: password
+          example: NuevaClave2026!Segura
+
+    # ============================================================
+    # US-006: PERFIL DEPORTIVO
+    # ============================================================
+    ProfileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+          example: "Andres Lopez"
+          maxLength: 50
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+          example: https://cdn.sports-hub-connect.com/avatars/a1b2c3d4.jpg
+        bio:
+          type: string
+          nullable: true
+          example: "Amante del futbol y el running"
+          maxLength: 500
+        skillLevel:
+          type: string
+          nullable: true
+          enum: [Beginner, Intermediate, Advanced, Expert, Professional]
+          example: Intermediate
+        assessedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-07-19T10:30:00Z"
+        primarySport:
+          type: string
+          nullable: true
+          example: "Futbol"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        displayName:
+          type: string
+          description: Nombre visible (min 2, max 50 caracteres)
+          example: "Andres Lopez"
+          minLength: 2
+          maxLength: 50
+        bio:
+          type: string
+          nullable: true
+          description: Biografia (max 500 caracteres)
+          example: "Amante del futbol y el running"
+          maxLength: 500
+        primarySport:
+          type: string
+          nullable: true
+          description: Deporte principal
+          example: "Futbol"
+      additionalProperties: false
+
+    AvatarUploadResponse:
+      type: object
+      properties:
+        avatarUrl:
+          type: string
+          format: uri
+          example: https://cdn.sports-hub-connect.com/avatars/a1b2c3d4.jpg
+        message:
+          type: string
+          example: "Avatar actualizado exitosamente"
+
+    # ============================================================
+    # US-007: SKILL LEVEL
+    # ============================================================
+    SkillLevel:
+      type: string
+      enum: [Beginner, Intermediate, Advanced, Expert, Professional]
+      description: Nivel de habilidad auto-evaluado
+
+    UpdateSkillLevelRequest:
+      type: object
+      required:
+        - skillLevel
+      properties:
+        skillLevel:
+          $ref: '#/components/schemas/SkillLevel'
+      additionalProperties: false
+
+    SkillLevelResponse:
+      type: object
+      properties:
+        skillLevel:
+          $ref: '#/components/schemas/SkillLevel'
+        assessedAt:
+          type: string
+          format: date-time
+          example: "2026-07-19T10:30:00Z"
+        message:
+          type: string
+          example: "Nivel de habilidad actualizado a Intermediate"
+
+    # ============================================================
+    # US-008: ROLES GLOBALES
+    # ============================================================
+    GlobalRole:
+      type: string
+      enum: [Admin, Player, Captain, Coach]
+      description: Roles globales del sistema
+
+    UserRoleResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/GlobalRole'
+          example: ["Player"]
+
+    UpdateRolesRequest:
+      type: object
+      required:
+        - roles
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/GlobalRole'
+          minItems: 1
+          description: Lista de roles a asignar al usuario
+          example: ["Captain"]
+
+    # ============================================================
+    # US-009: LOGOUT
+    # ============================================================
+    LogoutResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Sesion cerrada exitosamente"
+
+    # ============================================================
+    # US-010: ELIMINACION DE CUENTA
+    # ============================================================
+    DeletionRequestResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Se ha enviado un email de confirmacion a su direccion de correo"
+        deletionRequestId:
+          type: string
+          format: uuid
+        gracePeriodEnd:
+          type: string
+          format: date-time
+          description: Fecha de fin del periodo de gracia
+          example: "2026-07-26T10:30:00Z"
+
+    ConfirmDeletionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Su cuenta sera eliminada el 2026-07-26. Puede cancelar esta solicitud dentro del periodo de gracia."
+        gracePeriodEnd:
+          type: string
+          format: date-time
+
+    CancelDeletionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "La solicitud de eliminacion ha sido cancelada. Su cuenta permanece activa."
+
+  parameters:
+    TokenQuery:
+      name: token
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Token de verificacion
+      example: abc123def456...
+
+    ProviderPath:
+      name: provider
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/OAuthProvider'
+      description: Proveedor OAuth2
+
+    UserIdPath:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ID del usuario
+
+  headers:
+    XRateLimitLimit:
+      schema:
+        type: integer
+      description: Maximo de requests permitidos por ventana
+    XRateLimitRemaining:
+      schema:
+        type: integer
+      description: Requests restantes en la ventana actual
+    XRateLimitReset:
+      schema:
+        type: integer
+      description: Tiempo en segundos hasta el reseteo del rate limit
+    RetryAfter:
+      schema:
+        type: integer
+      description: Tiempo en segundos a esperar antes de reintentar
+
+paths:
+  # ============================================================
+  # US-001: REGISTRO EMAIL/PASSWORD
+  # ============================================================
+  /register:
+    post:
+      operationId: register
+      summary: Registro de usuario con email y contrasena
+      description: >
+        Crea una nueva cuenta de usuario con email y contrasena. La contrasena se
+        almacena hasheada con BCrypt. El usuario se crea en Auth0 y en la base de
+        datos local. Se genera un token de verificacion y se envia por email.
+        El usuario queda autenticado tras el registro.
+      tags:
+        - Registro y Autenticacion
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: maria@example.com
+              password: Maria2026!Segura
+              acceptTerms: true
+      responses:
+        "201":
+          description: Cuenta creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        "400":
+          description: Error de validacion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              example:
+                type: https://sports-hub-connect.com/errors/validation-error
+                title: Error de validacion
+                status: 400
+                traceId: "00-0af7651916cd43dd84..."
+                errors:
+                  - field: email
+                    message: El formato del email no es valido
+                    code: Email.InvalidFormat
+        "409":
+          description: Conflicto - email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: https://sports-hub-connect.com/errors/conflict
+                title: Conflicto
+                status: 409
+                detail: El email ya esta registrado
+                traceId: "00-0af7651916cd43dd84..."
+        "429":
+          description: Demasiadas solicitudes (rate limiting)
+          headers:
+            XRateLimitLimit:
+              $ref: '#/components/headers/XRateLimitLimit'
+            XRateLimitRemaining:
+              $ref: '#/components/headers/XRateLimitRemaining'
+            XRateLimitReset:
+              $ref: '#/components/headers/XRateLimitReset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================================
+  # US-002: VERIFICACION DE EMAIL
+  # ============================================================
+  /verify-email:
+    get:
+      operationId: verifyEmail
+      summary: Verificar email con token
+      description: >
+        Verifica la direccion de email del usuario mediante un token enviado por correo.
+        El token tiene una validez de 24 horas.
+      tags:
+        - Verificacion de Email
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/TokenQuery'
+      responses:
+        "200":
+          description: Email verificado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email verificado exitosamente
+                  emailVerified:
+                    type: boolean
+                    example: true
+        "400":
+          description: Token invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: https://sports-hub-connect.com/errors/validation-error
+                title: Error de validacion
+                status: 400
+                detail: El enlace de verificacion ha expirado
+
+  /resend-verification:
+    post:
+      operationId: resendVerification
+      summary: Reenviar email de verificacion
+      description: >
+        Reenvia el email de verificacion al usuario. Rate limited a 1 solicitud
+        cada 60 segundos por email. El token anterior queda invalidado.
+      tags:
+        - Verificacion de Email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendVerificationRequest'
+      responses:
+        "200":
+          description: Email reenviado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResendVerificationResponse'
+        "429":
+          description: Demasiadas solicitudes de reenvio
+          headers:
+            RetryAfter:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: https://sports-hub-connect.com/errors/rate-limit
+                title: Demasiadas solicitudes
+                status: 429
+                detail: Debe esperar 60 segundos antes de solicitar otro reenvio
+
+  # ============================================================
+  # US-003: LOGIN, REFRESH, REVOKE
+  # ============================================================
+  /login:
+    post:
+      operationId: login
+      summary: Inicio de sesion con email y contrasena
+      description: >
+        Autentica al usuario con email y contrasena delegando en Auth0.
+        Devuelve access_token (JWT) y refresh_token.
+        Rate limiting: maximo 5 intentos fallidos por minuto por IP.
+        Bloqueo temporal tras 10 intentos fallidos consecutivos (15 min).
+      tags:
+        - Registro y Autenticacion
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: Autenticacion exitosa
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Cookie HTTP-only con el refresh token (opcional)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        "401":
+          description: Credenciales invalidas o cuenta bloqueada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidCredentials:
+                  summary: Credenciales incorrectas
+                  value:
+                    type: https://sports-hub-connect.com/errors/unauthorized
+                    title: No autorizado
+                    status: 401
+                    detail: Email o contrasena incorrectos
+                accountBlocked:
+                  summary: Cuenta bloqueada temporalmente
+                  value:
+                    type: https://sports-hub-connect.com/errors/unauthorized
+                    title: Cuenta bloqueada
+                    status: 401
+                    detail: "Demasiados intentos fallidos. Intente nuevamente en 15 minutos"
+                accountDeactivated:
+                  summary: Cuenta desactivada
+                  value:
+                    type: https://sports-hub-connect.com/errors/unauthorized
+                    title: Cuenta desactivada
+                    status: 401
+                    detail: Su cuenta ha sido desactivada. Contacte al soporte
+        "429":
+          description: Demasiados intentos de login
+          headers:
+            RetryAfter:
+              $ref: '#/components/headers/RetryAfter'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /refresh:
+    post:
+      operationId: refreshToken
+      summary: Renovar access token
+      description: >
+        Renueva el access_token utilizando un refresh_token valido.
+        Si el refresh_token ha sido revocado o ha expirado, devuelve error.
+      tags:
+        - Registro y Autenticacion
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        "200":
+          description: Token renovado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        "401":
+          description: Refresh token invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /revoke:
+    post:
+      operationId: revokeToken
+      summary: Revocar refresh token
+      description: >
+        Revoca un refresh_token especifico. El token queda invalidado
+        y no puede usarse para renovar access tokens.
+      tags:
+        - Registro y Autenticacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeTokenRequest'
+      responses:
+        "200":
+          description: Token revocado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Token revocado exitosamente
+        "401":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================================
+  # US-004: OAUTH2
+  # ============================================================
+  /auth/{provider}:
+    get:
+      operationId: initiateOAuth
+      summary: Iniciar flujo OAuth2
+      description: >
+        Inicia el flujo de autenticacion OAuth2 con el proveedor especificado.
+        Redirige al usuario al login del proveedor (Google, Microsoft, Facebook, Instagram).
+      tags:
+        - OAuth2
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/ProviderPath'
+      responses:
+        "302":
+          description: Redireccion al proveedor OAuth2
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+              description: URL de autenticacion del proveedor
+        "400":
+          description: Proveedor no soportado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/callback:
+    get:
+      operationId: oauthCallback
+      summary: Callback OAuth2
+      description: >
+        Procesa el callback del proveedor OAuth2 despues de la autenticacion.
+        Intercambia el codigo de autorizacion por tokens y autentica/registra al usuario.
+      tags:
+        - OAuth2
+      security: []
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Codigo de autorizacion del proveedor OAuth2
+          example: 4/0AX4XfWg...
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Estado CSRF para prevenir ataques de falsificacion
+          example: xyz789abc
+        - name: provider
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/OAuthProvider'
+          description: Proveedor OAuth2 (inferido del state si no se provee)
+      responses:
+        "200":
+          description: Autenticacion OAuth2 exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        "302":
+          description: Redireccion con error en query param (si el flujo falla)
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+        "400":
+          description: Error en el callback OAuth2
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: https://sports-hub-connect.com/errors/oauth-error
+                title: Error de autenticacion OAuth
+                status: 400
+                detail: "Error al autenticar con Google. Intente nuevamente"
+
+  /link-account:
+    post:
+      operationId: linkOAuthAccount
+      summary: Vincular cuenta OAuth2 a perfil existente
+      description: >
+        Permite a un usuario ya autenticado vincular una cuenta OAuth2
+        (Google, Microsoft, Facebook, Instagram) a su perfil existente.
+      tags:
+        - OAuth2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkAccountRequest'
+      responses:
+        "200":
+          description: Cuenta vinculada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkAccountResponse'
+        "409":
+          description: La cuenta OAuth2 ya esta vinculada a otro usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================================
+  # US-005: RECUPERACION DE CONTRASENA
+  # ============================================================
+  /forgot-password:
+    post:
+      operationId: forgotPassword
+      summary: Solicitar restablecimiento de contrasena
+      description: >
+        Envia un email con un enlace de restablecimiento de contrasena.
+        Por seguridad, no revela si el email existe o no.
+        Rate limited a 1 solicitud cada 60 segundos por email.
+      tags:
+        - Recuperacion de Contrasena
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        "200":
+          description: Solicitud procesada (si el email existe, se envia el enlace)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgotPasswordResponse'
+        "429":
+          description: Demasiadas solicitudes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /reset-password:
+    post:
+      operationId: resetPassword
+      summary: Restablecer contrasena con token
+      description: >
+        Restablece la contrasena del usuario utilizando un token valido recibido
+        por email. El token tiene una validez de 1 hora y es de un solo uso.
+      tags:
+        - Recuperacion de Contrasena
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        "200":
+          description: Contrasena restablecida exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Contrasena restablecida exitosamente. Ya puede iniciar sesion con su nueva contrasena.
+        "400":
+          description: Token invalido, expirado, ya usado o contrasena no cumple politicas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                expiredToken:
+                  value:
+                    type: https://sports-hub-connect.com/errors/validation-error
+                    title: Error de validacion
+                    status: 400
+                    detail: El enlace de restablecimiento ha expirado. Solicite uno nuevo
+                usedToken:
+                  value:
+                    type: https://sports-hub-connect.com/errors/validation-error
+                    title: Error de validacion
+                    status: 400
+                    detail: Este enlace ya ha sido utilizado
+                weakPassword:
+                  value:
+                    type: https://sports-hub-connect.com/errors/validation-error
+                    title: Error de validacion
+                    status: 400
+                    detail: "La contrasena debe tener al menos 8 caracteres, incluir mayuscula, minuscula, numero y caracter especial"
+
+  # ============================================================
+  # US-006: PERFIL DEPORTIVO
+  # ============================================================
+  /profile:
+    get:
+      operationId: getProfile
+      summary: Obtener perfil deportivo
+      description: Obtiene el perfil deportivo del usuario autenticado.
+      tags:
+        - Perfil Deportivo
+      responses:
+        "200":
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      operationId: updateProfile
+      summary: Actualizar perfil deportivo
+      description: >
+        Actualiza los campos del perfil deportivo del usuario autenticado.
+        Solo se actualizan los campos enviados (merge parcial).
+      tags:
+        - Perfil Deportivo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        "200":
+          description: Perfil actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        "400":
+          description: Error de validacion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /profile/avatar:
+    post:
+      operationId: uploadAvatar
+      summary: Subir avatar
+      description: >
+        Sube una imagen de avatar para el perfil del usuario.
+        Formatos aceptados: PNG, JPG. Tamano maximo: 5 MB.
+        La imagen se almacena en Blob Storage y se devuelve la URL del CDN.
+      tags:
+        - Perfil Deportivo
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo de imagen (PNG o JPG, max 5 MB)
+      responses:
+        "200":
+          description: Avatar actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarUploadResponse'
+        "400":
+          description: Archivo invalido o excede el tamano maximo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                tooLarge:
+                  value:
+                    type: https://sports-hub-connect.com/errors/validation-error
+                    title: Error de validacion
+                    status: 400
+                    detail: La imagen no debe superar los 5 MB
+                invalidFormat:
+                  value:
+                    type: https://sports-hub-connect.com/errors/validation-error
+                    title: Error de validacion
+                    status: 400
+                    detail: "Formato no soportado. Use PNG o JPG"
+
+  # ============================================================
+  # US-007: SKILL LEVEL
+  # ============================================================
+  /profile/skill-level:
+    put:
+      operationId: updateSkillLevel
+      summary: Actualizar nivel de habilidad
+      description: >
+        Auto-evalua y actualiza el nivel de habilidad deportiva del usuario.
+        No requiere validacion externa (BR-003). Se registra la fecha de evaluacion.
+      tags:
+        - Perfil Deportivo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSkillLevelRequest'
+      responses:
+        "200":
+          description: Nivel de habilidad actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillLevelResponse'
+        "400":
+          description: Nivel de habilidad invalido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================================
+  # US-008: ROLES GLOBALES
+  # ============================================================
+  /users/{userId}/roles:
+    get:
+      operationId: getUserRoles
+      summary: Obtener roles de un usuario
+      description: Obtiene los roles globales asignados a un usuario.
+      tags:
+        - Roles Globales
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        "200":
+          description: Roles del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRoleResponse'
+        "403":
+          description: No tiene permisos para consultar roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      operationId: updateUserRoles
+      summary: Asignar roles a un usuario
+      description: >
+        Actualiza los roles globales de un usuario. Solo usuarios con rol Admin
+        pueden realizar esta operacion. Los cambios se registran en el audit log.
+      tags:
+        - Roles Globales
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRolesRequest'
+      responses:
+        "200":
+          description: Roles actualizados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRoleResponse'
+        "400":
+          description: Rol invalido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: https://sports-hub-connect.com/errors/validation-error
+                title: Error de validacion
+                status: 400
+                detail: "El rol especificado no es valido. Los roles validos son: Admin, Player, Captain, Coach"
+        "403":
+          description: No tiene permisos para gestionar roles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: https://sports-hub-connect.com/errors/forbidden
+                title: Prohibido
+                status: 403
+                detail: No tiene permisos para gestionar roles globales
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ============================================================
+  # US-009: LOGOUT
+  # ============================================================
+  /logout:
+    post:
+      operationId: logout
+      summary: Cerrar sesion
+      description: >
+        Invalida el refresh_token de la sesion actual. El access_token JWT
+        continua siendo valido hasta su expiracion natural (stateless JWT).
+      tags:
+        - Sesiones
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeTokenRequest'
+      responses:
+        "200":
+          description: Sesion cerrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+
+  /logout/all:
+    post:
+      operationId: logoutAll
+      summary: Cerrar sesion en todos los dispositivos
+      description: >
+        Invalida todos los refresh_token activos del usuario autenticado.
+        Todas las sesiones activas quedan invalidadas y el usuario debe
+        iniciar sesion nuevamente en todos los dispositivos.
+      tags:
+        - Sesiones
+      responses:
+        "200":
+          description: Todas las sesiones cerradas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+
+  # ============================================================
+  # US-010: ELIMINACION DE CUENTA
+  # ============================================================
+  /account/deletion-request:
+    post:
+      operationId: requestDeletion
+      summary: Solicitar eliminacion de cuenta
+      description: >
+        Inicia el proceso de eliminacion de cuenta. Envia un email de confirmacion
+        al usuario. La cuenta no se elimina hasta que el usuario confirma mediante
+        el enlace enviado por email.
+      tags:
+        - Eliminacion de Cuenta
+      responses:
+        "200":
+          description: Solicitud de eliminacion iniciada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletionRequestResponse'
+
+  /account/confirm-deletion:
+    post:
+      operationId: confirmDeletion
+      summary: Confirmar eliminacion de cuenta
+      description: >
+        Confirma la solicitud de eliminacion de cuenta mediante el token enviado
+        por email. Inicia el periodo de gracia de 7 dias durante el cual el usuario
+        puede cancelar la eliminacion.
+      tags:
+        - Eliminacion de Cuenta
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  description: Token de confirmacion recibido por email
+                  example: abc123def456...
+      responses:
+        "200":
+          description: Eliminacion confirmada, periodo de gracia iniciado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmDeletionResponse'
+        "400":
+          description: Token invalido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /account/cancel-deletion:
+    post:
+      operationId: cancelDeletion
+      summary: Cancelar eliminacion de cuenta
+      description: >
+        Cancela la solicitud de eliminacion de cuenta durante el periodo de gracia.
+        La cuenta se restaura a su estado normal y todos los datos permanecen intactos.
+      tags:
+        - Eliminacion de Cuenta
+      responses:
+        "200":
+          description: Eliminacion cancelada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelDeletionResponse'
+        "400":
+          description: No hay solicitud de eliminacion activa o el periodo de gracia ya expiro
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

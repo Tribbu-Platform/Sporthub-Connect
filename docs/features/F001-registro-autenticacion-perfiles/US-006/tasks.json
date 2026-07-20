@@ -1,0 +1,156 @@
+{
+  "featureId": "F001",
+  "huId": "US-006",
+  "huTitle": "Creacion y Edicion de Perfil Deportivo",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Crear entidad Profile con factory method Create",
+      "status": "pending",
+      "dependsOn": ["US-001/T001"],
+      "tddStep": null,
+      "description": "Crear entidad Profile con: Id, UserId, DisplayName, AvatarUrl, Bio, SkillLevel, AssessedAt, PrimarySport, CreatedAt, UpdatedAt. Factory Create(userId, displayName). Metodo UpdateProfile(displayName, bio, primarySport) con validaciones de longitud. Relacion 1:1 con User.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/Profile.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Domain",
+      "title": "Crear evento de dominio ProfileUpdated",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Crear ProfileUpdatedEvent con UserId, ProfileId, UpdatedAt, campos modificados.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Events/ProfileUpdatedEvent.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Domain",
+      "title": "Crear interfaz IProfileRepository",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Definir interfaz con: GetByUserIdAsync(Guid), UpdateAsync(Profile), AddAsync(Profile).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Repositories/IProfileRepository.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Application",
+      "title": "Crear query GetProfileQuery y handler",
+      "status": "pending",
+      "dependsOn": ["T003"],
+      "tddStep": null,
+      "description": "Crear GetProfileQuery (sin parametros, usuario autenticado). Handler: obtener userId del claims, buscar perfil por userId, retornar ProfileResponse. Si no existe, crear perfil con valores por defecto (displayName = parte local del email).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Queries/GetProfile/GetProfileQuery.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Queries/GetProfile/GetProfileQueryHandler.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Application",
+      "title": "Crear comando UpdateProfileCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T003", "T002"],
+      "tddStep": null,
+      "description": "Crear UpdateProfileCommand con DisplayName, Bio, PrimarySport. Validador: DisplayName min 2 max 50 chars, Bio max 500 chars. Handler: obtener perfil, llamar UpdateProfile, guardar, publicar ProfileUpdated, retornar ProfileResponse.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateProfile/UpdateProfileCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateProfile/UpdateProfileCommandValidator.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateProfile/UpdateProfileCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Application",
+      "title": "Crear comando UploadAvatarCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T003", "T002"],
+      "tddStep": null,
+      "description": "Crear UploadAvatarCommand con File (Stream). Handler: validar tamano (<5MB) y formato (PNG, JPG). Subir a Blob Storage. Obtener URL publica. Actualizar AvatarUrl en Profile. Publicar ProfileUpdated. Retornar URL.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UploadAvatar/UploadAvatarCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UploadAvatar/UploadAvatarCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Application",
+      "title": "Crear servicio IAvatarStorage (interfaz)",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Definir interfaz IAvatarStorage con metodos: UploadAsync(Stream fileStream, string fileName, string contentType), DeleteAsync(string avatarUrl).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Services/IAvatarStorageService.cs"
+      ]
+    },
+    {
+      "id": "T008",
+      "layer": "Domain",
+      "title": "Crear DTO ProfileResponse y mapeo",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear ProfileResponse DTO con todas las propiedades del perfil. Configurar Mapster mapping desde Profile.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/DTOs/ProfileResponse.cs"
+      ]
+    },
+    {
+      "id": "T009",
+      "layer": "Infrastructure",
+      "title": "Implementar ProfileRepository (EF Core)",
+      "status": "pending",
+      "dependsOn": ["T003"],
+      "tddStep": null,
+      "description": "Implementar IProfileRepository. Configurar Profile entity en IdentityDbContext con owned types.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Configurations/ProfileConfiguration.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Repositories/ProfileRepository.cs"
+      ]
+    },
+    {
+      "id": "T010",
+      "layer": "Infrastructure",
+      "title": "Implementar AvatarStorageService (Blob Storage)",
+      "status": "pending",
+      "dependsOn": ["T007"],
+      "tddStep": null,
+      "description": "Implementar IAvatarStorage usando Azure Blob Storage SDK o MinIO para desarrollo. Configurar contenedor 'avatars'. Generar nombres unicos (GUID + extension). Retornar URL publica.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Services/BlobAvatarStorageService.cs"
+      ]
+    },
+    {
+      "id": "T011",
+      "layer": "Infrastructure",
+      "title": "Agregar migracion Profiles",
+      "status": "pending",
+      "dependsOn": ["T009"],
+      "tddStep": null,
+      "description": "Generar migracion AddProfiles con tabla profiles e indices.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0006_AddProfiles.cs"
+      ]
+    },
+    {
+      "id": "T012",
+      "layer": "Api",
+      "title": "Crear endpoints GET /api/identity/profile, PUT /api/identity/profile, POST /api/identity/profile/avatar",
+      "status": "pending",
+      "dependsOn": ["T004", "T005", "T006"],
+      "tddStep": null,
+      "description": "Crear endpoints protegidos (requieren autenticacion). GET profile retorna perfil. PUT profile actualiza datos. POST profile/avatar con multipart/form-data para subir avatar.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/ProfileEndpoints.cs"
+      ]
+    }
+  ]
+}

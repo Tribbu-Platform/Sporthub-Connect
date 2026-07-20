@@ -1,0 +1,71 @@
+{
+  "featureId": "F001",
+  "huId": "US-009",
+  "huTitle": "Cierre de Sesion",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Application",
+      "title": "Crear comando LogoutCommand y handler",
+      "status": "pending",
+      "dependsOn": ["US-003/T006"],
+      "tddStep": null,
+      "description": "Crear LogoutCommand con RefreshToken (opcional, si se provee se revoca ese token; si no, se usa el de la sesion actual). Handler: obtener userId del claims autenticado. Si refreshToken se provee: buscarlo, validar que pertenece al usuario, revocarlo. Si no se provee: revocar el refresh token de la sesion actual (obtenido del header o cookie).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/Logout/LogoutCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/Logout/LogoutCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Application",
+      "title": "Crear comando LogoutAllDevicesCommand y handler",
+      "status": "pending",
+      "dependsOn": ["US-003/T006"],
+      "tddStep": null,
+      "description": "Crear LogoutAllDevicesCommand (sin propiedades). Handler: obtener userId del claims. Revocar todos los refresh tokens activos del usuario (revoked_at != null para todos).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/LogoutAll/LogoutAllDevicesCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/LogoutAll/LogoutAllDevicesCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Infrastructure",
+      "title": "Extender IRefreshTokenRepository con metodo RevokeAllForUserAsync",
+      "status": "pending",
+      "dependsOn": ["US-003/T006"],
+      "tddStep": null,
+      "description": "Agregar a IRefreshTokenRepository: GetAllActiveByUserIdAsync(Guid), RevokeAllForUserAsync(Guid). Implementar en RefreshTokenRepository.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Repositories/IRefreshTokenRepository.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Repositories/RefreshTokenRepository.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Infrastructure",
+      "title": "Implementar token blacklist para access tokens (opcional con Redis)",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Si se implementa blacklist de access tokens JWT: crear ITokenBlacklistService con IsBlacklistedAsync(jti) y AddToBlacklistAsync(jti, expiresAt). Implementar con Redis (IDistributedCache). El middleware de auth valida contra blacklist.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Services/ITokenBlacklistService.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Services/RedisTokenBlacklistService.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Api",
+      "title": "Crear endpoints POST /api/identity/logout y POST /api/identity/logout/all",
+      "status": "pending",
+      "dependsOn": ["T001", "T002"],
+      "tddStep": null,
+      "description": "Crear endpoints protegidos (requieren autenticacion JWT). logout recibe refreshToken opcional en body. logout/all no recibe body. Ambos retornan mensaje de exito.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/LogoutEndpoints.cs"
+      ]
+    }
+  ]
+}
