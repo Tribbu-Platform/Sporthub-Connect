@@ -65,8 +65,8 @@ develop → test → quality → deploy
 
 | Fase | Subagente | Proposito | Nivel | Paralelizable con |
 |------|-----------|-----------|-------|-------------------|
-| develop | `develop` | Implementacion con TDD | HU | `test`, `quality` (distintas HUs) |
-| test | `test` | Unitarias, integracion, contract testing | HU | `develop`, `quality` (distintas HUs) |
+| develop | `develop` | Implementacion con TDD (backend + frontend) | HU | `test`, `quality` (distintas HUs) |
+| test | `test` | Automatizacion BDD (Reqnroll), unitarias, integracion, contract testing | HU | `develop`, `quality` (distintas HUs) |
 | quality | `quality` | Analisis estatico, seguridad, deuda tecnica | HU | `develop`, `test` (distintas HUs) |
 | deploy | `deploy` | CI/CD, infraestructura, observabilidad | HU | `quality` (misma HU) |
 
@@ -208,7 +208,7 @@ Pregunta al usuario: _"Esta feature requiere nuevas historias de usuario? Requie
 | Subagente | Capacidades | ¿Cuando lo invocas? |
 |-----------|------------|---------------------|
 | `develop` | Implementar codigo con TDD para una HU especifica | Fase `develop` de una HU. Recibe `featureId` + `huId` |
-| `test` | Pruebas unitarias, integracion, cobertura para una HU | Fase `test` de una HU. Recibe `featureId` + `huId` |
+| `test` | Automatizacion BDD (Reqnroll), pruebas unitarias, integracion, cobertura para una HU | Fase `test` de una HU. Recibe `featureId` + `huId` |
 | `quality` | Analisis estatico, seguridad, deuda tecnica para una HU | Fase `quality` de una HU. Recibe `featureId` + `huId` |
 | `deploy` | CI/CD, infraestructura, observabilidad para una HU | Fase `deploy` de una HU. Recibe `featureId` + `huId` |
 
@@ -280,7 +280,7 @@ Los skills proporcionan instrucciones especializadas por stack tecnologico.
 - **Human in the Loop (HITL):** si `humanInTheLoop: true`, NUNCA avances sin aprobacion explicita del usuario. Inception SIEMPRE requiere HITL.
 - Cada feature inicia con su rama `feature/{id}-{slug}` desde `develop`
 - Cada HU inicia con su rama `hu/{featureId}-{huId}-{slug}` desde la rama feature
-- Aplicar TDD (skill `tdd-{lenguaje}`) en develop y BDD (skill `bdd-{lenguaje}`) en analysis
+- Aplicar TDD (skill `tdd-{lenguaje}`) en develop y BDD (skill `bdd-{lenguaje}`): formulacion en analysis, automatizacion (Step Definitions + Reqnroll) en test
 - Cada subagente recibe contexto completo: featureId, huId (si aplica), tarea especifica, skill del stack, artefactos de entrada
 - Los artefactos de feature se almacenan en `docs/features/{id}-{slug}/`
 - Los artefactos de HU se almacenan en `docs/features/{id}-{slug}/US-{huId}/`

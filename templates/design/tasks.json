@@ -178,6 +178,8 @@
 
 **Siempre incluir tareas BDD** para toda HU que tenga escenarios Gherkin definidos en `user-stories.md`. Las tareas BDD automatizan esos escenarios usando Reqnroll.
 
+**Importante**: Las tareas BDD se ejecutan durante la fase `test` de la HU, a cargo del subagente `test`. El subagente `develop` NO implementa BDD — solo implementa backend + frontend. El subagente `test` es quien crea los archivos .feature y los step definitions.
+
 | Origen | Tareas tipicas | Layer |
 |--------|---------------|-------|
 | Feature file | Crear archivo .feature con escenarios Gherkin de la HU | BDD |

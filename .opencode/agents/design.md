@@ -89,6 +89,8 @@ Ubicacion: `docs/features/{id}-{slug}/US-{huId}/tasks.json`
 
 **IMPORTANTE**: Siempre debes incluir tareas BDD para **todas las HUs** que tengan escenarios Gherkin definidos en `user-stories.md`. Las tareas BDD automatizan esos escenarios usando Reqnroll.
 
+**Nota**: Las tareas BDD (tier `BDD`) se ejecutan durante la fase `test` de la HU, a cargo del subagente `test`. El subagente `develop` NO implementa BDD — solo implementa backend + frontend. El subagente `test` crea los feature files .feature y los step definitions con [Binding].
+
 | Origen | Tareas tipicas | Layer |
 |--------|---------------|-------|
 | Feature file | Crear archivo .feature con escenarios Gherkin de la HU (Given/When/Then del user-stories.md) | BDD |
