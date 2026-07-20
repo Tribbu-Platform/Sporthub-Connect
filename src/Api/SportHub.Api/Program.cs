@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using SportHub.Api.Routes;
+using SportHub.Api.Routes.Identity;
 using SportHub.Community.Application;
 using SportHub.Community.Infrastructure;
 using SportHub.Identity.Application;
@@ -66,18 +67,28 @@ builder.Services.AddRateLimiter(options =>
         config.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
         config.QueueLimit = 10;
     });
+
+    // Strict rate limit for registration endpoint (5 requests/min per IP)
+    options.AddFixedWindowLimiter("IdentityRegistration", config =>
+    {
+        config.PermitLimit = 5;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        config.QueueLimit = 0;
+    });
 });
 
 // ============================================================
 // Module Registration
 // ============================================================
 
-// Identity Module — Walking Skeleton
+// Identity Module
 var identityConnectionString = builder.Configuration.GetConnectionString("Identity")
     ?? "Data Source=sport-hub.db";
 
 builder.Services
     .AddIdentityInfrastructure(identityConnectionString)
+    .AddIdentityExternalServices(builder.Configuration)
     .AddIdentityApplication();
 
 // Community Module — Landing Page Integration
@@ -161,10 +172,8 @@ app.MapGet("/", () => Results.Ok(new
     timestamp = DateTimeOffset.UtcNow
 })).WithName("root").ExcludeFromDescription();
 
-// TODO: Map remaining module endpoints when implemented
-// app.MapIdentityEndpoints();
-// app.MapCommunityEndpoints();
-// ...
+// Identity Endpoints
+app.MapIdentityEndpoints();
 
 // Identity Health Endpoints — Walking Skeleton
 app.MapHealthEndpoints();
