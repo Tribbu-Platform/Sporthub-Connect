@@ -7,9 +7,7 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production && \
-    cp -R node_modules /prod_node_modules && \
-    npm ci
+RUN npm ci
 
 # ============================================================
 # Stage 2: Build

@@ -148,7 +148,10 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:${{ needs.sanitize.outputs.image_tag }}
             ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:preview-${{ needs.sanitize.outputs.branch_safe }}
-          cache-from: type=gha
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+            type=registry,ref=${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:main
+            type=gha
           cache-to: type=gha,mode=max
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
@@ -167,7 +170,10 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:${{ needs.sanitize.outputs.image_tag }}
             ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:preview-${{ needs.sanitize.outputs.branch_safe }}
-          cache-from: type=gha
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+            type=registry,ref=${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:main
+            type=gha
           cache-to: type=gha,mode=max
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}

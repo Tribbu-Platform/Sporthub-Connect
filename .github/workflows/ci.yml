@@ -193,6 +193,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [backend, frontend]
+    # Saltar en ramas hu/* porque deploy-preview ya construye, pushea y
+    # hace smoke test de las mismas imágenes. Evita build duplicado.
+    if: ${{ !startsWith(github.ref_name, 'hu/') && !startsWith(github.head_ref, 'hu/') }}
 
     steps:
       - name: Checkout repository
