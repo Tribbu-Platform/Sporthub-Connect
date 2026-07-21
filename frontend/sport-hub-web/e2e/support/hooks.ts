@@ -2,7 +2,6 @@ import { BeforeAll, AfterAll, Before, After, Status, setDefaultTimeout } from '@
 import { chromium } from '@playwright/test';
 import { ICustomWorld } from './world';
 import { spawn, ChildProcess } from 'child_process';
-import * as path from 'path';
 import * as http from 'http';
 
 // Timeout global de steps: 30s para operaciones de Playwright (page.fill, page.click, etc.)
@@ -15,7 +14,7 @@ function waitForServer(url: string, timeoutMs: number = 60000): Promise<void> {
   const start = Date.now();
   return new Promise((resolve, reject) => {
     function check() {
-      http.get(url, (res) => {
+      http.get(url, (_res) => {
         // Aceptamos cualquier status code (incluyendo 5xx durante compilacion)
         resolve();
       }).on('error', () => {
