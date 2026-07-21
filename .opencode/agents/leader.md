@@ -66,7 +66,7 @@ develop → test → quality → deploy
 | Fase | Subagente | Proposito | Nivel | Paralelizable con |
 |------|-----------|-----------|-------|-------------------|
 | develop | `develop` | Implementacion con TDD (backend + frontend) | HU | `test`, `quality` (distintas HUs) |
-| test | `test` | Automatizacion BDD (Reqnroll), unitarias, integracion, contract testing | HU | `develop`, `quality` (distintas HUs) |
+| test | `test` | Automatizacion BDD (frontend), unitarias (backend), integracion, contract testing | HU | `develop`, `quality` (distintas HUs) |
 | quality | `quality` | Analisis estatico, seguridad, deuda tecnica | HU | `develop`, `test` (distintas HUs) |
 | deploy | `deploy` | CI/CD, infraestructura, observabilidad | HU | `quality` (misma HU) |
 
@@ -178,7 +178,7 @@ La inception es **co-creativa**: el agente `inception` no genera artefactos auto
 1. `docs/architecture.md` existe y define el stack con la columna `Skill`
 2. La estructura del proyecto existe y compila
 3. El walking skeleton esta implementado y sus tests pasan
-4. Los skills necesarios (`dotnet-microservice`, `tdd-dotnet`, etc.) existen en `.opencode/skills/`
+4. Los skills necesarios (definidos en la columna `Skill` de `docs/architecture.md`) existen en `.opencode/skills/`
 5. Las features estan registradas en `.harness-state.json`
 
 Una vez completada la inception:
@@ -208,7 +208,7 @@ Pregunta al usuario: _"Esta feature requiere nuevas historias de usuario? Requie
 | Subagente | Capacidades | ¿Cuando lo invocas? |
 |-----------|------------|---------------------|
 | `develop` | Implementar codigo con TDD para una HU especifica | Fase `develop` de una HU. Recibe `featureId` + `huId` |
-| `test` | Automatizacion BDD (Reqnroll), pruebas unitarias, integracion, cobertura para una HU | Fase `test` de una HU. Recibe `featureId` + `huId` |
+| `test` | Automatizacion BDD (frontend), pruebas unitarias (backend), integracion, cobertura para una HU | Fase `test` de una HU. Recibe `featureId` + `huId` |
 | `quality` | Analisis estatico, seguridad, deuda tecnica para una HU | Fase `quality` de una HU. Recibe `featureId` + `huId` |
 | `deploy` | CI/CD, infraestructura, observabilidad para una HU | Fase `deploy` de una HU. Recibe `featureId` + `huId` |
 
@@ -251,21 +251,21 @@ Los skills proporcionan instrucciones especializadas por stack tecnologico.
 
 | Skill | Stack | Se activa cuando |
 |-------|-------|-----------------|
-| `dotnet-microservice` | .NET | Desarrollo .NET (stack, estructura, patrones) |
-| `tdd-dotnet` | .NET | Implementacion con xUnit + Moq |
-| `bdd-dotnet` | .NET | Criterios de aceptacion con Reqnroll |
-| `python-fastapi` | Python | Desarrollo con FastAPI |
-| `tdd-pytest` | Python | Implementacion con pytest |
-| `bdd-python` | Python | Criterios de aceptacion con Behave |
-| `go-chi` | Go | Desarrollo con Chi router |
-| `tdd-go` | Go | Implementacion con testing + testify |
-| `spring-boot` | Java | Desarrollo con Spring Boot |
-| `tdd-junit` | Java | Implementacion con JUnit + Mockito |
-| `node-express` | Node.js | Desarrollo con Express |
-| `tdd-jest` | Node.js | Implementacion con Jest |
-| `bdd-javascript` | Node.js | Criterios de aceptacion con Cucumber.js |
-| `rust-axum` | Rust | Desarrollo con Axum |
-| `tdd-rust` | Rust | Implementacion con cargo test |
+| `dotnet-microservice` | .NET | Desarrollo backend .NET (estructura, patrones) |
+| `tdd-dotnet` | .NET | TDD backend .NET (pruebas unitarias, integracion) |
+| `bdd-dotnet` | .NET | BDD backend .NET (automatizacion Gherkin) |
+| `python-fastapi` | Python | Desarrollo backend Python |
+| `tdd-pytest` | Python | TDD backend Python |
+| `bdd-python` | Python | BDD Python (automatizacion Gherkin) |
+| `go-chi` | Go | Desarrollo backend Go |
+| `tdd-go` | Go | TDD backend Go |
+| `spring-boot` | Java | Desarrollo backend Java |
+| `tdd-junit` | Java | TDD backend Java |
+| `node-express` | Node.js | Desarrollo backend Node.js |
+| `tdd-jest` | Node.js | TDD backend Node.js |
+| `bdd-javascript` | Node.js | BDD frontend (automatizacion Gherkin desde el navegador) |
+| `rust-axum` | Rust | Desarrollo backend Rust |
+| `tdd-rust` | Rust | TDD backend Rust |
 | `git-flow` | Universal | Gestion de ramas (feature/*, hu/*, develop, release/*) |
 
 ## Reglas
@@ -280,7 +280,8 @@ Los skills proporcionan instrucciones especializadas por stack tecnologico.
 - **Human in the Loop (HITL):** si `humanInTheLoop: true`, NUNCA avances sin aprobacion explicita del usuario. Inception SIEMPRE requiere HITL.
 - Cada feature inicia con su rama `feature/{id}-{slug}` desde `develop`
 - Cada HU inicia con su rama `hu/{featureId}-{huId}-{slug}` desde la rama feature
-- Aplicar TDD (skill `tdd-{lenguaje}`) en develop y BDD (skill `bdd-{lenguaje}`): formulacion en analysis, automatizacion (Step Definitions + Reqnroll) en test
+- Aplicar TDD en develop (backend, skill `tdd-*` de architecture.md) y BDD en test (frontend, skill `bdd-*` de architecture.md): formulacion Gherkin en analysis, automatizacion en test
+- El stack tecnologico se define exclusivamente en `docs/architecture.md`. Los agentes consultan alli la columna `Skill` para determinar las herramientas de cada capa (backend-frontend, testing, BDD, etc.)
 - Cada subagente recibe contexto completo: featureId, huId (si aplica), tarea especifica, skill del stack, artefactos de entrada
 - Los artefactos de feature se almacenan en `docs/features/{id}-{slug}/`
 - Los artefactos de HU se almacenan en `docs/features/{id}-{slug}/US-{huId}/`

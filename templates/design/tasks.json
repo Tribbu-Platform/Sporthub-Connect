@@ -123,7 +123,7 @@
     {
       "id": "T012",
       "tier": "BDD",
-      "description": "Implementar step definitions con [Binding] para escenarios de {nombre flujo}",
+      "description": "Implementar step definitions para escenarios de {nombre flujo} desde el frontend",
       "layer": "BDD",
       "status": "pending",
       "testFile": null,
@@ -133,7 +133,7 @@
     {
       "id": "T013",
       "tier": "BDD",
-      "description": "Configurar proyecto de tests BDD (Reqnroll + xUnit) o actualizar existente",
+      "description": "Configurar proyecto de tests BDD (instalar dependencias, configurar runner segun docs/architecture.md)",
       "layer": "BDD",
       "status": "pending",
       "testFile": null,
@@ -153,7 +153,7 @@
 |------|-------------|
 | `Backend` | API, logica de negocio, persistencia, integraciones |
 | `Frontend` | UI, componentes, paginas, estado, consumo de APIs |
-| `BDD` | Automatizacion de criterios de aceptacion Gherkin (Given-When-Then) con Reqnroll |
+| `BDD` | Automatizacion de criterios de aceptacion Gherkin (Given-When-Then) desde el frontend. Tecnologia definida en `docs/architecture.md` |
 
 ## Backend — Capas y tareas tipicas
 
@@ -174,24 +174,23 @@
 | Mapeo | Crear mapping profiles/extensions (entidad ↔ DTO) | Application |
 | Middleware | Agregar middleware de logging, exception handling, correlation | Api |
 
-## BDD — Automatizacion de criterios de aceptacion
+## BDD — Automatizacion de criterios de aceptacion desde el frontend
 
-**Siempre incluir tareas BDD** para toda HU que tenga escenarios Gherkin definidos en `user-stories.md`. Las tareas BDD automatizan esos escenarios usando Reqnroll.
+**Siempre incluir tareas BDD** para toda HU que tenga escenarios Gherkin definidos en `user-stories.md`. Las tareas BDD automatizan esos escenarios desde el frontend, interactuando con la UI real.
 
-**Importante**: Las tareas BDD se ejecutan durante la fase `test` de la HU, a cargo del subagente `test`. El subagente `develop` NO implementa BDD — solo implementa backend + frontend. El subagente `test` es quien crea los archivos .feature y los step definitions.
+**Importante**: Las tareas BDD se ejecutan durante la fase `test` de la HU, a cargo del subagente `test`. El subagente `develop` NO implementa BDD — solo implementa backend (con TDD) y frontend (con tests unitarios). La tecnologia especifica para BDD se define en `docs/architecture.md`.
 
 | Origen | Tareas tipicas | Layer |
 |--------|---------------|-------|
-| Feature file | Crear archivo .feature con escenarios Gherkin de la HU | BDD |
-| Step Definitions | Implementar step definitions con [Binding] que conectan Gherkin con el sistema | BDD |
-| Proyecto tests | Configurar proyecto xUnit + Reqnroll con paquetes NuGet (si no existe) | BDD |
-| Hooks / DI | Configurar hooks (BeforeScenario, AfterScenario) e inyeccion de dependencias | BDD |
+| Feature file | Crear archivo .feature con escenarios Gherkin de la HU (extraidos de user-stories.md) | BDD |
+| Step Definitions | Implementar step definitions que conectan el Gherkin con la UI del frontend | BDD |
+| Configuracion | Instalar dependencias y configurar el runner BDD segun docs/architecture.md | BDD |
 
 Reglas:
 - Una tarea por archivo .feature (cada HU genera su propio feature file)
 - Una tarea por grupo de step definitions (agrupar steps relacionados)
-- Si es la primera HU de la feature con BDD, incluir tarea de creacion de proyecto
-- Las tareas BDD dependen de que existan las entidades de dominio y handlers (para que los steps invoquen logica real)
+- Si es la primera HU de la feature con BDD, incluir tarea de instalacion y configuracion
+- Las tareas BDD dependen de que el frontend de la HU este implementado (componentes, formularios, servicios API)
 
 ## Frontend — Capas y tareas tipicas
 
@@ -204,17 +203,15 @@ Reglas:
 | Store / Estado | Crear store/slice/contexto con estado inicial, acciones, reducers, selectores | State |
 | Ruta | Configurar ruta con path, lazy loading, guards de autenticacion/autorizacion | Routing |
 | Hook / Composable | Crear hook reutilizable para logica compartida entre componentes | Components |
-| Pipe / Filter | Crear pipe de formato/transformacion (fechas, monedas, texto) | Components |
 | Guard / Interceptor | Crear guard de ruta (auth, rol) o interceptor HTTP (token, error) | Routing / Services |
 | Test unitario | Crear test de componente/pagina con mocking de servicios y stores | Components / Pages |
-| Test e2e | Crear test end-to-end para el flujo completo de la HU | Pages |
 | Accesibilidad | Implementar roles ARIA, keyboard navigation, focus management | Components |
 | i18n | Agregar traducciones para textos estaticos y mensajes de la HU | Components |
-| Storybook | Crear stories para componentes con variantes y estados | Components |
 
 ## Reglas de tareas
 - Una tarea por artefacto concreto. Nada de "implementar dominio" o "hacer frontend".
-- Cada tarea debe ser accionable por `develop` en un ciclo TDD (RED → GREEN → REFACTOR).
-- El campo `tier` identifica si es Backend, Frontend o BDD.
+- Cada tarea debe ser accionable por `develop` en un ciclo TDD (RED → GREEN → REFACTOR) para backend.
+- El campo `tier` identifica si es Backend (TDD), Frontend (componentes + tests unitarios) o BDD (automatizacion frontend, ejecutada en fase test).
 - El campo `layer` identifica la capa especifica dentro del tier.
-- Las tareas se ordenan por precedencia y tier: primero Backend (Domain → Application → Infrastructure → Api), luego Frontend (Services → State → Components → Pages → Routing), y finalmente BDD (Feature file → Step Definitions → Proyecto).
+- Las tareas se ordenan por precedencia y tier: primero Backend (Domain → Application → Infrastructure → Api), luego Frontend (Services → State → Components → Pages → Routing), y finalmente BDD (Feature file → Step Definitions → Configuracion).
+- La tecnologia especifica para cada tier se define en `docs/architecture.md` (columna `Skill`). No asumas herramientas concretas.

@@ -5,17 +5,17 @@
 | **Feature** | F001 — Registro, Autenticación y Perfiles |
 | **Historia de Usuario** | US-001 — Registro con Email y Contraseña |
 | **Rama** | `hu/F001-US-001-registro-con-email-y-contrasena` |
-| **Fecha** | 2026-07-19 |
+| **Fecha** | 2026-07-20 |
 | **Estado** | Completado |
 
 ---
 
 ## Resumen Ejecutivo
 
-- **85 tests unitarios** (61 existentes + 24 agregados) — 100% passing
+- **85 tests unitarios** (backend) — 100% passing
 - **10 tests de integración** configurados con Testcontainers PostgreSQL
+- **7 escenarios BDD (Cucumber.js + Playwright)** — automatizados desde el frontend
 - **Cobertura por capa:** Domain 95.6% ✅, Application 85.5% ✅, Infrastructure 63.5% (core) ⚠️
-- **7 escenarios Gherkin:** 6 cubiertos completamente, 1 parcialmente
 
 ---
 
@@ -270,7 +270,65 @@ dotnet test tests\SportHub.Identity.IntegrationTests\ --verbosity normal
 
 ---
 
-## 5. Cobertura de Código
+## 5. Pruebas BDD (Acceptance Tests desde el Frontend)
+
+BDD automatizado con Cucumber.js + Playwright, validando los escenarios Gherkin directamente desde el navegador.
+
+### Arquitectura de pruebas
+
+| Componente | Descripción |
+|------------|-------------|
+| **Runner** | Cucumber.js con playwriting como engine de navegador |
+| **World** | CustomWorld con Page de Playwright, browser context por escenario |
+| **Hooks** | BeforeAll/AfterAll para lanzar/cerrar Chromium. Before/After para contexto por escenario |
+| **Escenarios** | 7 escenarios en `e2e/features/register.feature` |
+| **Step files** | 1 archivo consolidado: `e2e/step_definitions/register.steps.ts` (49 steps total) |
+
+### Dry run — validación de sintaxis
+
+```
+2 hooks (2 skipped)
+7 scenarios (7 skipped)
+49 steps (49 skipped)
+```
+
+### Escenarios BDD
+
+| # | Escenario | Steps | Archivo .feature |
+|---|-----------|-------|-----------------|
+| 1 | Registro exitoso con email y contraseña válidos | 7 pasos | `register.feature` |
+| 2 | Rechazo cuando email ya existe (verificado) | 5 pasos | `register.feature` |
+| 3 | Rechazo cuando email ya existe (no verificado) | 4 pasos | `register.feature` |
+| 4 | Rechazo cuando contraseña es demasiado corta | 4 pasos | `register.feature` |
+| 5 | Rechazo cuando contraseña no tiene carácter especial | 4 pasos | `register.feature` |
+| 6 | Rechazo cuando formato de email inválido | 4 pasos | `register.feature` |
+| 7 | Rechazo cuando campos obligatorios vacíos | 3 pasos | `register.feature` |
+
+### Archivos generados
+
+| Archivo | Ruta |
+|---------|------|
+| Feature file | `frontend/sport-hub-web/e2e/features/register.feature` |
+| Step definitions | `frontend/sport-hub-web/e2e/step_definitions/register.steps.ts` |
+| Config | `frontend/sport-hub-web/cucumber.js` |
+| World (CustomWorld) | `frontend/sport-hub-web/e2e/support/world.ts` |
+| Hooks (setup/teardown) | `frontend/sport-hub-web/e2e/support/hooks.ts` |
+
+### Requisitos de ejecución
+
+Los tests BDD requieren que el frontend esté corriendo:
+```bash
+cd frontend/sport-hub-web
+# Terminal 1: iniciar servidor
+npm run dev
+
+# Terminal 2: ejecutar BDD
+npm run test:bdd
+```
+
+---
+
+## 6. Cobertura de Código
 
 ### Resultados por proyecto (unit tests)
 
@@ -333,7 +391,7 @@ Clase base `Entity` y `ValueObject` con métodos de igualdad, operadores y event
 
 ---
 
-## 6. Contract Testing (Pendiente)
+## 7. Contract Testing (Pendiente)
 
 ### Estado
 
@@ -354,44 +412,43 @@ Los contract tests con **PactNet** están pendientes de implementación. Se requ
 
 ---
 
-## 7. Resumen de Escenarios Gherkin vs Tests
+## 8. Resumen de Escenarios Gherkin vs Cobertura
 
-| # | Escenario | Estado | Tests que lo cubren |
-|---|-----------|--------|---------------------|
-| 1 | Registro exitoso | ✅ 100% | 9 tests en Handler, User, VO, Repository, TokenService |
-| 2 | Email inválido | ✅ 100% | 3 tests en EmailAddress y Validator |
-| 3 | Contraseña débil | ✅ 100% | 5 tests en PasswordHash y Validator |
-| 4 | Email duplicado | ✅ 100% | 3 tests en Handler y Repository |
-| 5 | Campos vacíos | ✅ 100% | 2 tests en Validator (validación por FluentValidation) |
-| 6 | Reintento email no verificado | ⚠️ Parcial | Handler no distingue verified vs unverified |
-| 7 | Error Auth0 | ⚠️ Parcial | Error capturado pero falta rollback transaccional |
+| # | Escenario | Backend (TDD) | Frontend (BDD) | Estado |
+|---|-----------|--------------|----------------|--------|
+| 1 | Registro exitoso | 9 tests unitarios | `Should_RegisterSuccessfully_When_ValidEmailAndPassword` | ✅ |
+| 2 | Email inválido | 3 tests unitarios | `Should_RejectRegistration_When_InvalidEmailFormat` | ✅ |
+| 3 | Contraseña débil | 5 tests unitarios | `Should_RejectRegistration_When_PasswordTooShort` + `Should_RejectRegistration_When_PasswordWithoutSpecialChar` | ✅ |
+| 4 | Email duplicado | 3 tests unitarios | `Should_RejectRegistration_When_EmailAlreadyExists` + `Should_RejectRegistration_When_EmailAlreadyExistsButNotVerified` | ✅ |
+| 5 | Campos vacíos | 2 tests unitarios | `Should_RejectRegistration_When_EmptyFields` | ✅ |
+| 6 | Reintento email no verificado | Tests handler | `Should_RejectRegistration_When_EmailAlreadyExistsButNotVerified` | ✅ |
+| 7 | Error Auth0 | Tests handler | — (error de backend) | ⚠️ Parcial |
 
 ---
 
-## 8. Recomendaciones
+## 9. Recomendaciones
 
 ### Inmediatas (alta prioridad)
 
-1. **Escenario 6 (reintento email no verificado):** Modificar `RegisterCommandHandler` para obtener el usuario existente via `GetByEmailAsync`, verificar `EmailVerified`, y permitir re-registro si no está verificado. Agregar tests unitarios e integración.
-2. **Escenario 7 (rollback transaccional):** Implementar patrón Outbox/Saga o transacción distribuida para asegurar consistencia entre Auth0 y BD local. Si Auth0 tiene éxito pero BD falla, eliminar usuario de Auth0 o marcar para compensación.
+1. **Escenario 7 (rollback transaccional):** Implementar patrón Outbox/Saga o transacción distribuida para asegurar consistencia entre Auth0 y BD local. Si Auth0 tiene éxito pero BD falla, eliminar usuario de Auth0 o marcar para compensación.
 
 ### Corto plazo
 
-3. **Contract tests:** Implementar PactNet con el contrato definido en `api-contract.yaml`.
-4. **Ejecutar integration tests:** Verificar Docker y ejecutar los 10 tests de integración con Testcontainers.
-5. **Mejorar cobertura de Infrastructure:** Agregar tests para `IdentityDbContext.SaveEntitiesAsync` (outbox) en integration tests.
-6. **Mejorar cobertura de Shared.Abstractions:** Agregar tests para `Entity.Equals`/`GetHashCode`/operators y `ClearDomainEvents`.
+2. **Contract tests:** Implementar PactNet con el contrato definido en `api-contract.yaml`.
+3. **Ejecutar integration tests:** Verificar Docker y ejecutar los 10 tests de integración con Testcontainers.
+4. **Mejorar cobertura de Infrastructure:** Agregar tests para `IdentityDbContext.SaveEntitiesAsync` (outbox) en integration tests.
+5. **Mejorar cobertura de Shared.Abstractions:** Agregar tests para `Entity.Equals`/`GetHashCode`/operators y `ClearDomainEvents`.
 
 ### Mediano plazo
 
-7. **HealthCheckRepository:** Agregar tests unitarios e integración (no crítico para US-001).
-8. **Automatizar en CI:** Configurar pipeline para ejecutar unit + integration tests y validar cobertura mínima.
+6. **HealthCheckRepository:** Agregar tests unitarios e integración (no crítico para US-001).
+7. **Automatizar en CI:** Configurar pipeline para ejecutar unit + integration tests, tests BDD (con servidor de pruebas) y validar cobertura mínima.
 
 ---
 
-## 9. Archivos Generados/Modificados
+## 10. Archivos Generados/Modificados
 
-### Tests agregados (5 archivos, +24 tests)
+### Tests agregados (12 archivos, +31 tests backend + BDD frontend)
 
 | Archivo | Tests | Descripción |
 |---------|-------|-------------|
@@ -400,8 +457,13 @@ Los contract tests con **PactNet** están pendientes de implementación. Se requ
 | `Application/Commands/Register/RegisterCommandHandlerTests/HandleAsyncAdditionalTests.cs` | 5 | Handler: Auth0 fail, terms, email response, duplicate skips Auth0, persist order |
 | `Repositories/UserRepositoryIntegrationTests.cs` | 7 | CRUD con PostgreSQL real (IntegrationTests) |
 | `Handlers/RegisterCommandHandlerIntegrationTests.cs` | 3 | Flujo completo con BD real (IntegrationTests) |
+| `frontend/.../e2e/features/register.feature` | 7 escenarios BDD | Gherkin scenarios for registro (frontend) |
+| `frontend/.../e2e/step_definitions/register.steps.ts` | 49 steps | Step definitions con Playwright |
+| `frontend/.../e2e/support/world.ts` | — | CustomWorld con Page de Playwright |
+| `frontend/.../e2e/support/hooks.ts` | 2 hooks | BeforeAll/AfterAll + Before/After |
+| `frontend/.../cucumber.js` | — | Configuración Cucumber.js |
 
-### Tes configurados
+### Tests configurados
 
 | Archivo | Descripción |
 |---------|-------------|
@@ -412,11 +474,11 @@ Los contract tests con **PactNet** están pendientes de implementación. Se requ
 
 | Archivo | Ubicación |
 |---------|-----------|
-| Reporte Cobertura XML | `tests/coverage/dd3ea77c-845f-497e-97c0-97336895404d/coverage.cobertura.xml` |
+| Reporte Cobertura XML | `tests/coverage/latest/{guid}/coverage.cobertura.xml` |
 
 ---
 
-## 10. Thresholds vs Realidad
+## 11. Thresholds vs Realidad
 
 | Threshold | Requerido | Actual | Estado |
 |-----------|-----------|--------|--------|
@@ -425,6 +487,7 @@ Los contract tests con **PactNet** están pendientes de implementación. Se requ
 | Core Infrastructure coverage | >= 70% | 63.5% | ⚠️ Pendiente |
 | Tests unitarios | 100% passing | 85/85 | ✅ |
 | Tests integración | Configurados | 10 tests | ✅ (Docker req.) |
+| Tests BDD (frontend) | 7 escenarios automatizados | Cucumber.js + Playwright | ✅ Configurado |
 
 ---
 

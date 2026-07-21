@@ -56,9 +56,9 @@ Ubicacion: `docs/features/{id}-{slug}/US-{huId}/tasks.json`
 
 | Tier | Descripcion | Layers |
 |------|-------------|--------|
-| `Backend` | API, logica de negocio, persistencia, integraciones | Domain, Application, Infrastructure, Api |
-| `Frontend` | UI, componentes, paginas, estado, consumo de APIs | Components, Pages, State, Services, Routing |
-| `BDD` | Automatizacion de criterios de aceptacion Gherkin (Given-When-Then) con Reqnroll | BDD |
+| `Backend` | API, logica de negocio, persistencia, integraciones. Se prueba con TDD | Domain, Application, Infrastructure, Api |
+| `Frontend` | UI, componentes, paginas, estado, consumo de APIs. Se prueba con tests unitarios + BDD desde el navegador | Components, Pages, State, Services, Routing |
+| `BDD` | Automatizacion de criterios de aceptacion Gherkin (Given-When-Then) desde el frontend. La tecnologia especifica esta definida en `docs/architecture.md` (columna Skill `bdd-*`) | BDD |
 
 #### Backend — Origen y tareas por capa
 
@@ -85,24 +85,25 @@ Ubicacion: `docs/features/{id}-{slug}/US-{huId}/tasks.json`
 | Store / Estado | Crear store/slice con acciones, reducers, selectores | State |
 | Ruta | Configurar ruta con lazy loading y guards | Routing |
 
-#### BDD — Automatizacion de criterios de aceptacion
+#### BDD — Automatizacion de criterios de aceptacion desde el frontend
 
-**IMPORTANTE**: Siempre debes incluir tareas BDD para **todas las HUs** que tengan escenarios Gherkin definidos en `user-stories.md`. Las tareas BDD automatizan esos escenarios usando Reqnroll.
+**IMPORTANTE**: Siempre debes incluir tareas BDD para **todas las HUs** que tengan escenarios Gherkin definidos en `user-stories.md`. Las tareas BDD automatizan esos escenarios desde el frontend, interactuando con la UI real.
 
-**Nota**: Las tareas BDD (tier `BDD`) se ejecutan durante la fase `test` de la HU, a cargo del subagente `test`. El subagente `develop` NO implementa BDD — solo implementa backend + frontend. El subagente `test` crea los feature files .feature y los step definitions con [Binding].
+**Nota**: Las tareas BDD (tier `BDD`) se ejecutan durante la fase `test` de la HU, a cargo del subagente `test`. El subagente `develop` NO implementa BDD — solo implementa backend (con TDD) y frontend (con tests unitarios). El subagente `test` es quien automatiza los escenarios Gherkin desde el navegador.
+
+La tecnologia especifica para BDD se define en `docs/architecture.md` (secciones 5.1 Backend y 5.2 Frontend, columna Skill con prefijo `bdd-*`).
 
 | Origen | Tareas tipicas | Layer |
 |--------|---------------|-------|
 | Feature file | Crear archivo .feature con escenarios Gherkin de la HU (Given/When/Then del user-stories.md) | BDD |
-| Step Definitions | Implementar step definitions (clases con [Binding]) que conectan el Gherkin con el sistema | BDD |
-| Hooks / DI | Configurar hooks de Reqnroll (BeforeScenario, AfterScenario) e inyeccion de dependencias | BDD |
-| Proyecto tests | Crear o configurar proyecto xUnit + Reqnroll con paquetes NuGet | BDD |
+| Step Definitions | Implementar step definitions que conectan el Gherkin con la UI del frontend | BDD |
+| Configuracion | Configurar el runner BDD, instalacion de dependencias, hooks de setup/teardown | BDD |
 
 Reglas para generar tareas BDD:
 1. **Una tarea por archivo .feature** — cada HU genera su propio feature file
 2. **Una tarea por grupo de step definitions** — agrupar steps relacionados (ej. "Steps para registro exitoso", "Steps para validacion")
-3. **Configuracion de proyecto** — si es la primera HU de la feature con BDD, incluir tarea para crear/actualizar el proyecto de acceptance tests
-4. **Dependencias**: las tareas BDD dependen de que existan las entidades de dominio y los handlers de application (para que los steps puedan invocar la logica real)
+3. **Configuracion de proyecto** — si es la primera HU de la feature con BDD, incluir tarea para instalar dependencias y configurar el runner BDD (la tecnologia especifica se lee de `docs/architecture.md`)
+4. **Dependencias**: las tareas BDD dependen de que el frontend de la HU este implementado (componentes, formularios, servicios API) para que los steps puedan interactuar con la UI real
 
 Ejemplo de `tasks.json` con todos los tiers (Backend, Frontend, BDD):
 
@@ -120,8 +121,8 @@ Ejemplo de `tasks.json` con todos los tiers (Backend, Frontend, BDD):
     { "id": "T006", "tier": "Frontend", "description": "Crear componente GoogleLoginButton con estados loading/error",           "layer": "Components",    "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
     { "id": "T007", "tier": "Frontend", "description": "Crear pagina LoginPage con layout y consumo del endpoint",               "layer": "Pages",          "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
     { "id": "T008", "tier": "Frontend", "description": "Crear servicio authApiClient con metodo loginWithGoogle()",              "layer": "Services",      "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
-    { "id": "T009", "tier": "BDD",      "description": "Crear archivo .feature con escenarios Gherkin de login OAuth",           "layer": "BDD",            "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
-    { "id": "T010", "tier": "BDD",      "description": "Implementar step definitions para login OAuth exitoso y errores",        "layer": "BDD",            "status": "pending", "testFile": null, "startedAt": null, "completedAt": null }
+    { "id": "T009", "tier": "BDD",      "description": "Crear archivo .feature con escenarios Gherkin de login OAuth (desde user-stories.md)", "layer": "BDD", "status": "pending", "testFile": null, "startedAt": null, "completedAt": null },
+    { "id": "T010", "tier": "BDD",      "description": "Implementar step definitions para login OAuth exitoso y errores desde el frontend",  "layer": "BDD", "status": "pending", "testFile": null, "startedAt": null, "completedAt": null }
   ]
 }
 ```

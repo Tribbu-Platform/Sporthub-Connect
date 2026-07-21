@@ -290,21 +290,21 @@
       "status": "pending",
       "dependsOn": [],
       "tddStep": null,
-      "description": "Crear archivo .feature con los 7 escenarios Gherkin de US-001 en tests/SportHub.Identity.AcceptanceTests/Features/Register.feature. Incluir Feature, Background con datos comunes, y todos los escenarios con Given/When/Then.",
+      "description": "Crear archivo .feature con los 7 escenarios Gherkin de US-001 (extraidos de user-stories.md). Incluir Feature, Background con datos comunes, y todos los escenarios con Given/When/Then. La tecnologia especifica para BDD se define en docs/architecture.md.",
       "files": [
-        "tests/SportHub.Identity.AcceptanceTests/Features/Register.feature"
+        "frontend/sport-hub-web/e2e/features/register.feature"
       ]
     },
     {
       "id": "T025",
       "layer": "BDD",
-      "title": "Implementar Step Definitions para registro exitoso",
+      "title": "Implementar Step Definitions para registro exitoso y email duplicado",
       "status": "pending",
-      "dependsOn": ["T024", "T001", "T008"],
+      "dependsOn": ["T024"],
       "tddStep": null,
-      "description": "Implementar step definitions en Steps/RegisterSteps.cs para los escenarios de registro exitoso y email duplicado. Incluir: Given/When/Then para creacion de usuario, verificacion de email unico, y respuesta del sistema. Usar Reqnroll [Binding] attributes y DI para inyectar dependencias.",
+      "description": "Implementar step definitions para escenarios de registro exitoso y email duplicado. Conectar Gherkin con la UI del formulario de registro: navegar al formulario, completar campos, submit, verificar respuesta. Para escenarios de error (email duplicado), mockear respuesta del backend.",
       "files": [
-        "tests/SportHub.Identity.AcceptanceTests/Steps/RegisterSteps.cs"
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
       ]
     },
     {
@@ -312,11 +312,11 @@
       "layer": "BDD",
       "title": "Implementar Step Definitions para validacion de password",
       "status": "pending",
-      "dependsOn": ["T024", "T002", "T003"],
+      "dependsOn": ["T024"],
       "tddStep": null,
-      "description": "Implementar step definitions para escenarios de validacion de password: corta, sin caracter especial. Verificar que el sistema rechaza con los codigos de error correctos.",
+      "description": "Implementar step definitions para escenarios de validacion de password: corta (5 chars), sin caracter especial. Verificar que la UI muestra los mensajes de error correspondientes del lado del frontend.",
       "files": [
-        "tests/SportHub.Identity.AcceptanceTests/Steps/PasswordValidationSteps.cs"
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
       ]
     },
     {
@@ -324,24 +324,24 @@
       "layer": "BDD",
       "title": "Implementar Step Definitions para validacion de email y campos vacios",
       "status": "pending",
-      "dependsOn": ["T024", "T002"],
+      "dependsOn": ["T024"],
       "tddStep": null,
-      "description": "Implementar step definitions para escenarios: email invalido, campos vacios. Verificar errores de validacion del sistema.",
+      "description": "Implementar step definitions para escenarios: email invalido, campos vacios. Verificar que la UI muestra errores de validacion visibles para el usuario.",
       "files": [
-        "tests/SportHub.Identity.AcceptanceTests/Steps/EmailValidationSteps.cs"
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
       ]
     },
     {
       "id": "T028",
       "layer": "BDD",
-      "title": "Configurar proyecto de tests BDD con Reqnroll + xUnit",
+      "title": "Configurar proyecto de tests BDD en el frontend",
       "status": "pending",
       "dependsOn": ["T024"],
       "tddStep": null,
-      "description": "Crear proyecto SportHub.Identity.AcceptanceTests con xUnit + Reqnroll. Agregar paquetes NuGet: Reqnroll, Reqnroll.xUnit, Reqnroll.Microsoft.Extensions.DependencyInjection. Configurar Reqnroll.json con binding cultures. Configurar DI via Hooks con dependencias reales o mocks segun el escenario.",
+      "description": "Instalar dependencias (@cucumber/cucumber, configuracion de cucumber.js), configurar el runner BDD segun docs/architecture.md, agregar script npm para ejecucion. Configurar hooks de setup/teardown (BeforeAll, AfterAll) para iniciar/cerrar el navegador.",
       "files": [
-        "tests/SportHub.Identity.AcceptanceTests/SportHub.Identity.AcceptanceTests.csproj",
-        "tests/SportHub.Identity.AcceptanceTests/reqnroll.json"
+        "frontend/sport-hub-web/cucumber.js",
+        "frontend/sport-hub-web/e2e/support/world.ts"
       ]
     }
   ]

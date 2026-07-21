@@ -333,7 +333,6 @@ Cada modulo tiene su propio `DbContext` de EF Core configurado con `HasDefaultSc
 | Health Checks | ASP.NET Core Health Checks | 10.0 | Liveness, readiness y startup probes. Checks para PostgreSQL, Redis, RabbitMQ y APIs externas | `dotnet-microservice` |
 | Background Jobs | Hangfire / Quartz.NET | 1.x / 3.x | Procesamiento nocturno de leaderboards, expiracion de notificaciones, envio de recordatorios de eventos | `dotnet-microservice` |
 | Testing (Unit) | xUnit + Moq + AutoFixture | 2.x + 4.x + 4.x | TDD con RED-GREEN-REFACTOR. Moq para mockeo estricto. AutoFixture para datos de prueba | `tdd-dotnet` |
-| Testing (BDD) | Reqnroll (SpecFlow fork) | 2.x | Criterios de aceptacion en Gherkin (Given-When-Then). Sucesor mantenido de SpecFlow con soporte .NET 10 | `bdd-dotnet` |
 | Testing (Integration) | xUnit + Testcontainers | 2.x + 3.x | Testcontainers para PostgreSQL, Redis y RabbitMQ en integration tests. Tests reproducibles sin dependencias externas | `tdd-dotnet` |
 | Testing (Contract) | PactNet / custom | 4.x | Consumer-driven contract testing entre modulos | `tdd-dotnet` |
 
@@ -348,7 +347,8 @@ Cada modulo tiene su propio `DbContext` de EF Core configurado con `HasDefaultSc
 | UI Components | shadcn/ui + Tailwind CSS | — + 4.x | Componentes accesibles (WCAG 2.1 AA), personalizables, tailwind para estilos utilitarios | `shadcn` + `tailwind` |
 | Data Fetching | TanStack Query (React Query) | 5.x | Cache, refetching, paginacion infinita, mutaciones optimistas. Integracion con SignalR para invalidacion de cache | `tanstack-query` |
 | Formularios | React Hook Form + Zod | 7.x + 3.x | Manejo de formularios con validacion de esquema Zod. Tipos inferidos automaticamente | `react-hook-form` + `zod` |
-| Testing | Vitest + Testing Library | 2.x + 16.x | Tests unitarios y de componentes. Compatible con ecosistema Vite. Mas rapido que Jest | `vitest` |
+| Testing (Unit) | Vitest + Testing Library | 2.x + 16.x | Tests unitarios y de componentes. Compatible con ecosistema Vite. Mas rapido que Jest | `vitest` |
+| Testing (BDD) | Cucumber.js + Playwright | 11.x + 1.x | Automatizacion de criterios de aceptacion Gherkin (Given-When-Then) desde el frontend. Step definitions usan Playwright para interaccion real con el navegador | `bdd-javascript` |
 | E2E | Playwright | 1.x | Tests end-to-end cross-browser. PWA, geolocalizacion mock, parallel execution | `playwright` |
 | PWA | next-pwa + Workbox | — + 7.x | Service worker, cache offline, instalacion como app nativa | *(Sin skill)* |
 
@@ -367,7 +367,7 @@ Cada modulo tiene su propio `DbContext` de EF Core configurado con `HasDefaultSc
 
 ### Nota sobre skills de frontend
 
-Los skills de frontend estan completamente cubiertos: 18 skills de `Pythoughts-labs/react-frontend-skills` (React 19, Next.js 16, TypeScript, Tailwind v4, shadcn/ui, TanStack Query, React Hook Form, Zod, Vitest, Playwright, MSW, TDD, feature-arch) + 2 skills complementarios (`react-architecture-checklist`, `react-security-review`). Las tareas de backend estan cubiertas por `dotnet-microservice`, `tdd-dotnet`, `bdd-dotnet`, `ef-migration-manager`, `dotnet-architecture-checklist`, `dotnet-security-review` y `minimal-api-scaffolder`.
+Los skills de frontend estan completamente cubiertos: 18 skills de `Pythoughts-labs/react-frontend-skills` (React 19, Next.js 16, TypeScript, Tailwind v4, shadcn/ui, TanStack Query, React Hook Form, Zod, Vitest, Playwright, MSW, TDD, feature-arch) + 2 skills complementarios (`react-architecture-checklist`, `react-security-review`) + `bdd-javascript` para BDD (Cucumber.js + Playwright desde el frontend). Las tareas de backend estan cubiertas por `dotnet-microservice`, `tdd-dotnet`, `ef-migration-manager`, `dotnet-architecture-checklist`, `dotnet-security-review` y `minimal-api-scaffolder`.
 
 ---
 
@@ -647,7 +647,7 @@ La piramide de testing de SportHub Connect sigue los principios de la **piramide
 | **Unit Tests** | Test unitarios de dominio y aplicacion | xUnit + Moq + AutoFixture | >= 80% | Validar entidades, value objects, commands, queries, handlers. Sin dependencias externas. |
 | **Integration Tests** | Test de integracion con infraestructura real | xUnit + Testcontainers (PostgreSQL, Redis, RabbitMQ) | >= 60% en modulos core | Validar repositorios, consumidores de eventos, publicacion de eventos, integracion con Auth0 (mock), Stripe (mock). |
 | **Contract Tests** | Consumer-driven contract tests | PactNet | Por modulo que expone API | Validar que los contratos entre modulos no se rompen. Evitar integracion fantasma. |
-| **BDD / Acceptance** | Criterios de aceptacion automatizados | Reqnroll (Gherkin) | 1 escenario por HU | Validar flujos de negocio end-to-end desde la perspectiva del usuario. |
+| **BDD / Acceptance** | Criterios de aceptacion automatizados desde el frontend | Cucumber.js + Playwright (Gherkin) | 1 escenario por HU | Validar flujos de negocio end-to-end desde la perspectiva del usuario, interactuando con la UI real. |
 | **E2E Tests** | Flujos criticos completos | Playwright | Flujos criticos (happy paths) | Login, crear comunidad, crear evento, RSVP, check-in, ver XP ganado, ver leaderboard. |
 | **Architecture Tests** | Validacion de reglas arquitectonicas | NetArchTest | Reglas clave | Verificar dependencias entre capas, convenciones de nombrado, no dependencias prohibidas entre modulos. |
 | **Load Tests** | Pruebas de carga | k6 / NBomber | Antes de release | Simular 500 rps, 10,000 usuarios concurrentes. Validar auto-scaling y limites. |
