@@ -63,7 +63,10 @@ param(
     [string]$RegistryServer = 'ghcr.io',
 
     [Parameter()]
-    [string]$RegistryUsername = 'Tribbu-Platform'
+    [string]$RegistryUsername = 'Tribbu-Platform',
+
+    [Parameter()]
+    [string]$PostgresPassword = 'PLACEHOLDER'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -98,6 +101,8 @@ if ($Action -eq 'create') {
         Write-Host "    Preview already exists. Updating images..." -ForegroundColor Yellow
         
         # Update API container image
+        # Note: 'az containerapp update' triggers a new revision automatically,
+        # no manual restart needed.
         az containerapp update `
             --name $apiName `
             --resource-group $ResourceGroup `
@@ -112,16 +117,6 @@ if ($Action -eq 'create') {
             --image "ghcr.io/tribbu-platform/sporthub-connect/web:${ImageTag}" `
             --output none
         Write-Host "   Web updated to $ImageTag"
-        
-        # Restart revisions to pick up new image
-        az containerapp revision restart `
-            --name $apiName `
-            --resource-group $ResourceGroup `
-            --output none 2>$null
-        az containerapp revision restart `
-            --name $webName `
-            --resource-group $ResourceGroup `
-            --output none 2>$null
         
         Write-Host "   Preview updated and restarted!"
         return
@@ -175,7 +170,7 @@ if ($Action -eq 'create') {
         --set-env-vars `
             "ASPNETCORE_ENVIRONMENT=Preview" `
             "ASPNETCORE_URLS=http://+:8080" `
-            "ConnectionStrings__PostgreSQL=Host=${pgHost};Port=5432;Database=sporthub;Username=sporthub_admin;Password=PLACEHOLDER;SSL Mode=Require;Trust Server Certificate=true" `
+            "ConnectionStrings__PostgreSQL=Host=${pgHost};Port=5432;Database=sporthub;Username=sporthub_admin;Password=${PostgresPassword};SSL Mode=Require;Trust Server Certificate=true" `
             "ConnectionStrings__Redis=${redisHost}:6380,password=${redisKey},ssl=True,abortConnect=False" `
             "ConnectionStrings__RabbitMQ=amqp://sporthub:placeholder@localhost:5672" `
             "Auth0__Domain=$env:AUTH0_DOMAIN" `

@@ -434,7 +434,8 @@ jobs:
             -ResourceGroup "${{ env.AZURE_RESOURCE_GROUP }}" `
             -EnvironmentName "${{ env.AZURE_CONTAINER_APP_ENV }}" `
             -RegistryServer "${{ env.REGISTRY }}" `
-            -RegistryUsername "${{ github.repository_owner }}"
+            -RegistryUsername "${{ github.repository_owner }}" `
+            -PostgresPassword "${{ secrets.POSTGRES_ADMIN_PASSWORD }}"
         env:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
           GHCR_PASSWORD: ${{ secrets.GHCR_PASSWORD }}
