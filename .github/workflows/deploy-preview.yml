@@ -203,19 +203,32 @@ jobs:
     if: >
       (github.event_name == 'push' || 
        (github.event_name == 'pull_request' && github.event.action != 'closed'))
-      && secrets.AZURE_CREDENTIALS != ''
     timeout-minutes: 15
 
     steps:
+      - name: Check if Azure credentials are set
+        id: check_secrets
+        shell: bash
+        run: |
+          if [[ "${{ secrets.AZURE_CREDENTIALS }}" == "" ]]; then
+            echo "AZURE_CREDENTIALS not set — skipping deploy"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout repository
+        if: steps.check_secrets.outputs.skip != 'true'
         uses: actions/checkout@v4
 
       - name: Log in to Azure
+        if: steps.check_secrets.outputs.skip != 'true'
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Log in to GHCR (Azure deployment)
+        if: steps.check_secrets.outputs.skip != 'true'
         uses: azure/container-apps-deploy-action@v1
         with:
           registryUrl: ${{ env.REGISTRY }}
@@ -223,6 +236,7 @@ jobs:
           registryPassword: ${{ secrets.GHCR_PASSWORD }}
 
       - name: Deploy API Container App
+        if: steps.check_secrets.outputs.skip != 'true'
         shell: pwsh
         run: |
           $branchSafe = "${{ needs.sanitize.outputs.branch_safe }}"
@@ -241,6 +255,7 @@ jobs:
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
 
       - name: Wait for health checks
+        if: steps.check_secrets.outputs.skip != 'true'
         shell: bash
         run: |
           BRANCH_SAFE="${{ needs.sanitize.outputs.branch_safe }}"
@@ -282,7 +297,7 @@ jobs:
           echo "WEB_URL=https://${WEB_FQDN}" >> $GITHUB_ENV
 
       - name: Comment PR with preview URLs
-        if: github.event_name == 'pull_request'
+        if: steps.check_secrets.outputs.skip != 'true' && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
@@ -334,19 +349,32 @@ jobs:
     needs: [sanitize]
     if: >
       github.event_name == 'pull_request' && github.event.action == 'closed'
-      && secrets.AZURE_CREDENTIALS != ''
     timeout-minutes: 10
 
     steps:
+      - name: Check if Azure credentials are set
+        id: check_secrets
+        shell: bash
+        run: |
+          if [[ "${{ secrets.AZURE_CREDENTIALS }}" == "" ]]; then
+            echo "AZURE_CREDENTIALS not set — skipping destroy"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout repository
+        if: steps.check_secrets.outputs.skip != 'true'
         uses: actions/checkout@v4
 
       - name: Log in to Azure
+        if: steps.check_secrets.outputs.skip != 'true'
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Destroy preview infrastructure
+        if: steps.check_secrets.outputs.skip != 'true'
         shell: pwsh
         run: |
           $branchSafe = "${{ needs.sanitize.outputs.branch_safe }}"
@@ -358,7 +386,7 @@ jobs:
             -EnvironmentName "${{ env.AZURE_CONTAINER_APP_ENV }}"
 
       - name: Comment PR with destruction notice
-        if: github.event_name == 'pull_request'
+        if: steps.check_secrets.outputs.skip != 'true' && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
