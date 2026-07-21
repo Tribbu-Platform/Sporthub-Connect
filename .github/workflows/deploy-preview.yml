@@ -62,19 +62,23 @@ jobs:
         shell: bash
         run: |
           COMMIT="${{ github.sha }}"
-          echo "Waiting for CI to pass on commit $COMMIT..."
+          echo "Waiting for CI workflow (ci.yml) to pass on commit $COMMIT..."
           for i in $(seq 1 30); do
-            CONCLUSION=$(gh api "repos/${{ github.repository }}/commits/$COMMIT/check-runs" \
-              --jq '.check_runs | group_by(.name | test("^CI")) | .[0][] | .conclusion' 2>/dev/null || echo "")
-            if echo "$CONCLUSION" | grep -q "^success$"; then
+            CONCLUSION=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs?head_sha=$COMMIT&event=${{ github.event_name }}&per_page=1" \
+              --jq '.workflow_runs[0].conclusion' 2>/dev/null || echo "")
+            if [ "$CONCLUSION" = "success" ]; then
               echo "CI passed!"
               exit 0
             fi
-            if echo "$CONCLUSION" | grep -q "^failure\|^cancelled\|^timed_out"; then
+            if [ "$CONCLUSION" = "failure" ] || [ "$CONCLUSION" = "cancelled" ] || [ "$CONCLUSION" = "timed_out" ]; then
               echo "CI failed: $CONCLUSION"
               exit 1
             fi
-            echo "CI still running... attempt $i/30"
+            if [ -z "$CONCLUSION" ] || [ "$CONCLUSION" = "null" ]; then
+              echo "CI workflow not found yet or still running... attempt $i/30"
+            else
+              echo "CI status: $CONCLUSION... attempt $i/30"
+            fi
             sleep 10
           done
           echo "CI did not complete within 5 minutes"
