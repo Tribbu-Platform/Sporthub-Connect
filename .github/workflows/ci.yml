@@ -1,6 +1,9 @@
 # ===================================================================
 # SportHub Connect — CI Pipeline
 # ===================================================================
+permissions:
+  contents: read
+  security-events: write
 # Ejecuta build + test + code analysis en PRs hacia develop y main,
 # y en pushes directos a ramas feature/* y develop.
 #
