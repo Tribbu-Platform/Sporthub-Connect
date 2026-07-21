@@ -33,8 +33,7 @@ concurrency:
 env:
   # ─── Container Registry (GHCR) ───────────────────────────────
   REGISTRY: ghcr.io
-  IMAGE_NAME_API: ${{ lower(github.repository) }}/api
-  IMAGE_NAME_WEB: ${{ lower(github.repository) }}/web
+  # IMAGE_NAME_API y IMAGE_NAME_WEB se definen en el job sanitize
 
   # ─── Azure ───────────────────────────────────────────────────
   AZURE_RESOURCE_GROUP: rg-sporthub-staging
@@ -54,6 +53,8 @@ jobs:
     outputs:
       branch_safe: ${{ steps.sanitize.outputs.branch_safe }}
       image_tag: ${{ steps.sanitize.outputs.image_tag }}
+      image_name_api: ${{ steps.sanitize.outputs.image_name_api }}
+      image_name_web: ${{ steps.sanitize.outputs.image_name_web }}
 
     steps:
       - name: Wait for CI to pass
@@ -85,9 +86,12 @@ jobs:
         id: sanitize
         shell: bash
         run: |
-          # Extraer nombre de rama (soportando push directo y PR events)
           BRANCH="${{ github.head_ref || github.ref_name }}"
           echo "Original branch: $BRANCH"
+
+          # Lowercase repo name (Docker requires lowercase)
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "Lowercase repo: $REPO_LC"
 
           # Convertir a lowercase, reemplazar / por -, quitar caracteres especiales
           SAFE=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/\//-/g' | sed 's/[^a-z0-9-]//g' | cut -c1-32)
@@ -99,6 +103,8 @@ jobs:
 
           echo "branch_safe=$SAFE" >> $GITHUB_OUTPUT
           echo "image_tag=$TAG" >> $GITHUB_OUTPUT
+          echo "image_name_api=${REPO_LC}/api" >> $GITHUB_OUTPUT
+          echo "image_name_web=${REPO_LC}/web" >> $GITHUB_OUTPUT
 
   # ================================================================
   # Job 2: Build & Push Docker Images
@@ -136,8 +142,8 @@ jobs:
           push: ${{ secrets.GHCR_PASSWORD != '' }}
           load: ${{ secrets.GHCR_PASSWORD == '' }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ needs.sanitize.outputs.image_tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:${{ needs.sanitize.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:preview-${{ needs.sanitize.outputs.branch_safe }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           labels: |
@@ -155,8 +161,8 @@ jobs:
           push: ${{ secrets.GHCR_PASSWORD != '' }}
           load: ${{ secrets.GHCR_PASSWORD == '' }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}:${{ needs.sanitize.outputs.image_tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:${{ needs.sanitize.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:preview-${{ needs.sanitize.outputs.branch_safe }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           labels: |
@@ -170,7 +176,7 @@ jobs:
           docker run -d --name preview-api-test -p 8080:8080 \
             -e ASPNETCORE_ENVIRONMENT=Preview \
             -e ASPNETCORE_URLS=http://+:8080 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ needs.sanitize.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:${{ needs.sanitize.outputs.image_tag }}
           sleep 5
           curl -f http://localhost:8080/health || (docker logs preview-api-test && exit 1)
           echo "API health check passed!"
@@ -181,7 +187,7 @@ jobs:
           docker run -d --name preview-web-test -p 3000:3000 \
             -e NODE_ENV=production \
             -e NEXT_TELEMETRY_DISABLED=1 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}:${{ needs.sanitize.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:${{ needs.sanitize.outputs.image_tag }}
           sleep 5
           curl -f http://localhost:3000/api/health || (docker logs preview-web-test && exit 1)
           echo "Web health check passed!"

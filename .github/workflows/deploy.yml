@@ -55,6 +55,7 @@ jobs:
       head_branch: ${{ steps.check.outputs.head_branch }}
       environment: ${{ steps.check.outputs.environment }}
       image_tag: ${{ steps.check.outputs.image_tag }}
+      repo_lowercase: ${{ steps.check.outputs.repo_lowercase }}
     steps:
       - name: Check CI conclusion (workflow_run)
         id: check
@@ -109,6 +110,10 @@ jobs:
 
           echo "✅ CI pasó. Desplegando a $ENVIRONMENT con tag $IMAGE_TAG"
 
+          # Lowercase repo for Docker (Docker requires lowercase)
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "repo_lowercase=$REPO_LC" >> "$GITHUB_OUTPUT"
+
           echo "should_deploy=true" >> "$GITHUB_OUTPUT"
           echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
           echo "head_branch=$HEAD_BRANCH" >> "$GITHUB_OUTPUT"
@@ -152,7 +157,7 @@ jobs:
           az containerapp update \
             --name "ca-sport-staging-api" \
             --resource-group "${{ env.RESOURCE_GROUP_STAGING }}" \
-            --image "${{ env.GHCR_REGISTRY }}/${{ lower(github.repository) }}/api:${{ needs.gate.outputs.image_tag }}" \
+            --image "${{ env.GHCR_REGISTRY }}/${{ needs.gate.outputs.repo_lowercase }}/api:${{ needs.gate.outputs.image_tag }}" \
             --output table
           echo "✅ API updated to tag: ${{ needs.gate.outputs.image_tag }}"
 
@@ -163,7 +168,7 @@ jobs:
           az containerapp update \
             --name "ca-sport-staging-web" \
             --resource-group "${{ env.RESOURCE_GROUP_STAGING }}" \
-            --image "${{ env.GHCR_REGISTRY }}/${{ lower(github.repository) }}/web:${{ needs.gate.outputs.image_tag }}" \
+            --image "${{ env.GHCR_REGISTRY }}/${{ needs.gate.outputs.repo_lowercase }}/web:${{ needs.gate.outputs.image_tag }}" \
             --output table
           echo "✅ Web updated to tag: ${{ needs.gate.outputs.image_tag }}"
 
@@ -271,7 +276,7 @@ jobs:
           az containerapp update \
             --name "ca-sport-prod-api" \
             --resource-group "${{ env.RESOURCE_GROUP_PRODUCTION }}" \
-            --image "${{ env.GHCR_REGISTRY }}/${{ lower(github.repository) }}/api:${{ needs.gate.outputs.image_tag }}" \
+            --image "${{ env.GHCR_REGISTRY }}/${{ needs.gate.outputs.repo_lowercase }}/api:${{ needs.gate.outputs.image_tag }}" \
             --output table
           echo "✅ API updated to tag: ${{ needs.gate.outputs.image_tag }}"
 
@@ -282,7 +287,7 @@ jobs:
           az containerapp update \
             --name "ca-sport-prod-web" \
             --resource-group "${{ env.RESOURCE_GROUP_PRODUCTION }}" \
-            --image "${{ env.GHCR_REGISTRY }}/${{ lower(github.repository) }}/web:${{ needs.gate.outputs.image_tag }}" \
+            --image "${{ env.GHCR_REGISTRY }}/${{ needs.gate.outputs.repo_lowercase }}/web:${{ needs.gate.outputs.image_tag }}" \
             --output table
           echo "✅ Web updated to tag: ${{ needs.gate.outputs.image_tag }}"
 
