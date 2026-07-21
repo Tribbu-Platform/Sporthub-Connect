@@ -264,7 +264,7 @@ jobs:
 
       # ── Dependency Scan (Trivy) ────────────────────────────────
       - name: Run Trivy vulnerability scanner (fs)
-        uses: aquasecurity/trivy-action@0.29.0
+        uses: aquasecurity/trivy-action@v0.29
         with:
           scan-type: "fs"
           scan-ref: "."
