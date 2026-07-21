@@ -19,9 +19,9 @@
     Docker image tag to deploy (e.g., "preview-hu-f001-us-001-a1b2c3d").
     Only required for 'create' action.
 .PARAMETER ResourceGroup
-    Azure Resource Group name. Default: rg-sporthub-staging
-.PARAMETER EnvironmentName
-    ACA Environment name. Default: cae-sport-staging
+    Azure Resource Group name. Default: rg-sporthub-staging-v2
+.Parameter EnvironmentName
+    ACA Environment name. Default: cae-sport-staging-w4wuoo
 .PARAMETER Location
     Azure region. Default: eastus
 .EXAMPLE
@@ -45,10 +45,10 @@ param(
     [string]$ImageTag = 'staging',
 
     [Parameter()]
-    [string]$ResourceGroup = 'rg-sporthub-staging',
+    [string]$ResourceGroup = 'rg-sporthub-staging-v2',
 
     [Parameter()]
-    [string]$EnvironmentName = 'cae-sport-staging',
+    [string]$EnvironmentName = 'cae-sport-staging-w4wuoo',
 
     [Parameter()]
     [string]$Location = 'eastus',
@@ -162,17 +162,17 @@ if ($Action -eq 'create') {
     Write-Host "   Configuring API environment..." -ForegroundColor Green
     
     # Get connection strings from staging resources
-    $pgHost = az postgres flexible-server show --name "psql-sport-staging" --resource-group $ResourceGroup --query 'fullyQualifiedDomainName' -o tsv 2>$null
-    $redisHost = az redis show --name "redis-sport-staging" --resource-group $ResourceGroup --query 'hostName' -o tsv 2>$null
-    $redisKey = az redis list-keys --name "redis-sport-staging" --resource-group $ResourceGroup --query 'primaryKey' -o tsv 2>$null
+    $pgHost = az postgres flexible-server show --name "psql-sport-staging-w4wuoo" --resource-group $ResourceGroup --query 'fullyQualifiedDomainName' -o tsv 2>$null
+    $redisHost = az redis show --name "redis-sport-staging-w4wuoo" --resource-group $ResourceGroup --query 'hostName' -o tsv 2>$null
+    $redisKey = az redis list-keys --name "redis-sport-staging-w4wuoo" --resource-group $ResourceGroup --query 'primaryKey' -o tsv 2>$null
     
     # Note: secrets should come from Key Vault or GitHub Secrets ideally.
     # For preview, we use shared staging resources with mock/dev values.
     # In production, use managed identities + Key Vault.
-    az containerapp env set `
+    az containerapp update `
         --name $apiName `
         --resource-group $ResourceGroup `
-        --env-vars `
+        --set-env-vars `
             "ASPNETCORE_ENVIRONMENT=Preview" `
             "ASPNETCORE_URLS=http://+:8080" `
             "ConnectionStrings__PostgreSQL=Host=${pgHost};Port=5432;Database=sporthub;Username=sporthub_admin;Password=PLACEHOLDER;SSL Mode=Require;Trust Server Certificate=true" `

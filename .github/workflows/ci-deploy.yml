@@ -42,8 +42,8 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   REGISTRY: ghcr.io
-  AZURE_RESOURCE_GROUP: rg-sporthub-staging
-  AZURE_CONTAINER_APP_ENV: cae-sport-staging
+  AZURE_RESOURCE_GROUP: rg-sporthub-staging-v2
+  AZURE_CONTAINER_APP_ENV: cae-sport-staging-w4wuoo
 
 jobs:
   # ================================================================
