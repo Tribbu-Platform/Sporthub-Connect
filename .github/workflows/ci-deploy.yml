@@ -266,7 +266,7 @@ jobs:
   build-api:
     name: Build & Push API
     runs-on: ubuntu-latest
-    needs: [backend, frontend]
+    needs: [backend, frontend, sanitize]
     if: github.event.action != 'closed'
     timeout-minutes: 15
 
@@ -321,7 +321,7 @@ jobs:
   build-web:
     name: Build & Push Web
     runs-on: ubuntu-latest
-    needs: [backend, frontend]
+    needs: [backend, frontend, sanitize]
     if: github.event.action != 'closed'
     timeout-minutes: 15
 
