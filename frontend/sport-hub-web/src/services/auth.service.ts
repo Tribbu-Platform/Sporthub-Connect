@@ -1,9 +1,19 @@
-import type { RegisterInput } from '@/lib/schemas/auth.schema';
+import type { LoginInput, RegisterInput } from '@/lib/schemas/auth.schema';
 import { apiClient } from './apiClient';
 
 // ============================================================
 // Tipos de respuesta
 // ============================================================
+
+export interface LoginResponse {
+  userId: string;
+  email: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  emailVerified: boolean;
+  message: string;
+}
 
 export interface RegisterResponse {
   userId: string;
@@ -127,5 +137,52 @@ export async function registerUser(data: RegisterInput): Promise<RegisterRespons
     }
 
     throw new AuthApiError(0, 'Ocurrió un error inesperado al registrar el usuario.');
+  }
+}
+
+/**
+ * Inicia sesion con email y contrasena.
+ *
+ * @param data - Credenciales del usuario (LoginInput)
+ * @returns Promise con la respuesta del servidor (LoginResponse)
+ * @throws AuthApiError con informacion estructurada del error
+ *
+ * Errores HTTP manejados:
+ * - 400: Error de validacion
+ * - 401: Credenciales incorrectas
+ * - 429: Rate limit
+ * - 500: Error interno del servidor
+ */
+export async function loginUser(data: LoginInput): Promise<LoginResponse> {
+  try {
+    const response = await apiClient.post<LoginResponse>('/api/identity/login', {
+      email: data.email,
+      password: data.password,
+    });
+
+    return response;
+  } catch (error) {
+    if (error instanceof AuthApiError) {
+      throw error;
+    }
+
+    if (error instanceof TypeError && error.message === 'Failed to fetch') {
+      throw new AuthApiError(
+        0,
+        'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
+      );
+    }
+
+    if (error && typeof error === 'object' && 'message' in error) {
+      const errMsg = (error as { message: string }).message;
+      const httpMatch = errMsg.match(/HTTP (\d+)/);
+      if (httpMatch) {
+        const status = parseInt(httpMatch[1], 10);
+        throw parseErrorResponse(status, { title: errMsg });
+      }
+      throw new AuthApiError(0, errMsg);
+    }
+
+    throw new AuthApiError(0, 'Ocurrió un error inesperado al iniciar sesión.');
   }
 }

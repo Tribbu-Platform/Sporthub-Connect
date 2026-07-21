@@ -31,17 +31,14 @@ public class IdentityDbContext : DbContext, IIdentityUnitOfWork
     /// <inheritdoc/>
     public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
     {
-        // Dispatch domain events before persisting
+        // Collect and clear domain events before persisting.
+        // Events will be published to the outbox/message bus when
+        // the outbox pattern is implemented (see ADR-002).
         var domainEntities = ChangeTracker
             .Entries<Entity>()
             .Where(e => e.Entity.DomainEvents.Count != 0)
             .ToList();
 
-        var domainEvents = domainEntities
-            .SelectMany(e => e.Entity.DomainEvents)
-            .ToList();
-
-        // Clear domain events before saving
         foreach (var entity in domainEntities)
         {
             entity.Entity.ClearDomainEvents();

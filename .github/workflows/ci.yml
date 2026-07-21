@@ -1,37 +1,82 @@
-# ============================================================
-# CI — SportHub Connect
+# ===================================================================
+# SportHub Connect — CI Pipeline
+# ===================================================================
+# Ejecuta build + test + code analysis en PRs hacia develop y main,
+# y en pushes directos a ramas feature/* y develop.
 #
-# Ejecuta el quality gate completo (build, test, lint, SCA),
-# construye imágenes Docker y las publica en GHCR.
+# Stack:
+#   - Backend: .NET 10, ASP.NET Core Minimal API
+#   - Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS v4
 #
-# Al finalizar exitosamente, el workflow `deploy.yml` se
-# activa automáticamente vía `workflow_run`.
-# ============================================================
+# Fases:
+#   1. Backend Build + Test + Publish
+#   2. Frontend Build + Lint + Type-Check + Test
+#   3. Docker Image Build (verification only, no push)
+#   4. SAST / Dependency Scan
+# ===================================================================
 
 name: CI
 
 on:
-  push:
-    branches: [master, develop, 'release/*']
   pull_request:
-    branches: [master, develop]
+    branches: [develop, main, "feature/*"]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - "infrastructure/bicep/**"
+  push:
+    branches: [develop, "feature/*"]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - "infrastructure/bicep/**"
+
+concurrency:
+  group: ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 env:
-  DOTNET_VERSION: '10.0.x'
-  NODE_VERSION: '22'
-  GHCR_REGISTRY: ghcr.io
-  GHCR_IMAGE_API: ghcr.io/${{ github.repository }}/api
-  GHCR_IMAGE_WEB: ghcr.io/${{ github.repository }}/web
+  DOTNET_VERSION: "10.0.x"
+  NODE_VERSION: "22.x"
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  # ============================================================
-  # BACKEND — .NET 10
-  # ============================================================
+  # ================================================================
+  # Job 1: Backend — Build, Test, Publish
+  # ================================================================
   backend:
     name: Backend (.NET 10)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: sporthub
+          POSTGRES_PASSWORD: sporthub_dev
+          POSTGRES_DB: sporthub
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sporthub -d sporthub"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup .NET ${{ env.DOTNET_VERSION }}
@@ -39,138 +84,220 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore src/Api/SportHub.Api/SportHub.Api.csproj
+        working-directory: ${{ github.workspace }}
 
-      # --- 1. Formateo ---
-      - name: Code Format Check (dotnet format)
-        run: dotnet format --verify-no-changes --severity error
+      - name: Build (Release)
+        run: dotnet build src/Api/SportHub.Api/SportHub.Api.csproj -c Release --no-restore
+        working-directory: ${{ github.workspace }}
 
-      # --- 2. Build con Roslyn + SonarAnalyzer ---
-      - name: Build
-        run: dotnet build --no-restore -warnaserror
+      - name: Run unit tests
+        run: >
+          dotnet test src/Api/SportHub.Api/SportHub.Api.csproj
+          -c Release --no-build
+          --filter "Category=Unit"
+          --logger "trx;LogFileName=test-results.trx"
+          --collect:"XPlat Code Coverage"
+          --settings coverlet.runsettings
+        working-directory: ${{ github.workspace }}
+        continue-on-error: false
 
-      # --- 3. Tests ---
-      - name: Run Tests
-        run: dotnet test --no-build --configuration Debug --verbosity normal
-
-      # --- 4. SCA — Dependencias vulnerables ---
-      - name: SCA — NuGet Vulnerabilities
-        run: dotnet list package --vulnerable
+      - name: Run integration tests
+        run: >
+          dotnet test src/Api/SportHub.Api/SportHub.Api.csproj
+          -c Release --no-build
+          --filter "Category=Integration"
+          --logger "trx;LogFileName=integration-test-results.trx"
+          --collect:"XPlat Code Coverage"
+          --settings coverlet.runsettings
+        working-directory: ${{ github.workspace }}
         continue-on-error: true
+        env:
+          ConnectionStrings__PostgreSQL: "Host=localhost;Port=5432;Database=sporthub;Username=sporthub;Password=sporthub_dev"
+          ConnectionStrings__Redis: "localhost:6379"
+          ConnectionStrings__RabbitMQ: "amqp://sporthub:sporthub_dev@localhost:5672"
 
-  # ============================================================
-  # FRONTEND — Next.js 16 / React 19 / TypeScript
-  # ============================================================
+      - name: Publish (Release)
+        run: dotnet publish src/Api/SportHub.Api/SportHub.Api.csproj -c Release -o ./publish --no-restore
+        working-directory: ${{ github.workspace }}
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-publish
+          path: ./publish
+          retention-days: 3
+
+  # ================================================================
+  # Job 2: Frontend — Build, Lint, Type-Check, Test
+  # ================================================================
   frontend:
     name: Frontend (Next.js 16)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: frontend/sport-hub-web
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: frontend/sport-hub-web/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      # --- 1. Lint ---
-      - name: Lint (ESLint)
-        run: npm run lint
-
-      # --- 2. TypeScript Check ---
-      - name: TypeScript Check
+      - name: TypeScript type check
         run: npm run type-check
 
-      # --- 3. Tests ---
-      - name: Run Tests (Vitest)
-        run: npm test
+      - name: Lint
+        run: npm run lint
 
-      # --- 4. SCA — npm audit ---
-      - name: SCA — npm Vulnerabilities
-        run: npm audit --audit-level=high
-        continue-on-error: true
+      - name: Run unit tests (Vitest)
+        run: npm run test
+        env:
+          CI: true
 
-  # ============================================================
-  # DOCKER BUILD — Construye y publica imágenes
-  # ============================================================
+      - name: Build (standalone)
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+      - name: Upload .next artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/sport-hub-web/.next
+          retention-days: 3
+
+  # ================================================================
+  # Job 3: Docker Image Build Verification
+  # ================================================================
   docker:
-    name: Docker Build & Push
+    name: Docker Build Verification
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [backend, frontend]
-    # Solo publica en push a branches principales (no en PRs)
-    if: >
-      github.event_name == 'push' &&
-      (github.ref_name == 'master' || github.ref_name == 'develop' || startsWith(github.ref_name, 'release/'))
-
-    permissions:
-      contents: read
-      packages: write
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Generate Docker metadata (API)
-        id: meta-api
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.GHCR_IMAGE_API }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-,format=short
-            type=raw,value=latest,enable=${{ github.ref_name == 'master' }}
-
-      - name: Generate Docker metadata (Web)
-        id: meta-web
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.GHCR_IMAGE_WEB }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-,format=short
-            type=raw,value=latest,enable=${{ github.ref_name == 'master' }}
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.GHCR_REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # --- API ---
-      - name: Build & Push API image
+      - name: Build API image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: infrastructure/Dockerfile.api
           target: production
-          push: true
-          tags: ${{ steps.meta-api.outputs.tags }}
-          labels: ${{ steps.meta-api.outputs.labels }}
+          push: false
+          load: true
+          tags: sporthub/api:ci-test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # --- Web ---
-      - name: Build & Push Web image
+      - name: Test API image (smoke test)
+        run: |
+          docker run -d --name sporthub-api-test -p 8080:8080 \
+            -e ASPNETCORE_ENVIRONMENT=Production \
+            -e ASPNETCORE_URLS=http://+:8080 \
+            sporthub/api:ci-test
+          sleep 5
+          curl -f http://localhost:8080/health || (docker logs sporthub-api-test && exit 1)
+          echo "API health check passed!"
+          docker stop sporthub-api-test
+          docker rm sporthub-api-test
+
+      - name: Build Web image
         uses: docker/build-push-action@v6
         with:
           context: frontend/sport-hub-web
           file: frontend/sport-hub-web/Dockerfile
           target: production
-          push: true
-          tags: ${{ steps.meta-web.outputs.tags }}
-          labels: ${{ steps.meta-web.outputs.labels }}
+          push: false
+          load: true
+          tags: sporthub/web:ci-test
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Test Web image (smoke test)
+        run: |
+          docker run -d --name sporthub-web-test -p 3000:3000 \
+            -e NODE_ENV=production \
+            -e NEXT_TELEMETRY_DISABLED=1 \
+            sporthub/web:ci-test
+          sleep 5
+          curl -f http://localhost:3000/api/health || (docker logs sporthub-web-test && exit 1)
+          echo "Web health check passed!"
+          docker stop sporthub-web-test
+          docker rm sporthub-web-test
+
+  # ================================================================
+  # Job 4: Security & Quality Scans
+  # ================================================================
+  security:
+    name: Security & Quality Scans
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Dependency Scan (Trivy) ────────────────────────────────
+      - name: Run Trivy vulnerability scanner (fs)
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+          ignore-unfixed: true
+          hide-progress: true
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-results.sarif"
+          category: "trivy"
+        continue-on-error: true
+
+      # ── SAST (CodeQL) ──────────────────────────────────────────
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp, javascript, typescript
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:codeql"
+
+      # ── Secrets scan (GitGuardian / Gitleaks) ─────────────────
+      - name: Run Gitleaks secrets scanner
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true

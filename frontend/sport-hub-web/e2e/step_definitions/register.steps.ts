@@ -46,10 +46,12 @@ Given('una contrasena que cumple requisitos de seguridad: {string}', async funct
 Given('un email {string} que ya esta registrado y verificado', async function (this: ICustomWorld, email: string) {
   this.email = email;
   // Mock respuesta 409 (email duplicado)
+  // apiClient usa error.message del JSON; incluimos message para que llegue al componente
   await mockRegisterApi(this, 409, {
     type: 'https://tools.ietf.org/html/rfc7231#section-6.5.8',
     title: 'Conflict',
     status: 409,
+    message: 'El email ya esta registrado',
     detail: 'El email ya esta registrado',
     traceId: 'mock-trace-id'
   });
@@ -66,6 +68,7 @@ Given('un email {string} que ya esta registrado pero no verificado', async funct
     type: 'https://tools.ietf.org/html/rfc7231#section-6.5.8',
     title: 'Conflict',
     status: 409,
+    message: 'El email ya esta registrado',
     detail: 'El email ya esta registrado',
     canResendVerification: true,
     traceId: 'mock-trace-id'
@@ -84,6 +87,13 @@ Given('un email con formato invalido {string}', async function (this: ICustomWor
 
 Given('un formulario de registro vacio', async function (this: ICustomWorld) {
   // No se establecen valores — validacion de cliente
+});
+
+Given('el usuario acepta los terminos y condiciones', async function (this: ICustomWorld) {
+  const termsCheckbox = this.page.locator('#acceptTerms');
+  await termsCheckbox.click();
+  // Esperar a que el estado se actualice
+  await this.page.waitForTimeout(200);
 });
 
 // ── When ──────────────────────────────────────────────────────
@@ -142,7 +152,7 @@ Then('el sistema crea la cuenta exitosamente', async function (this: ICustomWorl
 });
 
 Then('se envia un email de verificacion a {string}', async function (this: ICustomWorld, _email: string) {
-  const successMessage = this.page.locator('text=verificacion|Verifica|email enviado').first();
+  const successMessage = this.page.locator('h1:has-text("Verifica")');
   await expect(successMessage).toBeVisible({ timeout: 5000 });
 });
 

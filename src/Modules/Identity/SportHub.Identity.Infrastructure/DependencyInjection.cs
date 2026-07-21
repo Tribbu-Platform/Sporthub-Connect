@@ -38,7 +38,8 @@ public static class DependencyInjection
                 options.UseNpgsql(connectionString, npgsqlOptions =>
                 {
                     npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "identity");
-                });
+                })
+                .UseSnakeCaseNamingConvention();
             }
             else
             {

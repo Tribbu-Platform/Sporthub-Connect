@@ -100,15 +100,8 @@ builder.Services
     .AddCommunityInfrastructure(communityConnectionString)
     .AddCommunityApplication();
 
-// TODO: Register remaining modules when implemented
-// builder.Services
-//     .AddCommunityModule(builder.Configuration)
-//     .AddEventPlanningModule(builder.Configuration)
-//     .AddGamificationModule(builder.Configuration)
-//     .AddLeaderboardsModule(builder.Configuration)
-//     .AddPaymentsModule(builder.Configuration)
-//     .AddNotificationsModule(builder.Configuration)
-//     .AddIntegrationsModule(builder.Configuration);
+// TODO: Register remaining modules (EventPlanning, Gamification, Leaderboards,
+// Payments, Notifications, Integrations) as their features start implementation.
 
 var app = builder.Build();
 
@@ -144,9 +137,9 @@ app.UseCors();
 app.UseRateLimiter();
 
 // Authentication & Authorization
-// TODO: Configure JWT Bearer authentication with Auth0
-// app.UseAuthentication();
-// app.UseAuthorization();
+// TODO: Enable JWT Bearer authentication (app.UseAuthentication(); app.UseAuthorization())
+// Currently only the register endpoint is public (AllowAnonymous).
+// Authentication middleware will be enabled when login (US-003) is implemented.
 
 // ============================================================
 // Endpoints

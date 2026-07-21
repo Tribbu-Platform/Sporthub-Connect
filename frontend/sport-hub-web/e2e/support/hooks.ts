@@ -1,9 +1,12 @@
-import { BeforeAll, AfterAll, Before, After, Status } from '@cucumber/cucumber';
+import { BeforeAll, AfterAll, Before, After, Status, setDefaultTimeout } from '@cucumber/cucumber';
 import { chromium } from '@playwright/test';
 import { ICustomWorld } from './world';
 import { spawn, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as http from 'http';
+
+// Timeout global de steps: 30s para operaciones de Playwright (page.fill, page.click, etc.)
+setDefaultTimeout(30 * 1000);
 
 let browserInstance: Awaited<ReturnType<typeof chromium.launch>>;
 let appProcess: ChildProcess | null = null;
@@ -13,13 +16,8 @@ function waitForServer(url: string, timeoutMs: number = 60000): Promise<void> {
   return new Promise((resolve, reject) => {
     function check() {
       http.get(url, (res) => {
-        if (res.statusCode && res.statusCode < 500) {
-          resolve();
-        } else if (Date.now() - start > timeoutMs) {
-          reject(new Error(`Server at ${url} not ready after ${timeoutMs}ms`));
-        } else {
-          setTimeout(check, 1000);
-        }
+        // Aceptamos cualquier status code (incluyendo 5xx durante compilacion)
+        resolve();
       }).on('error', () => {
         if (Date.now() - start > timeoutMs) {
           reject(new Error(`Server at ${url} not ready after ${timeoutMs}ms`));

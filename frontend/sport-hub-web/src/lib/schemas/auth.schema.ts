@@ -21,4 +21,13 @@ export const registerSchema = z.object({
   }),
 });
 
+/**
+ * Schema de validacion para el formulario de inicio de sesion.
+ */
+export const loginSchema = z.object({
+  email: z.string().email('Ingresa un email válido'),
+  password: z.string().min(1, 'La contraseña es obligatoria'),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;

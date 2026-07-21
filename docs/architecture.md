@@ -1,6 +1,6 @@
 # Arquitectura del Sistema SportHub Connect
 
-> Ultima actualizacion: 2026-07-13
+> Ultima actualizacion: 2026-07-21
 > Version: 1.0.0
 
 ## 1. Proposito y alcance
@@ -358,7 +358,7 @@ Cada modulo tiene su propio `DbContext` de EF Core configurado con `HasDefaultSc
 |------|-----------|---------|---------------|-------|
 | Contenedores | Docker + Docker Compose | 24.x + 2.x | Desarrollo local reproducible. Multi-stage builds para imagenes optimizadas | — |
 | CI/CD | GitHub Actions | — | Incluido con GitHub. Builds paralelos, matrices de test, secrets gestionados, auto-runners | — |
-| Orquestacion | Azure Container Apps / AKS | — | Serverless containers para MVP. Migrable a AKS si se requiere Kubernetes completo | — |
+| Orquestacion | Azure Container Apps (ACA) | — | Serverless containers para MVP. Frontend y backend en el mismo ACA Environment, misma VNet. Migrable a AKS si se requiere Kubernetes completo. Ver ADR-005 | — |
 | IaC | Terraform / Bicep | — | Infraestructura como codigo para recursos cloud. Reproducible y versionable | — |
 | API Management | Azure API Management / custom | — | Rate limiting, throttling, API keys para partners | — |
 | Monitoreo | Azure Monitor / Grafana + Prometheus | — | Dashboards por bounded context. Alertas configuradas por latencia, errores y disponibilidad | — |
@@ -575,6 +575,88 @@ Se elige la **opcion 2: Roslyn Analyzers sin servidor SonarQube**, complementado
 
 ---
 
+### ADR-005: Despliegue del Frontend en Azure Container Apps (no Azure Static Web Apps)
+
+**Estado**: Aceptado
+**Fecha**: 2026-07-21
+
+**Contexto**:
+El frontend de SportHub Connect esta implementado con Next.js 16 (App Router), React 19, TypeScript y Tailwind CSS v4. Actualmente se ejecuta como contenedor Docker via Docker Compose con `output: 'standalone'`. El equipo debe decidir la plataforma de despliegue en Azure para produccion.
+
+Se evaluaron tres opciones:
+
+1. **Azure Static Web Apps (SWA SSR)**: Plataforma serverless gestionada para aplicaciones web, con SSR via Azure Functions.
+2. **Azure Container Apps (ACA)**: Plataforma serverless de contenedores. Soporta cualquier runtime, VNet integration, WebSocket, auto-scaling a cero.
+3. **Hibrido SWA + ACA**: Paginas publicas estaticas/SSR en SWA, funcionalidades dinamicas en ACA.
+
+**Decision**:
+Se elige **Azure Container Apps (ACA)** como plataforma unica de despliegue para el frontend.
+
+**Justificacion**:
+
+Se identificaron **3 restricciones tecnicas bloqueantes** que hacen inviable SWA:
+
+1. **Node.js 22 (bloqueante)**: Next.js 16 requiere Node >= 22 (definido en `package.json`). SWA SSR usa Azure Functions con Node 18/20. No hay hoja de ruta publica para Node 22 en Azure Functions al momento de esta decision.
+
+2. **Server Actions (bloqueante)**: El proyecto tiene `serverActions` habilitado en `next.config.js` (`experimental.serverActions.bodySizeLimit: '2mb'`). SWA no soporta el protocolo HTTP que Server Actions requiere (headers `Content-Type: text/plain;charset=UTF-8` con `Next-Action`). Obligaria a reimplementar formularios como Route Handlers tradicionales.
+
+3. **WebSocket / SignalR (bloqueante)**: El architecture.md (secciones 5.2 y 7.2) especifica SignalR para leaderboards en vivo y notificaciones push. SWA no soporta WebSocket. ACA si.
+
+Ademas, existen **restricciones adicionales** que refuerzan la decision:
+
+| Restriccion | SWA | ACA |
+|-------------|:---:|:---:|
+| `output: 'standalone'` (usado en Dockerfile actual) | ❌ Incompatible | ✅ Compatible |
+| Rewrites (`next.config.js` para proxy `/api/:path*`) | ⚠️ Requiere migrar a `staticwebapp.config.json` | ✅ Sin cambios |
+| VNet integration (misma red que backend .NET) | ❌ No disponible | ✅ Full VNet |
+| Coherencia operativa (backend ya requiere contenedor) | ❌ Plataforma distinta | ✅ Mismo ACA Environment |
+| CDN incluido | ✅ Azure Front Door nativo | 🔧 Opcional (Front Door aparte) |
+
+**Ventajas concretas de ACA**:
+- **Misma VNet que el backend** → latencia < 2ms, API no expuesta a internet
+- **Sin cambios en el Dockerfile actual** (multi-stage con `output: 'standalone'`)
+- **Server Actions, WebSocket, SignalR** — todo funciona sin restricciones
+- **Preview environments** ya disenados para ACA en seccion 10
+- **Costo justificado**: ~$15-30/mes vs ~$0-10/mes de SWA. La diferencia es marginal comparada con el costo de implementar workarounds para SWA (~$5,000 en 2 semanas de desarrollo = 250x la diferencia anual de ACA).
+
+**Configuracion especifica**:
+
+| Aspecto | Configuracion |
+|---------|--------------|
+| **ACA Environment** | Unico para frontend y backend (misma VNet) |
+| **Container App Web** | 0.25 CPU / 0.5GB RAM. Min replicas: 0. Max: 10 |
+| **Scaling rule** | HTTP scaling: 10 req/sec por replica. Escala a 0 tras 5 min idle |
+| **Ingress** | External, port 3000, HTTP/2 habilitado |
+| **Liveness probe** | `GET /api/health` (route handler existente) |
+| **Readiness probe** | `GET /` (pagina principal, timeout 10s) |
+| **VNet** | Misma VNet que backend API. Subnets separadas por tier |
+| **Revision mode** | Single revision mode (MVP). Traffic splitting si se requiere |
+| **Identity** | Managed Identity para acceder a Azure Key Vault |
+| **Dockerfile** | Sin cambios. El actual multi-stage con `output: 'standalone'` funciona directamente |
+
+**Consecuencias**:
+
+- **Positivas**:
+  - Sin restricciones de runtime. Todo Next.js 16 funciona completo.
+  - Preview environments ya definidos en seccion 10 son directamente aplicables.
+  - Backend y frontend en la misma VNet: latencia minima, seguridad maxima.
+  - Un solo tipo de recurso Azure para toda la capa de aplicacion (simplifica IaC).
+  - Dockerfile actual sin cambios.
+  - SignalR/WebSocket funcional sin workarounds.
+
+- **Negativas**:
+  - Mayor costo mensual que SWA (~$15-30/mes vs ~$0-10/mes).
+  - Mayor complejidad de IaC (ACA + Container Registry + VNet vs SWA single resource).
+  - PR previews requieren infraestructura dedicada (ACA ya lo resuelve en seccion 10).
+  - Sin CDN global incluido (requiere Azure Front Door aparte si se necesita).
+
+- **Riesgos**:
+  - Si Azure Functions agrega soporte para Node 22 + Server Actions + WebSocket en el futuro, la decision podria re-evaluarse via un ADR de sustitucion.
+  - Costos si el proyecto escala: ACA con 10 replicas constantes a 1.0 CPU cuesta ~$300-500/mes. Mitigacion: auto-scaling basado en CPU/requests.
+  - Vendor lock-in: ACA es especifico de Azure. Sin embargo, como el frontend ya esta containerizado, migrar a AWS ECS o Google Cloud Run es directo (solo cambiar IaC).
+
+---
+
 ## 7. Patrones transversales
 
 ### 7.1 Autenticacion y Autorizacion
@@ -753,11 +835,11 @@ El roadmap arquitectonico de SportHub Connect sigue una evolucion en 3 fases, al
 
 ### 10.1 Estrategia
 
-Cada rama `hu/*` genera un **entorno de preview aislado** en Azure Container Apps, permitiendo a desarrolladores y QA probar cada HU en un entorno con URL pública antes de mergear a la feature.
+Cada rama `hu/*` genera un **entorno de preview aislado** en Azure Container Apps (ACA), permitiendo a desarrolladores y QA probar cada HU en un entorno con URL pública antes de mergear a la feature. ACA es la plataforma unica de despliegue tanto para frontend como backend (ver ADR-005).
 
 | Aspecto | Decision |
 |---------|----------|
-| **Modelo** | Container Apps dedicados por HU (API + Web) |
+| **Modelo** | Container Apps dedicados por HU (API + Web) en ACA |
 | **Infraestructura compartida** | ACA Environment, PostgreSQL, Redis y Service Bus de staging |
 | **Ciclo de vida** | Automático: crear en push/PR → destruir al mergear/cerrar PR |
 | **Costo** | Mínimo (~$5-10/preview/mes). Escala a 0 cuando no se usa |

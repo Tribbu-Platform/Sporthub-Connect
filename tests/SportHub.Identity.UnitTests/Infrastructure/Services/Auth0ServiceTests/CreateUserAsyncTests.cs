@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Moq.Protected;
@@ -31,7 +32,8 @@ public class CreateUserAsyncTests
             BaseAddress = new Uri($"https://{_options.Domain}/")
         };
 
-        _sut = new Auth0Service(Options.Create(_options), _httpClient);
+        var loggerMock = new Mock<ILogger<Auth0Service>>();
+        _sut = new Auth0Service(Options.Create(_options), _httpClient, loggerMock.Object);
     }
 
     [Fact]

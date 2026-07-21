@@ -1,0 +1,348 @@
+# ===================================================================
+# SportHub Connect — Preview Environment Deployment (ACA)
+# ===================================================================
+# Crea/destruye entornos de preview aislados en Azure Container Apps
+# por cada rama hu/*. Cada preview recibe su propio par de Container
+# Apps (API + Web) compartiendo el mismo ACA Environment de staging.
+#
+# ADR-005: Azure Container Apps como plataforma unica de despliegue.
+# Section 10: Preview environments design in architecture.md.
+#
+# Flujo:
+#   1. Push a hu/* → Build Docker images + push a GHCR + deploy ACA
+#   2. Push a hu/* (update) → Update existing Container Apps
+#   3. PR closed → Destroy preview environment
+# ===================================================================
+
+name: Deploy Preview (ACA)
+
+on:
+  push:
+    branches: ["hu/**"]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: ["develop", "feature/*"]
+
+# Evita despliegues concurrentes en la misma rama
+concurrency:
+  group: preview-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  # ─── Container Registry (GHCR) ───────────────────────────────
+  REGISTRY: ghcr.io
+  IMAGE_NAME_API: ${{ github.repository }}/api
+  IMAGE_NAME_WEB: ${{ github.repository }}/web
+
+  # ─── Azure ───────────────────────────────────────────────────
+  AZURE_RESOURCE_GROUP: rg-sporthub-staging
+  AZURE_CONTAINER_APP_ENV: cae-sport-staging
+
+  # ─── Preview naming ──────────────────────────────────────────
+  # Sanitiza el nombre de rama para usar como sufijo de recursos
+  # Ej: "hu/F001-US-001-registro-google-oauth2" → "hu-f001-us-001"
+
+jobs:
+  # ================================================================
+  # Job 1: Sanitize branch name
+  # ================================================================
+  sanitize:
+    name: Sanitize branch name
+    runs-on: ubuntu-latest
+    outputs:
+      branch_safe: ${{ steps.sanitize.outputs.branch_safe }}
+      image_tag: ${{ steps.sanitize.outputs.image_tag }}
+
+    steps:
+      - name: Sanitize branch name for Azure naming
+        id: sanitize
+        shell: bash
+        run: |
+          # Extraer nombre de rama (soportando push directo y PR events)
+          BRANCH="${{ github.head_ref || github.ref_name }}"
+          echo "Original branch: $BRANCH"
+
+          # Convertir a lowercase, reemplazar / por -, quitar caracteres especiales
+          SAFE=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/\//-/g' | sed 's/[^a-z0-9-]//g' | cut -c1-32)
+          echo "Sanitized branch: $SAFE"
+
+          # Generar image tag: preview-{branch_safe}-{sha}
+          TAG="preview-${SAFE}-${{ github.sha }}"
+          echo "Image tag: $TAG"
+
+          echo "branch_safe=$SAFE" >> $GITHUB_OUTPUT
+          echo "image_tag=$TAG" >> $GITHUB_OUTPUT
+
+  # ================================================================
+  # Job 2: Build & Push Docker Images
+  # ================================================================
+  build:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    needs: [sanitize]
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Login to GHCR ──────────────────────────────────────────
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_PASSWORD || github.token }}
+        continue-on-error: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # ── Build & Push API ──────────────────────────────────────
+      - name: Build & Push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infrastructure/Dockerfile.api
+          target: production
+          push: ${{ secrets.GHCR_PASSWORD != '' }}
+          load: ${{ secrets.GHCR_PASSWORD == '' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ needs.sanitize.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.branch=${{ github.head_ref || github.ref_name }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp || '' }}
+
+      # ── Build & Push Web ──────────────────────────────────────
+      - name: Build & Push Web image
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend/sport-hub-web
+          file: frontend/sport-hub-web/Dockerfile
+          target: production
+          push: ${{ secrets.GHCR_PASSWORD != '' }}
+          load: ${{ secrets.GHCR_PASSWORD == '' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}:${{ needs.sanitize.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.branch=${{ github.head_ref || github.ref_name }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp || '' }}
+
+      # ── Smoke test ─────────────────────────────────────────────
+      - name: Smoke test API image
+        run: |
+          docker run -d --name preview-api-test -p 8080:8080 \
+            -e ASPNETCORE_ENVIRONMENT=Preview \
+            -e ASPNETCORE_URLS=http://+:8080 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_API }}:${{ needs.sanitize.outputs.image_tag }}
+          sleep 5
+          curl -f http://localhost:8080/health || (docker logs preview-api-test && exit 1)
+          echo "API health check passed!"
+          docker stop preview-api-test && docker rm preview-api-test
+
+      - name: Smoke test Web image
+        run: |
+          docker run -d --name preview-web-test -p 3000:3000 \
+            -e NODE_ENV=production \
+            -e NEXT_TELEMETRY_DISABLED=1 \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_WEB }}:${{ needs.sanitize.outputs.image_tag }}
+          sleep 5
+          curl -f http://localhost:3000/api/health || (docker logs preview-web-test && exit 1)
+          echo "Web health check passed!"
+          docker stop preview-web-test && docker rm preview-web-test
+
+  # ================================================================
+  # Job 3: Deploy Preview to ACA
+  # ================================================================
+  deploy:
+    name: Deploy Preview (ACA)
+    runs-on: ubuntu-latest
+    needs: [sanitize, build]
+    if: >
+      (github.event_name == 'push' || 
+       (github.event_name == 'pull_request' && github.event.action != 'closed'))
+      && secrets.AZURE_CREDENTIALS != ''
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to GHCR (Azure deployment)
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          registryUrl: ${{ env.REGISTRY }}
+          registryUsername: ${{ github.repository_owner }}
+          registryPassword: ${{ secrets.GHCR_PASSWORD }}
+
+      - name: Deploy API Container App
+        shell: pwsh
+        run: |
+          $branchSafe = "${{ needs.sanitize.outputs.branch_safe }}"
+          $imageTag = "${{ needs.sanitize.outputs.image_tag }}"
+
+          & "${{ github.workspace }}/infrastructure/deploy-preview.ps1" `
+            -Action create `
+            -BranchName $branchSafe `
+            -ImageTag $imageTag `
+            -ResourceGroup "${{ env.AZURE_RESOURCE_GROUP }}" `
+            -EnvironmentName "${{ env.AZURE_CONTAINER_APP_ENV }}"
+        env:
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+
+      - name: Wait for health checks
+        shell: bash
+        run: |
+          BRANCH_SAFE="${{ needs.sanitize.outputs.branch_safe }}"
+          API_NAME="ca-preview-${BRANCH_SAFE}-api"
+          WEB_NAME="ca-preview-${BRANCH_SAFE}-web"
+
+          # Obtener FQDNs
+          API_FQDN=$(az containerapp show --name "$API_NAME" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --query 'properties.configuration.ingress.fqdn' -o tsv)
+          WEB_FQDN=$(az containerapp show --name "$WEB_NAME" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --query 'properties.configuration.ingress.fqdn' -o tsv)
+
+          echo "Waiting for API health check (max 3 min)..."
+          for i in $(seq 1 18); do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://${API_FQDN}/health" || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "API is healthy!"
+              break
+            fi
+            echo "Attempt $i: API returned $HTTP_CODE, waiting 10s..."
+            sleep 10
+          done
+
+          echo "Waiting for Web health check (max 3 min)..."
+          for i in $(seq 1 18); do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://${WEB_FQDN}/api/health" || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Web is healthy!"
+              break
+            fi
+            echo "Attempt $i: Web returned $HTTP_CODE, waiting 10s..."
+            sleep 10
+          done
+
+          # Set outputs for PR comment
+          echo "API_URL=https://${API_FQDN}" >> $GITHUB_ENV
+          echo "WEB_URL=https://${WEB_FQDN}" >> $GITHUB_ENV
+
+      - name: Comment PR with preview URLs
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '## ✅ Preview Environment Deployed',
+              '',
+              `**Branch:** \`${{ github.head_ref }}\``,
+              `**Image tag:** \`${{ needs.sanitize.outputs.image_tag }}\``,
+              '',
+              '| Service | URL |',
+              '|---------|-----|',
+              `| **API** | [${process.env.API_URL}](${process.env.API_URL}) |`,
+              `| **Web** | [${process.env.WEB_URL}](${process.env.WEB_URL}) |`,
+              `| **Swagger** | [${process.env.API_URL}/swagger](${process.env.API_URL}/swagger) |`,
+              '',
+              '> ⏱️ Preview auto-scales to 0 after 5 min idle. Cold start may take ~10-30s.',
+              '> 🗑️ Preview will be destroyed when this PR is closed/merged.',
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const previewComment = comments.find(c => c.body.includes('Preview Environment Deployed'));
+            if (previewComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previewComment.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
+
+  # ================================================================
+  # Job 4: Destroy Preview on PR close
+  # ================================================================
+  destroy:
+    name: Destroy Preview
+    runs-on: ubuntu-latest
+    needs: [sanitize]
+    if: >
+      github.event_name == 'pull_request' && github.event.action == 'closed'
+      && secrets.AZURE_CREDENTIALS != ''
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Destroy preview infrastructure
+        shell: pwsh
+        run: |
+          $branchSafe = "${{ needs.sanitize.outputs.branch_safe }}"
+
+          & "${{ github.workspace }}/infrastructure/deploy-preview.ps1" `
+            -Action destroy `
+            -BranchName $branchSafe `
+            -ResourceGroup "${{ env.AZURE_RESOURCE_GROUP }}" `
+            -EnvironmentName "${{ env.AZURE_CONTAINER_APP_ENV }}"
+
+      - name: Comment PR with destruction notice
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '## 🗑️ Preview Environment Destroyed',
+              '',
+              `**Branch:** \`${{ github.head_ref }}\``,
+              '',
+              'The preview environment has been destroyed.',
+              'Container Apps and associated resources have been removed.',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });

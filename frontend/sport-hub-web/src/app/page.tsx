@@ -99,7 +99,7 @@ export default function HomePage() {
 
       <div className="flex gap-4">
         <a
-          href="/register"
+          href="/auth/register"
           className="rounded-lg bg-primary px-6 py-3 text-lg font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           Comenzar ahora

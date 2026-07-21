@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, type RegisterInput } from '@/lib/schemas/auth.schema';
-import { registerUser, AuthApiError } from '@/services/auth.service';
+import { loginSchema, type LoginInput } from '@/lib/schemas/auth.schema';
+import { loginUser, AuthApiError } from '@/services/auth.service';
 
 // ============================================================
 // Componentes UI inline (shadcn/ui style)
@@ -75,49 +75,10 @@ function Button({
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          Creando cuenta...
+          Iniciando sesión...
         </span>
       ) : (
         children
-      )}
-    </button>
-  );
-}
-
-function Checkbox({
-  id,
-  checked,
-  onCheckedChange,
-  error,
-}: {
-  id: string;
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
-  error?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={checked}
-      id={id}
-      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-        checked
-          ? 'bg-primary border-primary text-primary-foreground'
-          : 'border-input'
-      } ${error ? 'border-destructive' : ''}`}
-      onClick={() => onCheckedChange(!checked)}
-    >
-      {checked && (
-        <svg
-          className="h-3 w-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={3}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
       )}
     </button>
   );
@@ -135,10 +96,10 @@ function Label({ htmlFor, children }: { htmlFor?: string; children: React.ReactN
 }
 
 // ============================================================
-// RegisterForm
+// LoginForm
 // ============================================================
 
-export default function RegisterForm() {
+export default function LoginForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -146,27 +107,22 @@ export default function RegisterForm() {
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
-      acceptTerms: false as unknown as true,
     },
     mode: 'onSubmit',
     reValidateMode: 'onBlur',
   });
 
-  const acceptTermsValue = watch('acceptTerms');
-
-  const onSubmit = async (data: RegisterInput) => {
+  const onSubmit = async (data: LoginInput) => {
     setServerError(null);
 
     try {
-      const response = await registerUser(data);
+      const response = await loginUser(data);
       // Guardar tokens en localStorage para sesion automatica
       if (response.accessToken) {
         localStorage.setItem('access_token', response.accessToken);
@@ -174,12 +130,13 @@ export default function RegisterForm() {
       if (response.refreshToken) {
         localStorage.setItem('refresh_token', response.refreshToken);
       }
-      // Redirigir a pagina de verificacion de email
-      router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
+      // Redirigir al inicio o a la pagina que intentaba acceder
+      const params = new URLSearchParams(window.location.search);
+      const redirectTo = params.get('redirect') || '/';
+      router.push(redirectTo);
     } catch (error) {
       if (error instanceof AuthApiError) {
         if (error.fieldErrors && error.fieldErrors.length > 0) {
-          // Si hay errores de campo especificos, mostrar el primero como error general
           setServerError(error.fieldErrors[0].message);
         } else {
           setServerError(error.message);
@@ -243,7 +200,7 @@ export default function RegisterForm() {
             id="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
-            autoComplete="new-password"
+            autoComplete="current-password"
             error={!!errors.password}
             {...register('password')}
           />
@@ -273,43 +230,26 @@ export default function RegisterForm() {
         )}
       </div>
 
-      {/* Accept terms checkbox */}
-      <div className="flex items-start gap-3">
-        <Checkbox
-          id="acceptTerms"
-          checked={!!acceptTermsValue}
-          onCheckedChange={(checked) => setValue('acceptTerms', checked as unknown as true, { shouldValidate: true })}
-          error={!!errors.acceptTerms}
-        />
-        <div className="space-y-1">
-          <Label htmlFor="acceptTerms">
-            Acepto los{' '}
-            <a href="/terms" className="text-primary underline hover:text-primary/80" target="_blank" rel="noopener noreferrer">
-              Términos y Condiciones
-            </a>{' '}
-            y la{' '}
-            <a href="/privacy" className="text-primary underline hover:text-primary/80" target="_blank" rel="noopener noreferrer">
-              Política de Privacidad
-            </a>
-          </Label>
-          {errors.acceptTerms && (
-            <p className="text-sm text-destructive" role="alert">
-              {errors.acceptTerms.message}
-            </p>
-          )}
-        </div>
+      {/* Forgot password link */}
+      <div className="flex justify-end">
+        <a
+          href="/auth/forgot-password"
+          className="text-sm text-primary underline hover:text-primary/80"
+        >
+          ¿Olvidaste tu contraseña?
+        </a>
       </div>
 
       {/* Submit button */}
       <Button type="submit" loading={isSubmitting} disabled={isSubmitting} className="w-full">
-        Crear cuenta
+        Iniciar sesión
       </Button>
 
-      {/* Link to login */}
+      {/* Link to register */}
       <p className="text-center text-sm text-muted-foreground">
-        ¿Ya tienes cuenta?{' '}
-        <a href="/auth/login" className="font-medium text-primary underline hover:text-primary/80">
-          Inicia sesión
+        ¿No tienes cuenta?{' '}
+        <a href="/auth/register" className="font-medium text-primary underline hover:text-primary/80">
+          Regístrate aquí
         </a>
       </p>
     </form>
