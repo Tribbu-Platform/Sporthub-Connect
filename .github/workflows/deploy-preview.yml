@@ -16,6 +16,8 @@
 
 name: Deploy Preview (ACA)
 
+# CI + Deploy integrados en un solo workflow secuencial.
+# CI corre primero; deploy solo si CI pasa.
 on:
   push:
     branches: ["hu/**"]
@@ -54,6 +56,31 @@ jobs:
       image_tag: ${{ steps.sanitize.outputs.image_tag }}
 
     steps:
+      - name: Wait for CI to pass
+        id: wait-for-ci
+        shell: bash
+        run: |
+          COMMIT="${{ github.sha }}"
+          echo "Waiting for CI to pass on commit $COMMIT..."
+          for i in $(seq 1 30); do
+            CONCLUSION=$(gh api "repos/${{ github.repository }}/commits/$COMMIT/check-runs" \
+              --jq '.check_runs | group_by(.name | test("^CI")) | .[0][] | .conclusion' 2>/dev/null || echo "")
+            if echo "$CONCLUSION" | grep -q "^success$"; then
+              echo "CI passed!"
+              exit 0
+            fi
+            if echo "$CONCLUSION" | grep -q "^failure\|^cancelled\|^timed_out"; then
+              echo "CI failed: $CONCLUSION"
+              exit 1
+            fi
+            echo "CI still running... attempt $i/30"
+            sleep 10
+          done
+          echo "CI did not complete within 5 minutes"
+          exit 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+
       - name: Sanitize branch name for Azure naming
         id: sanitize
         shell: bash
@@ -117,7 +144,6 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.branch=${{ github.head_ref || github.ref_name }}
-            org.opencontainers.image.created=${{ github.event.head_commit.timestamp || '' }}
 
       # ── Build & Push Web ──────────────────────────────────────
       - name: Build & Push Web image
@@ -137,7 +163,6 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.branch=${{ github.head_ref || github.ref_name }}
-            org.opencontainers.image.created=${{ github.event.head_commit.timestamp || '' }}
 
       # ── Smoke test ─────────────────────────────────────────────
       - name: Smoke test API image
