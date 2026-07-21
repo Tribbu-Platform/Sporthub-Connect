@@ -408,14 +408,6 @@ jobs:
         env:
           ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
-      - name: Log in to GHCR (Azure deployment)
-        if: steps.check_secrets.outputs.skip != 'true'
-        uses: azure/container-apps-deploy-action@v1
-        with:
-          registryUrl: ${{ env.REGISTRY }}
-          registryUsername: ${{ github.repository_owner }}
-          registryPassword: ${{ secrets.GHCR_PASSWORD }}
-
       - name: Deploy API Container App
         if: steps.check_secrets.outputs.skip != 'true'
         shell: pwsh
@@ -428,9 +420,12 @@ jobs:
             -BranchName $branchSafe `
             -ImageTag $imageTag `
             -ResourceGroup "${{ env.AZURE_RESOURCE_GROUP }}" `
-            -EnvironmentName "${{ env.AZURE_CONTAINER_APP_ENV }}"
+            -EnvironmentName "${{ env.AZURE_CONTAINER_APP_ENV }}" `
+            -RegistryServer "${{ env.REGISTRY }}" `
+            -RegistryUsername "${{ github.repository_owner }}"
         env:
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          GHCR_PASSWORD: ${{ secrets.GHCR_PASSWORD }}
           AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
           AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
           AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}

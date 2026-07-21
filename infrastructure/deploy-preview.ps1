@@ -57,7 +57,13 @@ param(
     [string]$PreviewCpu = '0.5',
 
     [Parameter()]
-    [string]$PreviewMemory = '1Gi'
+    [string]$PreviewMemory = '1Gi',
+
+    [Parameter()]
+    [string]$RegistryServer = 'ghcr.io',
+
+    [Parameter()]
+    [string]$RegistryUsername = 'Tribbu-Platform'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -146,6 +152,9 @@ if ($Action -eq 'create') {
         --memory $PreviewMemory `
         --min-replicas 0 `
         --max-replicas 2 `
+        --registry-server $RegistryServer `
+        --registry-username $RegistryUsername `
+        --registry-password "$env:GHCR_PASSWORD" `
         --tags @($tags.Keys | ForEach-Object { "$_=$($tags[$_])" }) `
         --output table
 
@@ -193,6 +202,9 @@ if ($Action -eq 'create') {
         --memory 0.5Gi `
         --min-replicas 0 `
         --max-replicas 2 `
+        --registry-server $RegistryServer `
+        --registry-username $RegistryUsername `
+        --registry-password "$env:GHCR_PASSWORD" `
         --tags @($tags.Keys | ForEach-Object { "$_=$($tags[$_])" }) `
         --env-vars `
             "NODE_ENV=production" `
