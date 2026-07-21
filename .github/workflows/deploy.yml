@@ -152,7 +152,7 @@ jobs:
           az containerapp update \
             --name "ca-sport-staging-api" \
             --resource-group "${{ env.RESOURCE_GROUP_STAGING }}" \
-            --image "${{ env.GHCR_REGISTRY }}/${{ github.repository }}/api:${{ needs.gate.outputs.image_tag }}" \
+            --image "${{ env.GHCR_REGISTRY }}/${{ lower(github.repository) }}/api:${{ needs.gate.outputs.image_tag }}" \
             --output table
           echo "✅ API updated to tag: ${{ needs.gate.outputs.image_tag }}"
 
@@ -163,7 +163,7 @@ jobs:
           az containerapp update \
             --name "ca-sport-staging-web" \
             --resource-group "${{ env.RESOURCE_GROUP_STAGING }}" \
-            --image "${{ env.GHCR_REGISTRY }}/${{ github.repository }}/web:${{ needs.gate.outputs.image_tag }}" \
+            --image "${{ env.GHCR_REGISTRY }}/${{ lower(github.repository) }}/web:${{ needs.gate.outputs.image_tag }}" \
             --output table
           echo "✅ Web updated to tag: ${{ needs.gate.outputs.image_tag }}"
 
@@ -271,7 +271,7 @@ jobs:
           az containerapp update \
             --name "ca-sport-prod-api" \
             --resource-group "${{ env.RESOURCE_GROUP_PRODUCTION }}" \
-            --image "${{ env.GHCR_REGISTRY }}/${{ github.repository }}/api:${{ needs.gate.outputs.image_tag }}" \
+            --image "${{ env.GHCR_REGISTRY }}/${{ lower(github.repository) }}/api:${{ needs.gate.outputs.image_tag }}" \
             --output table
           echo "✅ API updated to tag: ${{ needs.gate.outputs.image_tag }}"
 
@@ -282,7 +282,7 @@ jobs:
           az containerapp update \
             --name "ca-sport-prod-web" \
             --resource-group "${{ env.RESOURCE_GROUP_PRODUCTION }}" \
-            --image "${{ env.GHCR_REGISTRY }}/${{ github.repository }}/web:${{ needs.gate.outputs.image_tag }}" \
+            --image "${{ env.GHCR_REGISTRY }}/${{ lower(github.repository) }}/web:${{ needs.gate.outputs.image_tag }}" \
             --output table
           echo "✅ Web updated to tag: ${{ needs.gate.outputs.image_tag }}"
 

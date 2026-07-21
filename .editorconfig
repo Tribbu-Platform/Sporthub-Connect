@@ -300,3 +300,13 @@ indent_style = tab
 # ============================================================
 [*.sql]
 indent_size = 4
+
+# ============================================================
+# Test projects — reducir ruido de analisis
+# ============================================================
+[**/tests/**/*.cs]
+# CA1707: Identifiers should not contain underscores (convencion de nombres en tests)
+dotnet_diagnostic.CA1707.severity = none
+
+# CS1591: Missing XML comment for publicly visible type or member (no requerido en tests)
+dotnet_diagnostic.CS1591.severity = none

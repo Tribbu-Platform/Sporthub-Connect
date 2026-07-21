@@ -71,4 +71,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+# En desarrollo con bind mount, node_modules local sobrescribe al de la imagen.
+# Este entrypoint reinstala dependencias y luego inicia dev.
+# Se ubica fuera de /app para no ser sobrescrito por el bind mount.
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'cd /app && npm install --no-audit --no-fund 2>&1' >> /entrypoint.sh && \
+    echo 'exec npm run dev' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+CMD ["sh", "/entrypoint.sh"]

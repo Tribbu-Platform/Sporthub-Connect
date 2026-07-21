@@ -31,7 +31,7 @@ env:
   DOTNET_VERSION: "10.0.x"
   NODE_VERSION: "22.x"
   AZURE_RESOURCE_GROUP: rg-sporthub-staging
-  REGISTRY: ghcr.io/${{ github.repository }}
+  REGISTRY: ghcr.io/${{ lower(github.repository) }}
 
 jobs:
   # ============================================================

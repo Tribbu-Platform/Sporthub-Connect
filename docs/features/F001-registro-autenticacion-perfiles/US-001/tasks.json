@@ -210,6 +210,139 @@
       "files": [
         "src/Api/SportHub.Api/Modules/Identity/DependencyInjection.cs"
       ]
+    },
+    {
+      "id": "T018",
+      "layer": "Frontend",
+      "title": "Crear pagina de registro (route /auth/register) con Next.js App Router",
+      "status": "completed",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear la pagina /auth/register en frontend/sport-hub-web/src/app/auth/register/page.tsx. Incluir layout basico, metadata SEO y estructura del formulario con React Hook Form.",
+      "files": [
+        "frontend/sport-hub-web/src/app/auth/register/page.tsx"
+      ]
+    },
+    {
+      "id": "T019",
+      "layer": "Frontend",
+      "title": "Crear esquema Zod para validacion del formulario de registro",
+      "status": "completed",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Definir esquema registerSchema con Zod: email (formato valido), password (min 8 chars, mayuscula, minuscula, numero, especial), acceptTerms (boolean true). Mensajes de error en espanol.",
+      "files": [
+        "frontend/sport-hub-web/src/lib/schemas/auth.schema.ts"
+      ]
+    },
+    {
+      "id": "T020",
+      "layer": "Frontend",
+      "title": "Crear hook o servicio API para llamar a POST /api/identity/register",
+      "status": "completed",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear servicio registerUser en frontend/sport-hub-web/src/services/auth.service.ts usando fetch/axios. Tipar request (RegisterRequest) y response (RegisterResponse). Manejar errores HTTP (400, 409, 429, 500) con mensajes descriptivos.",
+      "files": [
+        "frontend/sport-hub-web/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "id": "T021",
+      "layer": "Frontend",
+      "title": "Implementar formulario de registro con React Hook Form + Zod",
+      "status": "completed",
+      "dependsOn": ["T018", "T019", "T020"],
+      "tddStep": null,
+      "description": "Implementar RegisterForm como Client Component. Usar useForm con resolutor Zod. Campos: email (input type=email), password (input type=password con toggle visibilidad), acceptTerms (checkbox con texto legal). Boton submit con estado loading. Mostrar errores de validacion inline. Redirigir a /auth/verify-email tras exito. Manejar errores de API (duplicado, rate limit).",
+      "files": [
+        "frontend/sport-hub-web/src/app/auth/register/RegisterForm.tsx"
+      ]
+    },
+    {
+      "id": "T022",
+      "layer": "Frontend",
+      "title": "Agregar tests con Vitest + Testing Library para el formulario de registro",
+      "status": "completed",
+      "dependsOn": ["T021"],
+      "tddStep": null,
+      "description": "Escribir tests: renderizar formulario, validar campos vacios muestra errores, email invalido muestra error, password debil muestra error, submit exitoso redirige, submit con error 409 muestra 'email ya registrado', boton deshabilitado durante loading.",
+      "files": [
+        "frontend/sport-hub-web/src/app/auth/register/__tests__/RegisterForm.test.tsx"
+      ]
+    },
+    {
+      "id": "T023",
+      "layer": "Frontend",
+      "title": "Agregar test E2E con Playwright para el flujo de registro",
+      "status": "completed",
+      "dependsOn": ["T021"],
+      "tddStep": null,
+      "description": "Escribir test E2E: navegar a /auth/register, completar formulario con datos validos, submit, verificar redireccion a /auth/verify-email. Test de validacion: submit con campos vacios muestra errores.",
+      "files": [
+        "frontend/sport-hub-web/e2e/register.spec.ts"
+      ]
+    },
+    {
+      "id": "T024",
+      "layer": "BDD",
+      "title": "Crear feature file Gherkin para registro con email",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear archivo .feature con los 7 escenarios Gherkin de US-001 (extraidos de user-stories.md). Incluir Feature, Background con datos comunes, y todos los escenarios con Given/When/Then. La tecnologia especifica para BDD se define en docs/architecture.md.",
+      "files": [
+        "frontend/sport-hub-web/e2e/features/register.feature"
+      ]
+    },
+    {
+      "id": "T025",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para registro exitoso y email duplicado",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Implementar step definitions para escenarios de registro exitoso y email duplicado. Conectar Gherkin con la UI del formulario de registro: navegar al formulario, completar campos, submit, verificar respuesta. Para escenarios de error (email duplicado), mockear respuesta del backend.",
+      "files": [
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
+      ]
+    },
+    {
+      "id": "T026",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para validacion de password",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Implementar step definitions para escenarios de validacion de password: corta (5 chars), sin caracter especial. Verificar que la UI muestra los mensajes de error correspondientes del lado del frontend.",
+      "files": [
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
+      ]
+    },
+    {
+      "id": "T027",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para validacion de email y campos vacios",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Implementar step definitions para escenarios: email invalido, campos vacios. Verificar que la UI muestra errores de validacion visibles para el usuario.",
+      "files": [
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
+      ]
+    },
+    {
+      "id": "T028",
+      "layer": "BDD",
+      "title": "Configurar proyecto de tests BDD en el frontend",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Instalar dependencias (@cucumber/cucumber, configuracion de cucumber.js), configurar el runner BDD segun docs/architecture.md, agregar script npm para ejecucion. Configurar hooks de setup/teardown (BeforeAll, AfterAll) para iniciar/cerrar el navegador.",
+      "files": [
+        "frontend/sport-hub-web/cucumber.js",
+        "frontend/sport-hub-web/e2e/support/world.ts"
+      ]
     }
   ]
 }

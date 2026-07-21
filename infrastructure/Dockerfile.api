@@ -100,4 +100,4 @@ ENV PATH="$PATH:/root/.dotnet/tools"
 ENV ASPNETCORE_ENVIRONMENT=Development
 ENV ASPNETCORE_URLS=http://+:8080
 
-ENTRYPOINT ["dotnet", "watch", "run", "--project", "src/Api/SportHub.Api/SportHub.Api.csproj", "--no-launch-profile"]
+ENTRYPOINT ["dotnet", "run", "--project", "src/Api/SportHub.Api/SportHub.Api.csproj", "--no-launch-profile"]
