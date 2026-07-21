@@ -30,10 +30,15 @@ Garantizas la calidad del codigo de una HU mediante una estrategia de pruebas co
 
 1. **Automatizacion BDD (criterios de aceptacion desde el frontend)**
    - Crear los archivos `.feature` con los escenarios Gherkin de la HU (extraidos de `user-stories.md`)
-   - Implementar Step Definitions que conectan el Gherkin con la UI del frontend (interactuando con el navegador)
+   - Implementar Step Definitions que interactuan con la UI real del frontend via el navegador
+   - **Mockear las APIs del backend** en los step definitions usando la capacidad de interceptacion de red del navegador (ej. `page.route()` en Playwright). Esto evita depender del backend (BD, servicios externos, Auth0) durante las pruebas BDD
    - Configurar el proyecto/herramienta BDD segun la tecnologia definida en `docs/architecture.md` para la capa Frontend
-   - Configurar hooks de setup/teardown (BeforeScenario, AfterScenario)
-    - Usar el skill `bdd-*` definido en `docs/architecture.md`
+   - Configurar hooks de setup/teardown:
+     - **BeforeAll**: iniciar el frontend (dev server), esperar health check, iniciar navegador
+     - **AfterAll**: detener frontend, cerrar navegador
+     - **BeforeScenario**: crear contexto de navegador nuevo (ajna limpia por escenario)
+     - **AfterScenario**: capturar screenshot si falla, cerrar contexto
+   - Usar el skill `bdd-*` definido en `docs/architecture.md`
    - Las tareas BDD estan en el `tasks.json` de la HU con `tier: "BDD"`
 
 2. **Pruebas unitarias (backend)**

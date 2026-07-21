@@ -272,17 +272,39 @@ dotnet test tests\SportHub.Identity.IntegrationTests\ --verbosity normal
 
 ## 5. Pruebas BDD (Acceptance Tests desde el Frontend)
 
-BDD automatizado con Cucumber.js + Playwright, validando los escenarios Gherkin directamente desde el navegador.
+BDD automatizado con Cucumber.js + Playwright, validando los escenarios Gherkin directamente desde el navegador. **No requiere backend corriendo** — las APIs se mockean via `page.route()` en los step definitions.
+
+### Ciclo de vida de la aplicación
+
+| Fase | Acción | Responsable |
+|------|--------|-------------|
+| BeforeAll | Iniciar Next.js dev server (npm run dev) | `hooks.ts` |
+| BeforeAll | Esperar a que localhost:3000 responda (polling hasta 60s) | `hooks.ts` |
+| BeforeAll | Iniciar Chromium headless | `hooks.ts` |
+| BeforeScenario | Crear BrowserContext + Page (aislado por escenario) | `hooks.ts` |
+| **Steps** | **Mockear APIs via `page.route()` en los Given que lo requieren** | `register.steps.ts` |
+| AfterScenario | Capturar screenshot si falla, cerrar contexto | `hooks.ts` |
+| AfterAll | Cerrar Chromium + matar proceso del frontend | `hooks.ts` |
+
+### Mockeo de APIs del backend
+
+| Escenario | API | Respuesta mockeada |
+|-----------|-----|-------------------|
+| Registro exitoso | `POST /api/identity/register` | `201` con tokens JWT y userId |
+| Email duplicado (verificado) | `POST /api/identity/register` | `409` con detail "El email ya esta registrado" |
+| Email duplicado (no verificado) | `POST /api/identity/register` | `409` con `canResendVerification: true` |
+| Validación cliente (password, email, vacíos) | — | Sin mock (validación Zod local, no llega al backend) |
 
 ### Arquitectura de pruebas
 
 | Componente | Descripción |
 |------------|-------------|
-| **Runner** | Cucumber.js con playwriting como engine de navegador |
-| **World** | CustomWorld con Page de Playwright, browser context por escenario |
-| **Hooks** | BeforeAll/AfterAll para lanzar/cerrar Chromium. Before/After para contexto por escenario |
+| **Runner** | Cucumber.js + Playwright (chromium headless) |
+| **World** | CustomWorld con Page de Playwright por escenario |
+| **Hooks** | BeforeAll: inicia frontend + navegador. AfterAll: detiene ambos |
+| **API Mock** | `page.route('**/api/identity/register', ...)` en Given steps |
 | **Escenarios** | 7 escenarios en `e2e/features/register.feature` |
-| **Step files** | 1 archivo consolidado: `e2e/step_definitions/register.steps.ts` (49 steps total) |
+| **Step files** | 1 archivo: `e2e/step_definitions/register.steps.ts` (49 steps) |
 
 ### Dry run — validación de sintaxis
 
@@ -294,15 +316,15 @@ BDD automatizado con Cucumber.js + Playwright, validando los escenarios Gherkin 
 
 ### Escenarios BDD
 
-| # | Escenario | Steps | Archivo .feature |
-|---|-----------|-------|-----------------|
-| 1 | Registro exitoso con email y contraseña válidos | 7 pasos | `register.feature` |
-| 2 | Rechazo cuando email ya existe (verificado) | 5 pasos | `register.feature` |
-| 3 | Rechazo cuando email ya existe (no verificado) | 4 pasos | `register.feature` |
-| 4 | Rechazo cuando contraseña es demasiado corta | 4 pasos | `register.feature` |
-| 5 | Rechazo cuando contraseña no tiene carácter especial | 4 pasos | `register.feature` |
-| 6 | Rechazo cuando formato de email inválido | 4 pasos | `register.feature` |
-| 7 | Rechazo cuando campos obligatorios vacíos | 3 pasos | `register.feature` |
+| # | Escenario | Steps | Requiere mock API |
+|---|-----------|-------|------------------|
+| 1 | Registro exitoso con email y contraseña válidos | 7 pasos | ✅ Sí (201) |
+| 2 | Rechazo cuando email ya existe (verificado) | 5 pasos | ✅ Sí (409) |
+| 3 | Rechazo cuando email ya existe (no verificado) | 4 pasos | ✅ Sí (409 + resend) |
+| 4 | Rechazo cuando contraseña es demasiado corta | 4 pasos | ❌ No (Zod local) |
+| 5 | Rechazo cuando contraseña no tiene carácter especial | 4 pasos | ❌ No (Zod local) |
+| 6 | Rechazo cuando formato de email inválido | 4 pasos | ❌ No (Zod local) |
+| 7 | Rechazo cuando campos obligatorios vacíos | 3 pasos | ❌ No (Zod local) |
 
 ### Archivos generados
 
@@ -314,17 +336,16 @@ BDD automatizado con Cucumber.js + Playwright, validando los escenarios Gherkin 
 | World (CustomWorld) | `frontend/sport-hub-web/e2e/support/world.ts` |
 | Hooks (setup/teardown) | `frontend/sport-hub-web/e2e/support/hooks.ts` |
 
-### Requisitos de ejecución
+### Ejecución
 
-Los tests BDD requieren que el frontend esté corriendo:
+Los hooks de Cucumber.js inician y detienen el frontend automáticamente:
+
 ```bash
 cd frontend/sport-hub-web
-# Terminal 1: iniciar servidor
-npm run dev
-
-# Terminal 2: ejecutar BDD
 npm run test:bdd
 ```
+
+El frontend se inicia en BeforeAll y se detiene en AfterAll. No requiere terminal separada.
 
 ---
 
