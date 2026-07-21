@@ -31,8 +31,8 @@ concurrency:
 env:
   # ─── Container Registry (GHCR) ───────────────────────────────
   REGISTRY: ghcr.io
-  IMAGE_NAME_API: ${{ github.repository }}/api
-  IMAGE_NAME_WEB: ${{ github.repository }}/web
+  IMAGE_NAME_API: ${{ lower(github.repository) }}/api
+  IMAGE_NAME_WEB: ${{ lower(github.repository) }}/web
 
   # ─── Azure ───────────────────────────────────────────────────
   AZURE_RESOURCE_GROUP: rg-sporthub-staging
