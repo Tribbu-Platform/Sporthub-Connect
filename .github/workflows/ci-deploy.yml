@@ -405,6 +405,8 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+        env:
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
       - name: Log in to GHCR (Azure deployment)
         if: steps.check_secrets.outputs.skip != 'true'
@@ -550,6 +552,8 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+        env:
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
       - name: Destroy preview infrastructure
         if: steps.check_secrets.outputs.skip != 'true'
