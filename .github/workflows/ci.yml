@@ -264,22 +264,13 @@ jobs:
 
       # ── Dependency Scan (Trivy) ────────────────────────────────
       - name: Run Trivy vulnerability scanner (fs)
-        uses: aquasecurity/trivy-action@v0.29
-        with:
-          scan-type: "fs"
-          scan-ref: "."
-          format: "sarif"
-          output: "trivy-results.sarif"
-          severity: "CRITICAL,HIGH"
-          exit-code: "1"
-          ignore-unfixed: true
-          hide-progress: true
-
-      - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: "trivy-results.sarif"
-          category: "trivy"
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -v /tmp/trivy-cache:/root/.cache/trivy \
+            aquasec/trivy:latest \
+            filesystem --severity CRITICAL,HIGH --exit-code 1 --ignore-unfixed \
+            /workspace
         continue-on-error: true
 
       # ── SAST (CodeQL) ──────────────────────────────────────────

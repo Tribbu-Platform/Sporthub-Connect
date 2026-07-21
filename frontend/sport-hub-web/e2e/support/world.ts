@@ -6,6 +6,9 @@ export interface ICustomWorld {
   context: BrowserContext;
   page: Page;
   baseUrl: string;
+  email?: string;
+  password?: string;
+  attach: (data: string | Buffer, mimeType?: string) => void;
 }
 
 export class CustomWorld extends World implements ICustomWorld {
