@@ -252,7 +252,7 @@ jobs:
           echo "Lowercase repo: $REPO_LC"
 
           # Convertir a lowercase, reemplazar / por -, quitar caracteres especiales
-          SAFE=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/\//-/g' | sed 's/[^a-z0-9-]//g' | cut -c1-32)
+          SAFE=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/\//-/g' | sed 's/[^a-z0-9-]//g' | cut -c1-16)
           echo "Sanitized branch: $SAFE"
 
           # Generar image tag: preview-{branch_safe}-{sha}
@@ -435,8 +435,8 @@ jobs:
         shell: bash
         run: |
           BRANCH_SAFE="${{ needs.sanitize.outputs.branch_safe }}"
-          API_NAME="ca-preview-${BRANCH_SAFE}-api"
-          WEB_NAME="ca-preview-${BRANCH_SAFE}-web"
+          API_NAME="pr-${BRANCH_SAFE}-api"
+          WEB_NAME="pr-${BRANCH_SAFE}-web"
 
           # Obtener FQDNs
           API_FQDN=$(az containerapp show --name "$API_NAME" \

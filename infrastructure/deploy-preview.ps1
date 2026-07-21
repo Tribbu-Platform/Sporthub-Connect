@@ -71,8 +71,8 @@ $ErrorActionPreference = 'Stop'
 # ============================================================
 # Naming
 # ============================================================
-$apiName = "ca-preview-${BranchName}-api"
-$webName = "ca-preview-${BranchName}-web"
+$apiName = "pr-${BranchName}-api"
+$webName = "pr-${BranchName}-web"
 $tags = @{
     environment = 'preview'
     branch = $BranchName
