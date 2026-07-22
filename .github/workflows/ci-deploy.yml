@@ -541,6 +541,78 @@ jobs:
           path: frontend/sport-hub-web/e2e/reports/
           retention-days: 7
 
+      - name: Write BDD summary to job summary
+        if: steps.check_secrets.outputs.skip != 'true' && always()
+        shell: bash
+        run: |
+          REPORT="frontend/sport-hub-web/e2e/reports/cucumber-report.json"
+
+          if [ ! -f "$REPORT" ]; then
+            {
+              echo "## ⚠️ BDD Test Results"
+              echo "**Branch:** \`${{ needs.sanitize.outputs.branch_safe }}\`"
+              echo ""
+              echo "No BDD report found (tests may have failed to run)."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # Extract summary data as JSON using node
+          node > /tmp/bdd-summary.json -e "
+            const fs = require('fs');
+            const feats = JSON.parse(fs.readFileSync('$REPORT','utf8'));
+            const scens = feats.flatMap(f => f.elements || []);
+            let passed=0,failed=0,skipped=0,total=0;
+            let stepsOk=0,stepsTotal=0;
+            const items = scens.map(s => {
+              total++;
+              const sts = (s.steps||[]).filter(st => !st.hidden && st.keyword !== 'Before' && st.keyword !== 'After');
+              const allOk = sts.every(st => st.result && st.result.status === 'passed');
+              const anyBad = sts.some(st => st.result && st.result.status === 'failed');
+              if (allOk) passed++; else if (anyBad) failed++; else skipped++;
+              sts.forEach(st => { stepsTotal++; if (st.result && st.result.status==='passed') stepsOk++; });
+              return {
+                name: s.name,
+                status: allOk ? 'passed' : (anyBad ? 'failed' : 'skipped'),
+                steps: sts.map(st => ({ status: st.result.status, text: st.keyword.trim() + ' ' + st.name }))
+              };
+            });
+            console.log(JSON.stringify({passed,failed,skipped,total,stepsOk,stepsTotal,items}));
+          "
+
+          # Read JSON and write markdown to GITHUB_STEP_SUMMARY
+          node -e "
+            const data = require('/tmp/bdd-summary.json');
+            const lines = [];
+            lines.push('## 🧪 BDD Test Results');
+            lines.push('');
+            lines.push('**Branch:** \`${{ needs.sanitize.outputs.branch_safe }}\`');
+            lines.push('**Preview:** [${{ env.WEB_URL }}](${{ env.WEB_URL }})');
+            lines.push('');
+            lines.push('| Result | Count |');
+            lines.push('|--------|------:|');
+            lines.push('| ✅ Passed | ' + data.passed + '/' + data.total + ' scenarios |');
+            lines.push('| 🔵 Steps | ' + data.stepsOk + '/' + data.stepsTotal + ' steps |');
+            if (data.failed > 0) lines.push('| ❌ Failed | ' + data.failed + ' |');
+            if (data.skipped > 0) lines.push('| ⏭️ Skipped | ' + data.skipped + ' |');
+            lines.push('');
+            lines.push('### Scenario Details');
+            lines.push('');
+            data.items.forEach(function(item) {
+              var icon = item.status === 'passed' ? '✅' : (item.status === 'failed' ? '❌' : '⏭️');
+              lines.push(icon + ' **' + item.name + '** (' + item.status + ')');
+              item.steps.forEach(function(st) {
+                var si = st.status === 'passed' ? '✅' : '❌';
+                lines.push('  - ' + si + ' ' + st.text);
+              });
+            });
+            lines.push('');
+            lines.push('---');
+            lines.push('📄 [Download HTML Report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})');
+            lines.push('');
+            require('fs').appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+          "
+
       - name: Comment PR with preview URLs
         if: steps.check_secrets.outputs.skip != 'true' && github.event_name == 'pull_request'
         uses: actions/github-script@v7
