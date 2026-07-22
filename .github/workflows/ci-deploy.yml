@@ -518,12 +518,13 @@ jobs:
           # Mostrar resumen de escenarios
           if [ -f "e2e/reports/cucumber-report.json" ]; then
             node -e "
-              const features = require('./e2e/reports/cucumber-report.json');
+              const fs = require('fs');
+              const features = JSON.parse(fs.readFileSync('./e2e/reports/cucumber-report.json','utf8'));
               const scenarios = features.flatMap(f => f.elements || []);
-              const passed = scenarios.filter(s => s.status === 'passed').length;
-              const failed = scenarios.filter(s => s.status === 'failed').length;
-              const skipped = scenarios.filter(s => s.status === 'skipped' || s.status === 'pending').length;
-              console.log('BDD Results: ' + passed + ' passed, ' + failed + ' failed, ' + skipped + ' skipped');
+              const passed = scenarios.filter(s => s.steps && s.steps.every(st => st.result && st.result.status === 'passed')).length;
+              const failed = scenarios.filter(s => s.steps && s.steps.some(st => st.result && st.result.status === 'failed')).length;
+              const skipped = scenarios.filter(s => !s.steps || s.steps.length === 0).length;
+              console.log('BDD Summary: ' + passed + ' passed, ' + failed + ' failed, ' + skipped + ' empty');
             "
           fi
           
