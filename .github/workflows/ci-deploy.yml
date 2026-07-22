@@ -485,6 +485,14 @@ jobs:
           echo "API_URL=https://${API_FQDN}" >> $GITHUB_ENV
           echo "WEB_URL=https://${WEB_FQDN}" >> $GITHUB_ENV
 
+      - name: Setup Node.js for BDD tests
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/sport-hub-web/package-lock.json
+
       - name: Run BDD tests against preview
         if: steps.check_secrets.outputs.skip != 'true'
         id: bdd
@@ -493,6 +501,9 @@ jobs:
         shell: bash
         run: |
           cd frontend/sport-hub-web
+          
+          echo "Installing dependencies..."
+          npm ci 2>&1
           
           echo "Installing Playwright browsers..."
           npx playwright install chromium 2>&1
@@ -506,9 +517,14 @@ jobs:
           
           # Mostrar resumen de escenarios
           if [ -f "e2e/reports/cucumber-report.json" ]; then
-            PASSED=$(node -e "const r=require('./e2e/reports/cucumber-report.json');console.log(r.filter(s=>s.status==='passed').length)")
-            FAILED=$(node -e "const r=require('./e2e/reports/cucumber-report.json');console.log(r.filter(s=>s.status==='failed').length)")
-            echo "BDD Results: $PASSED passed, $FAILED failed"
+            node -e "
+              const features = require('./e2e/reports/cucumber-report.json');
+              const scenarios = features.flatMap(f => f.elements || []);
+              const passed = scenarios.filter(s => s.status === 'passed').length;
+              const failed = scenarios.filter(s => s.status === 'failed').length;
+              const skipped = scenarios.filter(s => s.status === 'skipped' || s.status === 'pending').length;
+              console.log('BDD Results: ' + passed + ' passed, ' + failed + ' failed, ' + skipped + ' skipped');
+            "
           fi
           
           exit $EXIT_CODE
