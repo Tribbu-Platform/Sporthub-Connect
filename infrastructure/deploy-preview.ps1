@@ -110,15 +110,17 @@ if ($Action -eq 'create') {
             --output none
         Write-Host "   API updated to $ImageTag"
         
-        # Update Web container image
+        # Update Web container image (env vars remain from initial creation)
+        $apiFqdn = az containerapp show --name $apiName --resource-group $ResourceGroup --query 'properties.configuration.ingress.fqdn' -o tsv
         az containerapp update `
             --name $webName `
             --resource-group $ResourceGroup `
             --image "ghcr.io/tribbu-platform/sporthub-connect/web:${ImageTag}" `
+            --set-env-vars "API_UPSTREAM_URL=https://${apiFqdn}" `
             --output none
         Write-Host "   Web updated to $ImageTag"
         
-        Write-Host "   Preview updated and restarted!"
+        Write-Host "   Preview updated!"
         return
     }
 
@@ -204,6 +206,7 @@ if ($Action -eq 'create') {
         --env-vars `
             "NODE_ENV=production" `
             "NEXT_PUBLIC_API_URL=https://${apiFqdn}" `
+            "API_UPSTREAM_URL=https://${apiFqdn}" `
             "NEXT_TELEMETRY_DISABLED=1" `
             "HOSTNAME=0.0.0.0" `
             "PORT=3000" `
