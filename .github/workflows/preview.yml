@@ -31,7 +31,7 @@ env:
   DOTNET_VERSION: "10.0.x"
   NODE_VERSION: "22.x"
   AZURE_RESOURCE_GROUP: rg-sporthub-staging
-  REGISTRY: ghcr.io/${{ lower(github.repository) }}
+  # REGISTRY se define en el build job (ghcr.io/<lowercase-repo>)
 
 jobs:
   # ============================================================
@@ -112,8 +112,11 @@ jobs:
         run: |
           SAFE="${{ needs.determine-action.outputs.safe_branch }}"
           SHA="${GITHUB_SHA:0:7}"
+          # Lowercase repo for Docker (Docker requires lowercase)
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "tag=preview-${SAFE}-${SHA}" >> $GITHUB_OUTPUT
           echo "safe_branch=${SAFE}" >> $GITHUB_OUTPUT
+          echo "registry=ghcr.io/${REPO_LC}" >> $GITHUB_OUTPUT
 
       - name: Build & Push API
         uses: docker/build-push-action@v6
@@ -123,8 +126,8 @@ jobs:
           target: production
           push: true
           tags: |
-            ${{ env.REGISTRY }}/api:preview-${{ steps.meta.outputs.safe_branch }}
-            ${{ env.REGISTRY }}/api:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.registry }}/api:preview-${{ steps.meta.outputs.safe_branch }}
+            ${{ steps.meta.outputs.registry }}/api:${{ steps.meta.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -136,8 +139,8 @@ jobs:
           target: production
           push: true
           tags: |
-            ${{ env.REGISTRY }}/web:preview-${{ steps.meta.outputs.safe_branch }}
-            ${{ env.REGISTRY }}/web:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.registry }}/web:preview-${{ steps.meta.outputs.safe_branch }}
+            ${{ steps.meta.outputs.registry }}/web:${{ steps.meta.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

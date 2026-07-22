@@ -25,15 +25,9 @@ const nextConfig = {
     },
   },
 
-  // API proxy in development
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/:path*`,
-      },
-    ];
-  },
+  // NOTA: El proxy /api/* se maneja via Next.js API Route handler
+  // en src/app/api/[[...path]]/route.ts que lee API_UPSTREAM_URL en runtime.
+  // No usamos rewrites() porque process.env se resuelve en build-time.
 
   // Security headers
   async headers() {

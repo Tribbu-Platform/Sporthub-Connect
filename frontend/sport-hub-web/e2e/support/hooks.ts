@@ -30,10 +30,19 @@ function waitForServer(url: string, timeoutMs: number = 60000): Promise<void> {
 }
 
 BeforeAll(async function () {
-  // 1. Iniciar navegador
+  // 1. Iniciar navegador (siempre headless, incluso en CI)
   browserInstance = await chromium.launch({ headless: true });
 
-  // 2. Iniciar frontend (Next.js dev server)
+  // 2. Si BDD_BASE_URL esta definido, apuntamos a un preview deployeado
+  //    y NO levantamos un servidor local.
+  const baseUrl = process.env.BDD_BASE_URL || '';
+  if (baseUrl) {
+    console.log(`BDD_BASE_URL detectado: ${baseUrl}`);
+    console.log('Usando preview deployeado — no se inicia servidor local.');
+    return;
+  }
+
+  // 3. Iniciar frontend local (Next.js dev server)
   // Las respuestas API se mockean via `page.route()` en cada step definition
   // para no depender del backend (BD, Redis, Auth0, etc.)
   appProcess = spawn('npm', ['run', 'dev'], {
@@ -49,7 +58,7 @@ BeforeAll(async function () {
     process.stderr.write(`[frontend:err] ${data.toString()}`);
   });
 
-  // 3. Esperar a que el servidor responda
+  // 4. Esperar a que el servidor responda
   console.log('Esperando a que el frontend inicie en http://localhost:3000 ...');
   await waitForServer('http://localhost:3000');
   console.log('Frontend listo');
@@ -59,7 +68,7 @@ AfterAll(async function () {
   // 1. Cerrar navegador
   await browserInstance.close();
 
-  // 2. Detener frontend
+  // 2. Detener frontend local solo si lo iniciamos nosotros
   if (appProcess) {
     if (process.platform === 'win32') {
       spawn('taskkill', ['/pid', String(appProcess.pid), '/f', '/t']);

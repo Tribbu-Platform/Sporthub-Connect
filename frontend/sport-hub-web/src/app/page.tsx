@@ -16,9 +16,9 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-
-    fetch(`${apiUrl}/api/community/info`)
+    // Usar ruta relativa: pasa por el rewrite de Next.js
+    // (next.config.js redirige /api/* al backend en runtime)
+    fetch('/api/community/info')
       .then((res) => {
         if (!res.ok) throw new Error(`API responded with ${res.status}`);
         return res.json();
@@ -58,7 +58,7 @@ export default function HomePage() {
             </div>
             <p className="text-sm text-muted-foreground">{error}</p>
             <p className="text-xs text-muted-foreground mt-2">
-              Asegurate de que la API esta corriendo en {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}
+              La API debe estar corriendo en el mismo dominio via rewrite de Next.js
             </p>
           </div>
         )}

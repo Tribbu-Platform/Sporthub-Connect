@@ -19,9 +19,9 @@
     Docker image tag to deploy (e.g., "preview-hu-f001-us-001-a1b2c3d").
     Only required for 'create' action.
 .PARAMETER ResourceGroup
-    Azure Resource Group name. Default: rg-sporthub-staging
-.PARAMETER EnvironmentName
-    ACA Environment name. Default: cae-sport-staging
+    Azure Resource Group name. Default: rg-sporthub-staging-v2
+.Parameter EnvironmentName
+    ACA Environment name. Default: cae-sport-staging-w4wuoo
 .PARAMETER Location
     Azure region. Default: eastus
 .EXAMPLE
@@ -45,10 +45,10 @@ param(
     [string]$ImageTag = 'staging',
 
     [Parameter()]
-    [string]$ResourceGroup = 'rg-sporthub-staging',
+    [string]$ResourceGroup = 'rg-sporthub-staging-v2',
 
     [Parameter()]
-    [string]$EnvironmentName = 'cae-sport-staging',
+    [string]$EnvironmentName = 'cae-sport-staging-w4wuoo',
 
     [Parameter()]
     [string]$Location = 'eastus',
@@ -57,7 +57,16 @@ param(
     [string]$PreviewCpu = '0.5',
 
     [Parameter()]
-    [string]$PreviewMemory = '1Gi'
+    [string]$PreviewMemory = '1Gi',
+
+    [Parameter()]
+    [string]$RegistryServer = 'ghcr.io',
+
+    [Parameter()]
+    [string]$RegistryUsername = 'Tribbu-Platform',
+
+    [Parameter()]
+    [string]$PostgresPassword = 'PLACEHOLDER'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -65,8 +74,8 @@ $ErrorActionPreference = 'Stop'
 # ============================================================
 # Naming
 # ============================================================
-$apiName = "ca-preview-${BranchName}-api"
-$webName = "ca-preview-${BranchName}-web"
+$apiName = "pr-${BranchName}-api"
+$webName = "pr-${BranchName}-web"
 $tags = @{
     environment = 'preview'
     branch = $BranchName
@@ -92,6 +101,8 @@ if ($Action -eq 'create') {
         Write-Host "    Preview already exists. Updating images..." -ForegroundColor Yellow
         
         # Update API container image
+        # Note: 'az containerapp update' triggers a new revision automatically,
+        # no manual restart needed.
         az containerapp update `
             --name $apiName `
             --resource-group $ResourceGroup `
@@ -99,25 +110,17 @@ if ($Action -eq 'create') {
             --output none
         Write-Host "   API updated to $ImageTag"
         
-        # Update Web container image
+        # Update Web container image (env vars remain from initial creation)
+        $apiFqdn = az containerapp show --name $apiName --resource-group $ResourceGroup --query 'properties.configuration.ingress.fqdn' -o tsv
         az containerapp update `
             --name $webName `
             --resource-group $ResourceGroup `
             --image "ghcr.io/tribbu-platform/sporthub-connect/web:${ImageTag}" `
+            --set-env-vars "API_UPSTREAM_URL=https://${apiFqdn}" `
             --output none
         Write-Host "   Web updated to $ImageTag"
         
-        # Restart revisions to pick up new image
-        az containerapp revision restart `
-            --name $apiName `
-            --resource-group $ResourceGroup `
-            --output none 2>$null
-        az containerapp revision restart `
-            --name $webName `
-            --resource-group $ResourceGroup `
-            --output none 2>$null
-        
-        Write-Host "   Preview updated and restarted!"
+        Write-Host "   Preview updated!"
         return
     }
 
@@ -146,6 +149,9 @@ if ($Action -eq 'create') {
         --memory $PreviewMemory `
         --min-replicas 0 `
         --max-replicas 2 `
+        --registry-server $RegistryServer `
+        --registry-username $RegistryUsername `
+        --registry-password "$env:GHCR_PASSWORD" `
         --tags @($tags.Keys | ForEach-Object { "$_=$($tags[$_])" }) `
         --output table
 
@@ -153,20 +159,20 @@ if ($Action -eq 'create') {
     Write-Host "   Configuring API environment..." -ForegroundColor Green
     
     # Get connection strings from staging resources
-    $pgHost = az postgres flexible-server show --name "psql-sport-staging" --resource-group $ResourceGroup --query 'fullyQualifiedDomainName' -o tsv 2>$null
-    $redisHost = az redis show --name "redis-sport-staging" --resource-group $ResourceGroup --query 'hostName' -o tsv 2>$null
-    $redisKey = az redis list-keys --name "redis-sport-staging" --resource-group $ResourceGroup --query 'primaryKey' -o tsv 2>$null
+    $pgHost = az postgres flexible-server show --name "psql-sport-staging-w4wuoo" --resource-group $ResourceGroup --query 'fullyQualifiedDomainName' -o tsv 2>$null
+    $redisHost = az redis show --name "redis-sport-staging-w4wuoo" --resource-group $ResourceGroup --query 'hostName' -o tsv 2>$null
+    $redisKey = az redis list-keys --name "redis-sport-staging-w4wuoo" --resource-group $ResourceGroup --query 'primaryKey' -o tsv 2>$null
     
     # Note: secrets should come from Key Vault or GitHub Secrets ideally.
     # For preview, we use shared staging resources with mock/dev values.
     # In production, use managed identities + Key Vault.
-    az containerapp env set `
+    az containerapp update `
         --name $apiName `
         --resource-group $ResourceGroup `
-        --env-vars `
+        --set-env-vars `
             "ASPNETCORE_ENVIRONMENT=Preview" `
             "ASPNETCORE_URLS=http://+:8080" `
-            "ConnectionStrings__PostgreSQL=Host=${pgHost};Port=5432;Database=sporthub;Username=sporthub_admin;Password=PLACEHOLDER;SSL Mode=Require;Trust Server Certificate=true" `
+            "ConnectionStrings__PostgreSQL=Host=${pgHost};Port=5432;Database=sporthub;Username=sporthub_admin;Password=${PostgresPassword};SSL Mode=Require;Trust Server Certificate=true" `
             "ConnectionStrings__Redis=${redisHost}:6380,password=${redisKey},ssl=True,abortConnect=False" `
             "ConnectionStrings__RabbitMQ=amqp://sporthub:placeholder@localhost:5672" `
             "Auth0__Domain=$env:AUTH0_DOMAIN" `
@@ -193,10 +199,14 @@ if ($Action -eq 'create') {
         --memory 0.5Gi `
         --min-replicas 0 `
         --max-replicas 2 `
+        --registry-server $RegistryServer `
+        --registry-username $RegistryUsername `
+        --registry-password "$env:GHCR_PASSWORD" `
         --tags @($tags.Keys | ForEach-Object { "$_=$($tags[$_])" }) `
         --env-vars `
             "NODE_ENV=production" `
             "NEXT_PUBLIC_API_URL=https://${apiFqdn}" `
+            "API_UPSTREAM_URL=https://${apiFqdn}" `
             "NEXT_TELEMETRY_DISABLED=1" `
             "HOSTNAME=0.0.0.0" `
             "PORT=3000" `

@@ -1,6 +1,9 @@
 # ===================================================================
 # SportHub Connect — CI Pipeline
 # ===================================================================
+permissions:
+  contents: read
+  security-events: write
 # Ejecuta build + test + code analysis en PRs hacia develop y main,
 # y en pushes directos a ramas feature/* y develop.
 #
@@ -96,14 +99,10 @@ jobs:
         run: dotnet restore src/Api/SportHub.Api/SportHub.Api.csproj
         working-directory: ${{ github.workspace }}
 
-      - name: Build (Release)
-        run: dotnet build src/Api/SportHub.Api/SportHub.Api.csproj -c Release --no-restore
-        working-directory: ${{ github.workspace }}
-
-      - name: Run unit tests
+      - name: Run unit tests (build + test)
         run: >
           dotnet test src/Api/SportHub.Api/SportHub.Api.csproj
-          -c Release --no-build
+          -c Release
           --filter "Category=Unit"
           --logger "trx;LogFileName=test-results.trx"
           --collect:"XPlat Code Coverage"
@@ -111,10 +110,10 @@ jobs:
         working-directory: ${{ github.workspace }}
         continue-on-error: false
 
-      - name: Run integration tests
+      - name: Run integration tests (build + test)
         run: >
           dotnet test src/Api/SportHub.Api/SportHub.Api.csproj
-          -c Release --no-build
+          -c Release
           --filter "Category=Integration"
           --logger "trx;LogFileName=integration-test-results.trx"
           --collect:"XPlat Code Coverage"
@@ -194,6 +193,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [backend, frontend]
+    # Saltar en ramas hu/* porque deploy-preview ya construye, pushea y
+    # hace smoke test de las mismas imágenes. Evita build duplicado.
+    if: ${{ !startsWith(github.ref_name, 'hu/') && !startsWith(github.head_ref, 'hu/') }}
 
     steps:
       - name: Checkout repository
