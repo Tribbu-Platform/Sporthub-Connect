@@ -26,10 +26,13 @@ on:
   push:
     branches: ["hu/**"]
   pull_request:
+    branches: [develop, "feature/**"]
     types: [opened, synchronize, reopened, closed]
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
   security-events: write
 
 concurrency:
