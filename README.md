@@ -28,6 +28,35 @@ Plataforma SaaS integral que unifica la gestion de comunidades deportivas en un 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Git](https://git-scm.com/)
 
+## Configuracion de herramientas
+
+### Figma (MCP)
+
+El proyecto integra el servidor MCP de Figma para acceder a disenos y recursos de diseno directamente desde opencode. Para habilitarlo:
+
+1. Obtener un **Personal Access Token** desde [Figma Developer Settings](https://www.figma.com/developers/api#access-tokens)
+2. Configurar la variable de entorno:
+
+**Windows (PowerShell)**:
+```powershell
+# Guardar la variable de forma permanente
+[Environment]::SetEnvironmentVariable('FIGMA_API_KEY', 'figd_TU_TOKEN', 'User')
+
+# Cargarla en la sesion actual o antes de iniciar opencode
+$env:FIGMA_API_KEY = [Environment]::GetEnvironmentVariable('FIGMA_API_KEY', 'User')
+```
+
+**Linux / macOS**:
+```bash
+echo 'export FIGMA_API_KEY="figd_TU_TOKEN"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+3. **Reiniciar opencode** para que el servidor MCP detecte la variable
+
+> [!NOTE]
+> El token debe tener permisos de lectura sobre los archivos Figma del proyecto. Si no tienes acceso, solicitalo al lider tecnico.
+
 ## Inicio rapido
 
 ```powershell
