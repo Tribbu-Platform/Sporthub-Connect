@@ -1,0 +1,121 @@
+{
+  "featureId": "F001",
+  "huId": "US-003",
+  "huTitle": "Inicio de Sesion (Email/Password)",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Agregar metodos de seguridad a User (RecordFailedLogin, ResetFailedLogin, LockAccount)",
+      "status": "pending",
+      "dependsOn": ["US-001/T001"],
+      "tddStep": null,
+      "description": "Agregar a la entidad User: RecordFailedLogin() que incrementa contador y bloquea la cuenta si llega a 10 intentos fallidos (LockedUntil = now + 15min). ResetFailedLogin() que reinicia contador. Propiedades FailedLoginAttempts y LockedUntil. Metodo IsLocked que evalua LockedUntil vs reloj.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/User.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Application",
+      "title": "Crear comando LoginCommand con validador",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Crear LoginCommand con Email y Password. Validador: email requerido y formato valido, password requerida. Handler: obtener usuario por email, verificar si existe, si esta bloqueado, si esta activo, verificar password hash, registrar login (RecordFailedLogin o ResetFailedLogin), actualizar LastLoginAt, invocar IAuth0Service.GetTokenAsync, retornar LoginResponse con tokens.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/Login/LoginCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/Login/LoginCommandValidator.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/Login/LoginCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Application",
+      "title": "Crear DTO LoginResponse",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear LoginResponse con: AccessToken, RefreshToken, ExpiresIn, TokenType, User (objeto con Id, Email, DisplayName, Roles).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/DTOs/LoginResponse.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Application",
+      "title": "Crear comando RefreshTokenCommand y su handler",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear RefreshTokenCommand con RefreshToken. Handler: validar refresh token en BD (que exista, no expirado, no revocado). Generar nuevo access token y nuevo refresh token. Revocar el refresh token anterior. Retornar RefreshTokenResponse.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/RefreshToken/RefreshTokenCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/RefreshToken/RefreshTokenCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Application",
+      "title": "Crear comando RevokeTokenCommand y su handler",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear RevokeTokenCommand con RefreshToken. Handler: buscar refresh token en BD, marcarlo como revocado (RevokedAt = now). Retornar exito.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/RevokeToken/RevokeTokenCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/RevokeToken/RevokeTokenCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Domain",
+      "title": "Crear entidad RefreshToken y repositorio",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear entidad RefreshToken: Id, UserId, Token (hash), DeviceInfo, ExpiresAt, RevokedAt, CreatedAt. Factory method Create(userId, deviceInfo). Metodo Revoke(). Property IsExpired, IsRevoked. Interfaz IRefreshTokenRepository con metodos CRUD.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/RefreshToken.cs",
+        "src/Modules/Identity/SportHub.Identity.Domain/Repositories/IRefreshTokenRepository.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Infrastructure",
+      "title": "Implementar RefreshTokenRepository (EF Core)",
+      "status": "pending",
+      "dependsOn": ["T006"],
+      "tddStep": null,
+      "description": "Implementar IRefreshTokenRepository. Configurar RefreshToken entity en IdentityDbContext. Indice en Token, UserId.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Configurations/RefreshTokenConfiguration.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Repositories/RefreshTokenRepository.cs"
+      ]
+    },
+    {
+      "id": "T008",
+      "layer": "Infrastructure",
+      "title": "Agregar migracion RefreshTokens y FailedLoginAttempts",
+      "status": "pending",
+      "dependsOn": ["T007"],
+      "tddStep": null,
+      "description": "Generar migracion AddRefreshTokens. Agregar columnas FailedLoginAttempts y LockedUntil a tabla users.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0003_AddRefreshTokensAndLoginTracking.cs"
+      ]
+    },
+    {
+      "id": "T009",
+      "layer": "Api",
+      "title": "Crear endpoints POST /api/identity/login, POST /api/identity/refresh, POST /api/identity/revoke",
+      "status": "pending",
+      "dependsOn": ["T002", "T004", "T005"],
+      "tddStep": null,
+      "description": "Crear endpoints. login (public, rate limited 5/min), refresh (public), revoke (autenticado). Configurar rate limiting: 5 intentos/min por IP para login, 20/min para refresh.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/LoginEndpoints.cs"
+      ]
+    }
+  ]
+}

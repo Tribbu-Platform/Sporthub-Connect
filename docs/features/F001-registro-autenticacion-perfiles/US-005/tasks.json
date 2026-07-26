@@ -1,0 +1,96 @@
+{
+  "featureId": "F001",
+  "huId": "US-005",
+  "huTitle": "Recuperacion de Contrasena",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Crear entidad PasswordResetToken con factory method",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear entidad PasswordResetToken con: Id, UserId, Token (hash), ExpiresAt (1 hora), UsedAt, CreatedAt. Factory Create(userId). Metodo MarkAsUsed(). Property IsExpired, IsUsed.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/PasswordResetToken.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Domain",
+      "title": "Crear interfaz IPasswordResetTokenRepository",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Definir interfaz con metodos: GetByTokenAsync(string), GetActiveByUserIdAsync(Guid), AddAsync(PasswordResetToken), MarkAsUsedAsync(Guid).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Repositories/IPasswordResetTokenRepository.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Application",
+      "title": "Crear comando ForgotPasswordCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T002"],
+      "tddStep": null,
+      "description": "Crear ForgotPasswordCommand con Email. Handler: buscar usuario por email. Si existe: invalidar tokens anteriores activos, generar nuevo PasswordResetToken, enviar email con enlace (token). Si no existe: no hacer nada (no revelar). Rate limiting: 1 solicitud/60s por email. Siempre retornar mensaje generico 'Si el email existe, recibiras un enlace'.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ForgotPassword/ForgotPasswordCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ForgotPassword/ForgotPasswordCommandHandler.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ForgotPassword/ForgotPasswordCommandValidator.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Application",
+      "title": "Crear comando ResetPasswordCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T002", "US-001/T003"],
+      "tddStep": null,
+      "description": "Crear ResetPasswordCommand con Token, Password, ConfirmPassword. Handler: validar token (exista, no expirado, no usado). Validar que password cumple politica. Actualizar password del usuario (hash BCrypt). Marcar token como usado. Invalidar todos refresh tokens del usuario (forzar login). Retornar exito.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ResetPassword/ResetPasswordCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ResetPassword/ResetPasswordCommandHandler.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ResetPassword/ResetPasswordCommandValidator.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Infrastructure",
+      "title": "Implementar PasswordResetTokenRepository (EF Core)",
+      "status": "pending",
+      "dependsOn": ["T002"],
+      "tddStep": null,
+      "description": "Implementar IPasswordResetTokenRepository. Configurar entidad en IdentityDbContext.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Configurations/PasswordResetTokenConfiguration.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Repositories/PasswordResetTokenRepository.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Infrastructure",
+      "title": "Agregar migracion PasswordResetTokens",
+      "status": "pending",
+      "dependsOn": ["T005"],
+      "tddStep": null,
+      "description": "Generar migracion AddPasswordResetTokens.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0005_AddPasswordResetTokens.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Api",
+      "title": "Crear endpoints POST /api/identity/forgot-password y POST /api/identity/reset-password",
+      "status": "pending",
+      "dependsOn": ["T003", "T004"],
+      "tddStep": null,
+      "description": "Crear endpoints publicos. forgot-password: rate limited 1/60s por email, siempre retorna mismo mensaje generico. reset-password: recibe token y nueva contrasena, validacion de politica de contrasena.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/PasswordResetEndpoints.cs"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,348 @@
+{
+  "featureId": "F001",
+  "huId": "US-001",
+  "huTitle": "Registro con Email y Contrasena",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Crear entidad User con factory method Create",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear la entidad raiz User en el agregado UserProfile con propiedades: Id, Email, EmailVerified, AuthProvider, PasswordHash, FailedLoginAttempts, LockedUntil, IsActive, CreatedAt, LastLoginAt. Incluir factory method Create(email, passwordHash) que establece estado inicial (IsActive=true, EmailVerified=false, AuthProvider=Email). Agregar metodo VerifyEmail().",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/User.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Domain",
+      "title": "Crear Value Object EmailAddress con validacion de formato",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear el Value Object EmailAddress con propiedad Value (string). Incluir validacion de formato email en el constructor usando regex. Implementar equality members (Equals, GetHashCode, operator==). Agregar metodo From(string) como factory.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/ValueObjects/EmailAddress.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Domain",
+      "title": "Crear Value Object PasswordHash con BCrypt",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear el Value Object PasswordHash con propiedad Value (string). Incluir factory method Create(string plainPassword) que genera el hash BCrypt. Agregar metodo Verify(string plainPassword) para validacion contra el hash.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/ValueObjects/PasswordHash.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Domain",
+      "title": "Crear interfaz IUserRepository",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Definir la interfaz IUserRepository con metodos: GetByIdAsync(UserId), GetByEmailAsync(EmailAddress), AddAsync(User), UpdateAsync(User), ExistsByEmailAsync(EmailAddress).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Repositories/IUserRepository.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Domain",
+      "title": "Crear interfaz IUnitOfWork para el modulo",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Definir interfaz IUnitOfWork con SaveChangesAsync(CancellationToken).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Common/IUnitOfWork.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Domain",
+      "title": "Crear evento de dominio UserRegistered",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Crear el Domain Event UserRegistered con propiedades: UserId, Email, RegisteredAt. Implementar IDomainEvent con EventId, Timestamp, CorrelationId.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Events/UserRegisteredEvent.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Application",
+      "title": "Crear comando RegisterCommand con validador FluentValidation",
+      "status": "pending",
+      "dependsOn": ["T002", "T003"],
+      "tddStep": null,
+      "description": "Crear RegisterCommand con propiedades Email y Password. Crear RegisterCommandValidator con FluentValidation validando: email formato valido, password min 8 chars, mayuscula, minuscula, numero y caracter especial, acceptTerms true.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/Register/RegisterCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/Register/RegisterCommandValidator.cs"
+      ]
+    },
+    {
+      "id": "T008",
+      "layer": "Application",
+      "title": "Crear handler RegisterCommandHandler",
+      "status": "pending",
+      "dependsOn": ["T007", "T004", "T005", "T006"],
+      "tddStep": null,
+      "description": "Implementar IRequestHandler<RegisterCommand, Result<RegisterResponse>>. Logica: validar email unico, crear User con factory, generar password hash con BCrypt, crear usuario en Auth0 via servicio externo, generar token de verificacion, guardar en repositorio, publicar UserRegisteredEvent en outbox, retornar DTO con tokens JWT.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/Register/RegisterCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T009",
+      "layer": "Application",
+      "title": "Crear DTO RegisterResponse",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear el DTO de respuesta RegisterResponse con propiedades: UserId, Email, AccessToken, RefreshToken, ExpiresIn, EmailVerified, Message.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/DTOs/RegisterResponse.cs"
+      ]
+    },
+    {
+      "id": "T010",
+      "layer": "Application",
+      "title": "Crear servicio IAuth0Service (interfaz)",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Definir interfaz IAuth0Service con metodos: CreateUserAsync(email, passwordHash), GetTokenAsync(email, password), RefreshTokenAsync(refreshToken), RevokeTokenAsync(refreshToken), LinkAccountAsync(userId, provider, code).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Services/IAuth0Service.cs"
+      ]
+    },
+    {
+      "id": "T011",
+      "layer": "Application",
+      "title": "Crear servicio ITokenService (interfaz) para JWT",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Definir interfaz ITokenService con metodos: GenerateAccessToken(User), GenerateRefreshToken(), ValidateRefreshToken(string token).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Services/ITokenService.cs"
+      ]
+    },
+    {
+      "id": "T012",
+      "layer": "Infrastructure",
+      "title": "Implementar UserRepository (EF Core)",
+      "status": "pending",
+      "dependsOn": ["T004", "T005"],
+      "tddStep": null,
+      "description": "Implementar IUserRepository en Infrastructure. Crear IdentityDbContext con DbSet<User>. Configurar User entity con Fluent API. Implementar metodos: GetByIdAsync, GetByEmailAsync, AddAsync, UpdateAsync, ExistsByEmailAsync.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/IdentityDbContext.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Configurations/UserConfiguration.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Repositories/UserRepository.cs"
+      ]
+    },
+    {
+      "id": "T013",
+      "layer": "Infrastructure",
+      "title": "Implementar Auth0Service",
+      "status": "pending",
+      "dependsOn": ["T010"],
+      "tddStep": null,
+      "description": "Implementar IAuth0Service usando Auth0 Management API SDK y Authentication API SDK. Configurar HttpClient con base URL de Auth0 tenant. Implementar CreateUserAsync, GetTokenAsync, RefreshTokenAsync, RevokeTokenAsync usando Management API Client Credentials flow.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Services/Auth0Service.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Services/Auth0Options.cs"
+      ]
+    },
+    {
+      "id": "T014",
+      "layer": "Infrastructure",
+      "title": "Implementar TokenService",
+      "status": "pending",
+      "dependsOn": ["T011"],
+      "tddStep": null,
+      "description": "Implementar ITokenService usando JWT (System.IdentityModel.Tokens.Jwt). Implementar GenerateAccessToken con claims: sub, email, email_verified, roles, name. Implementar GenerateRefreshToken (token seguro aleatorio + hash en BD). Implementar ValidateRefreshToken.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Services/TokenService.cs"
+      ]
+    },
+    {
+      "id": "T015",
+      "layer": "Infrastructure",
+      "title": "Crear migracion inicial EF Core (tabla users)",
+      "status": "pending",
+      "dependsOn": ["T012"],
+      "tddStep": null,
+      "description": "Generar migracion InitialCreate con Add-Migration. Verificar que crea tabla users en schema identity con todas las columnas, indices y FK. Revisar SQL generado antes de aplicar.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0001_InitialCreate.cs"
+      ]
+    },
+    {
+      "id": "T016",
+      "layer": "Api",
+      "title": "Crear endpoint POST /api/identity/register",
+      "status": "pending",
+      "dependsOn": ["T008"],
+      "tddStep": null,
+      "description": "Crear Minimal API endpoint POST /api/identity/register. Configurar route group con prefijo /api/identity. Inyectar RegisterCommandHandler via MediatR. Mapear request body a RegisterCommand. Retornar HTTP 201 con RegisterResponse. Configurar validacion con FluentValidation pipeline. Agregar rate limiting (5 requests/min por IP).",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/RegisterEndpoints.cs"
+      ]
+    },
+    {
+      "id": "T017",
+      "layer": "Api",
+      "title": "Configurar DI para el modulo Identity en Program.cs",
+      "status": "pending",
+      "dependsOn": ["T012", "T013", "T014", "T016"],
+      "tddStep": null,
+      "description": "Crear extension method AddIdentityModule en IServiceCollection. Registrar: IdentityDbContext, UserRepository, IUnitOfWork (SaveChangesInterceptor), Auth0Service, TokenService, MediatR handlers, FluentValidation validators, Mapster mappings.",
+      "files": [
+        "src/Api/SportHub.Api/Modules/Identity/DependencyInjection.cs"
+      ]
+    },
+    {
+      "id": "T018",
+      "layer": "Frontend",
+      "title": "Crear pagina de registro (route /auth/register) con Next.js App Router",
+      "status": "completed",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear la pagina /auth/register en frontend/sport-hub-web/src/app/auth/register/page.tsx. Incluir layout basico, metadata SEO y estructura del formulario con React Hook Form.",
+      "files": [
+        "frontend/sport-hub-web/src/app/auth/register/page.tsx"
+      ]
+    },
+    {
+      "id": "T019",
+      "layer": "Frontend",
+      "title": "Crear esquema Zod para validacion del formulario de registro",
+      "status": "completed",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Definir esquema registerSchema con Zod: email (formato valido), password (min 8 chars, mayuscula, minuscula, numero, especial), acceptTerms (boolean true). Mensajes de error en espanol.",
+      "files": [
+        "frontend/sport-hub-web/src/lib/schemas/auth.schema.ts"
+      ]
+    },
+    {
+      "id": "T020",
+      "layer": "Frontend",
+      "title": "Crear hook o servicio API para llamar a POST /api/identity/register",
+      "status": "completed",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear servicio registerUser en frontend/sport-hub-web/src/services/auth.service.ts usando fetch/axios. Tipar request (RegisterRequest) y response (RegisterResponse). Manejar errores HTTP (400, 409, 429, 500) con mensajes descriptivos.",
+      "files": [
+        "frontend/sport-hub-web/src/services/auth.service.ts"
+      ]
+    },
+    {
+      "id": "T021",
+      "layer": "Frontend",
+      "title": "Implementar formulario de registro con React Hook Form + Zod",
+      "status": "completed",
+      "dependsOn": ["T018", "T019", "T020"],
+      "tddStep": null,
+      "description": "Implementar RegisterForm como Client Component. Usar useForm con resolutor Zod. Campos: email (input type=email), password (input type=password con toggle visibilidad), acceptTerms (checkbox con texto legal). Boton submit con estado loading. Mostrar errores de validacion inline. Redirigir a /auth/verify-email tras exito. Manejar errores de API (duplicado, rate limit).",
+      "files": [
+        "frontend/sport-hub-web/src/app/auth/register/RegisterForm.tsx"
+      ]
+    },
+    {
+      "id": "T022",
+      "layer": "Frontend",
+      "title": "Agregar tests con Vitest + Testing Library para el formulario de registro",
+      "status": "completed",
+      "dependsOn": ["T021"],
+      "tddStep": null,
+      "description": "Escribir tests: renderizar formulario, validar campos vacios muestra errores, email invalido muestra error, password debil muestra error, submit exitoso redirige, submit con error 409 muestra 'email ya registrado', boton deshabilitado durante loading.",
+      "files": [
+        "frontend/sport-hub-web/src/app/auth/register/__tests__/RegisterForm.test.tsx"
+      ]
+    },
+    {
+      "id": "T023",
+      "layer": "Frontend",
+      "title": "Agregar test E2E con Playwright para el flujo de registro",
+      "status": "completed",
+      "dependsOn": ["T021"],
+      "tddStep": null,
+      "description": "Escribir test E2E: navegar a /auth/register, completar formulario con datos validos, submit, verificar redireccion a /auth/verify-email. Test de validacion: submit con campos vacios muestra errores.",
+      "files": [
+        "frontend/sport-hub-web/e2e/register.spec.ts"
+      ]
+    },
+    {
+      "id": "T024",
+      "layer": "BDD",
+      "title": "Crear feature file Gherkin para registro con email",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear archivo .feature con los 7 escenarios Gherkin de US-001 (extraidos de user-stories.md). Incluir Feature, Background con datos comunes, y todos los escenarios con Given/When/Then. La tecnologia especifica para BDD se define en docs/architecture.md.",
+      "files": [
+        "frontend/sport-hub-web/e2e/features/register.feature"
+      ]
+    },
+    {
+      "id": "T025",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para registro exitoso y email duplicado",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Implementar step definitions para escenarios de registro exitoso y email duplicado. Conectar Gherkin con la UI del formulario de registro: navegar al formulario, completar campos, submit, verificar respuesta. Para escenarios de error (email duplicado), mockear respuesta del backend.",
+      "files": [
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
+      ]
+    },
+    {
+      "id": "T026",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para validacion de password",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Implementar step definitions para escenarios de validacion de password: corta (5 chars), sin caracter especial. Verificar que la UI muestra los mensajes de error correspondientes del lado del frontend.",
+      "files": [
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
+      ]
+    },
+    {
+      "id": "T027",
+      "layer": "BDD",
+      "title": "Implementar Step Definitions para validacion de email y campos vacios",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Implementar step definitions para escenarios: email invalido, campos vacios. Verificar que la UI muestra errores de validacion visibles para el usuario.",
+      "files": [
+        "frontend/sport-hub-web/e2e/step_definitions/register.steps.ts"
+      ]
+    },
+    {
+      "id": "T028",
+      "layer": "BDD",
+      "title": "Configurar proyecto de tests BDD en el frontend",
+      "status": "pending",
+      "dependsOn": ["T024"],
+      "tddStep": null,
+      "description": "Instalar dependencias (@cucumber/cucumber, configuracion de cucumber.js), configurar el runner BDD segun docs/architecture.md, agregar script npm para ejecucion. Configurar hooks de setup/teardown (BeforeAll, AfterAll) para iniciar/cerrar el navegador.",
+      "files": [
+        "frontend/sport-hub-web/cucumber.js",
+        "frontend/sport-hub-web/e2e/support/world.ts"
+      ]
+    }
+  ]
+}

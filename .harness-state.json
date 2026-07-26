@@ -1,13 +1,224 @@
 {
   "project": "SportHub Connect",
   "createdAt": "2026-07-13T00:00:00Z",
-  "updatedAt": "2026-07-13T00:00:00Z",
-  "humanInTheLoop": false,
+  "updatedAt": "2026-07-22T03:57:34Z",
+  "humanInTheLoop": true,
   "inception": {
     "status": "completed",
     "approved": true,
     "startedAt": "2026-07-13T00:00:00Z",
     "completedAt": "2026-07-13T00:00:00Z"
   },
-  "features": []
+  "features": [
+    {
+      "id": "F001",
+      "name": "Registro, Autenticacion y Perfiles de Usuario",
+      "slug": "registro-autenticacion-perfiles",
+      "description": "Registro con email/contraseña y OAuth2 (Google, Microsoft). Perfiles deportivos dinamicos con roles (admin, capitan, jugador, entrenador). Auto-evaluacion de nivel de habilidad. Gestion de identidad y sesiones.",
+      "status": "in_progress",
+      "assignedTo": null,
+      "docsPath": "docs/features/F001-registro-autenticacion-perfiles/",
+      "branch": "feature/F001-registro-autenticacion-perfiles",
+      "prUrl": null,
+      "createdAt": "2026-07-19T00:00:00Z",
+      "startedAt": "2026-07-19T00:00:00Z",
+      "completedAt": null,
+      "phases": {
+        "analysis": {
+          "status": "completed",
+          "approved": true,
+          "startedAt": "2026-07-19T19:09:42Z",
+          "completedAt": "2026-07-19T19:12:00Z"
+        },
+        "design": {
+          "status": "completed",
+          "approved": true,
+          "startedAt": "2026-07-19T19:30:00Z",
+          "completedAt": "2026-07-19T20:07:00Z"
+        }
+      },
+      "userStories": [
+        {
+          "id": "US-001",
+          "title": "Registro con Email y Contrasena",
+          "status": "done",
+          "branch": "hu/F001-US-001-registro-con-email-y-contrasena",
+          "prUrl": "https://github.com/Tribbu-Platform/Sporthub-Connect/pull/2",
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-001/",
+          "completedAt": "2026-07-22T03:57:34Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-19T20:10:00Z", "completedAt": "2026-07-20T02:58:34Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-20T02:58:34Z", "completedAt": "2026-07-19T23:00:50Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-19T23:00:50Z", "completedAt": "2026-07-21T10:35:00Z" },
+            "deploy":  { "status": "completed", "approved": true, "startedAt": "2026-07-21T10:40:00Z", "completedAt": "2026-07-21T10:45:00Z" }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-002",
+          "title": "Verificacion de Email",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-002/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-003",
+          "title": "Inicio de Sesion (Email/Password)",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-003/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-004",
+          "title": "Registro con OAuth2 (Google, Microsoft, Facebook, Instagram)",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-004/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-005",
+          "title": "Recuperacion de Contrasena",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-005/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-006",
+          "title": "Creacion y Edicion de Perfil Deportivo",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-006/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-007",
+          "title": "Auto-evaluacion de SkillLevel",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-007/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-008",
+          "title": "Gestion de Roles Globales",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-008/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-009",
+          "title": "Cierre de Sesion",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-009/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-010",
+          "title": "Eliminacion de Cuenta y Anonimizacion",
+          "status": "pending",
+          "branch": null,
+          "prUrl": null,
+          "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-010/",
+          "phases": {
+            "develop": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "test":    { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "quality": { "status": "pending", "approved": false, "startedAt": null, "completedAt": null },
+            "deploy":  { "status": "pending", "approved": false, "startedAt": null, "completedAt": null }
+          },
+          "tdd": null
+        }
+      ]
+    },
+    {
+      "id": "F023",
+      "name": "Publicacion en Redes Sociales",
+      "slug": "publicacion-en-redes-sociales",
+      "description": "Compartir logros (insignias, niveles, XP, leaderboard) en Facebook e Instagram. Integracion con Graph API y Basic Display API. Configuracion de privacidad y publicacion automatica/manual.",
+      "status": "pending",
+      "assignedTo": null,
+      "docsPath": "docs/features/F023-publicacion-en-redes-sociales/",
+      "branch": null,
+      "prUrl": null,
+      "createdAt": "2026-07-19T19:11:00Z",
+      "startedAt": null,
+      "completedAt": null,
+      "phases": {
+        "analysis": {
+          "status": "pending",
+          "approved": false,
+          "startedAt": null,
+          "completedAt": null
+        },
+        "design": {
+          "status": "pending",
+          "approved": false,
+          "startedAt": null,
+          "completedAt": null
+        }
+      },
+      "userStories": []
+    }
+  ]
 }

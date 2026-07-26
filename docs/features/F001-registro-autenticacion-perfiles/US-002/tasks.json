@@ -1,0 +1,121 @@
+{
+  "featureId": "F001",
+  "huId": "US-002",
+  "huTitle": "Verificacion de Email",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Crear entidad EmailVerificationToken con factory method Create",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear entidad EmailVerificationToken con propiedades: Id, UserId, Token (hash), ExpiresAt (24h desde creacion), UsedAt (nullable), CreatedAt. Factory method Create(userId) que genera token aleatorio seguro y establece expiracion a 24h. Metodo MarkAsUsed(). Propiedad IsExpired que evalua contra reloj.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/EmailVerificationToken.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Domain",
+      "title": "Agregar metodo RequestEmailVerification a User",
+      "status": "pending",
+      "dependsOn": ["US-001/T001"],
+      "tddStep": null,
+      "description": "Agregar a la entidad User el metodo RequestEmailVerification() que lanza EmailVerificationRequested domain event si el email no esta ya verificado y no hay un token activo. Agregar evento de dominio EmailVerificationRequested.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/User.cs",
+        "src/Modules/Identity/SportHub.Identity.Domain/Events/EmailVerificationRequestedEvent.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Domain",
+      "title": "Crear interfaz IEmailVerificationTokenRepository",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Definir interfaz con metodos: GetByTokenAsync(string), GetActiveByUserIdAsync(Guid userId), AddAsync(EmailVerificationToken), MarkAsUsedAsync(Guid id).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Repositories/IEmailVerificationTokenRepository.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Application",
+      "title": "Crear query VerifyEmailQuery y su handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T003"],
+      "tddStep": null,
+      "description": "Crear VerifyEmailQuery con propiedad Token. Handler: buscar token, validar que exista, que no este expirado, que no este usado. Marcar token como usado. Actualizar User.EmailVerified = true. Retornar mensaje de exito.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Queries/VerifyEmail/VerifyEmailQuery.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Queries/VerifyEmail/VerifyEmailQueryHandler.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Application",
+      "title": "Crear comando ResendVerificationCommand y su handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T002", "T003"],
+      "tddStep": null,
+      "description": "Crear ResendVerificationCommand con propiedad Email. Handler: validar que el usuario existe y no esta verificado. Invalidar token anterior existente. Generar nuevo token. Publicar EmailVerificationRequested (o resend). Aplicar rate limiting (60s entre reenvios).",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ResendVerification/ResendVerificationCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ResendVerification/ResendVerificationCommandHandler.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/ResendVerification/ResendVerificationCommandValidator.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Infrastructure",
+      "title": "Implementar EmailVerificationTokenRepository (EF Core)",
+      "status": "pending",
+      "dependsOn": ["T003"],
+      "tddStep": null,
+      "description": "Implementar IEmailVerificationTokenRepository en Infrastructure. Configurar entidad EmailVerificationToken en IdentityDbContext. Implementar metodos de repositorio.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Configurations/EmailVerificationTokenConfiguration.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Repositories/EmailVerificationTokenRepository.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Infrastructure",
+      "title": "Crear servicio IEmailService para envio de emails",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Definir interfaz IEmailService con SendEmailAsync(to, subject, body, isHtml). Implementar usando SendGrid SDK. Configurar ApiKey en options.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Services/IEmailService.cs",
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Services/SendGridEmailService.cs"
+      ]
+    },
+    {
+      "id": "T008",
+      "layer": "Infrastructure",
+      "title": "Agregar migracion EmailVerificationTokens",
+      "status": "pending",
+      "dependsOn": ["T006"],
+      "tddStep": null,
+      "description": "Generar migracion AddEmailVerificationTokens. Verificar que crea tabla email_verification_tokens con indices correctos.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0002_AddEmailVerificationTokens.cs"
+      ]
+    },
+    {
+      "id": "T009",
+      "layer": "Api",
+      "title": "Crear endpoints GET /api/identity/verify-email y POST /api/identity/resend-verification",
+      "status": "pending",
+      "dependsOn": ["T004", "T005"],
+      "tddStep": null,
+      "description": "Crear endpoints. GET verify-email recibe token query param, ejecuta VerifyEmailQuery, retorna mensaje. POST resend-verification recibe email en body, ejecuta ResendVerificationCommand. Sin auth (son endpoints publicos). Rate limiting especifico.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/VerificationEndpoints.cs"
+      ]
+    }
+  ]
+}

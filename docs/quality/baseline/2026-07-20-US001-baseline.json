@@ -1,0 +1,34 @@
+{
+  "baseline": "2026-07-20",
+  "project": "SportHub Connect",
+  "phase": "Post-US-001 (Registro con Email y Contrasena)",
+  "hu": "US-001",
+  "feature": "F001",
+  "modulesActive": ["Identity"],
+  "modulesPending": ["Community", "EventPlanning", "Gamification", "Leaderboards", "Payments", "Notifications", "Integrations"],
+  "backend": {
+    "architecture": { "grade": "B+", "critical": 0, "high": 0, "medium": 3, "low": 5 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 3, "low": 2 }
+  },
+  "frontend": {
+    "architecture": { "grade": "B", "critical": 0, "high": 0, "medium": 2, "low": 3 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 2, "low": 2 }
+  },
+  "testCoverage": {
+    "backend": { "domain": 95.6, "application": 85.5, "infrastructure": 72 },
+    "frontend": { "components": 88, "services": 82 },
+    "overall": 84.6
+  },
+  "dependencies": {
+    "nuget": { "high": 2, "critical": 0, "details": ["Microsoft.OpenApi 2.0.0 (GHSA-v5pm-xwqc-g5wc)", "SQLitePCLRaw.lib.e_sqlite3 2.1.11 (GHSA-2m69-gcr7-jv3q)"] },
+    "npm": { "high": 0, "critical": 0, "moderate": 2, "details": ["postcss <8.5.10 (GHSA-qx2v-qp2m-jg93 via next)"] }
+  },
+  "totalTests": { "backend": 85, "frontend": 14, "total": 99 },
+  "targets": {
+    "backendArchitectureGrade": "A",
+    "backendSecurityGrade": "A",
+    "frontendArchitectureGrade": "A",
+    "frontendSecurityGrade": "A",
+    "testCoverage": ">=80%"
+  }
+}

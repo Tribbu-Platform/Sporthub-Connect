@@ -94,6 +94,50 @@ El reporte debe incluir:
 - Comparacion contra baseline (si existe)
 - Plan de accion con prioridades
 
+### Paso 6: Generar nuevo baseline de calidad
+
+Una vez finalizado el reporte, genera un **nuevo archivo baseline** en `docs/quality/baseline/{fecha}-{huId}-baseline.json` con las metricas actuales del proyecto. Este baseline refleja el estado de calidad **despues de completar la HU** y servira como punto de comparacion para futuras HUs.
+
+El baseline debe contener:
+
+```json
+{
+  "baseline": "{fecha ISO 8601}",
+  "project": "SportHub Connect",
+  "phase": "Post-{huId} ({titulo HU})",
+  "hu": "{huId}",
+  "feature": "{featureId}",
+  "modulesActive": ["Lista de modulos con codigo implementado"],
+  "backend": {
+    "architecture": { "grade": "letra", "critical": 0, "high": 0, "medium": 0, "low": 0 },
+    "security": { "grade": "letra", "critical": 0, "high": 0, "medium": 0, "low": 0 }
+  },
+  "frontend": {
+    "architecture": { "grade": "letra", "critical": 0, "high": 0, "medium": 0, "low": 0 },
+    "security": { "grade": "letra", "critical": 0, "high": 0, "medium": 0, "low": 0 }
+  },
+  "testCoverage": {
+    "backend": { "domain": 0, "application": 0, "infrastructure": 0 },
+    "frontend": { "components": 0, "services": 0 },
+    "overall": 0
+  },
+  "dependencies": {
+    "nuget": { "high": 0, "critical": 0, "details": [] },
+    "npm": { "high": 0, "critical": 0, "details": [] }
+  },
+  "totalTests": { "backend": 0, "frontend": 0, "total": 0 },
+  "targets": {
+    "backendArchitectureGrade": "A",
+    "backendSecurityGrade": "A",
+    "frontendArchitectureGrade": "A",
+    "frontendSecurityGrade": "A",
+    "testCoverage": ">=80%"
+  }
+}
+```
+
+El archivo baseline queda listo para ser commiteado cuando el leader apruebe la fase quality y pase a deploy.
+
 ---
 
 ## Responsabilidades

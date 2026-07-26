@@ -1,0 +1,736 @@
+# ===================================================================
+# SportHub Connect — CI + Deploy Preview (ACA) para hu/*
+# ===================================================================
+# Workflow unificado que ejecuta tests, construye imágenes Docker
+# (API + Web en paralelo) y despliega a Azure Container Apps.
+#
+# ADR-005: Azure Container Apps como plataforma única de despliegue.
+# Section 10: Preview environments design in architecture.md.
+#
+# Flujo:
+#   backend ─┐
+#   frontend ─┤──► build-api ─┐
+#   security ─┘   build-web ──┤──► deploy
+#                              │
+#   destroy (PR closed) ──────┘
+#
+# Beneficios vs workflow separado:
+#   - Sin espera entre CI y deploy (mismo workflow)
+#   - Build de API y Web en paralelo (~3-4 min ahorro)
+#   - Sin build duplicado de Docker
+# ===================================================================
+
+name: CI + Deploy Preview
+
+on:
+  push:
+    branches: ["hu/**"]
+  pull_request:
+    branches: [develop, "feature/**"]
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  security-events: write
+
+concurrency:
+  group: ci-deploy-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: "10.0.x"
+  NODE_VERSION: "22.x"
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  REGISTRY: ghcr.io
+  AZURE_RESOURCE_GROUP: rg-sporthub-staging-v2
+  AZURE_CONTAINER_APP_ENV: cae-sport-staging-w4wuoo
+
+jobs:
+  # ================================================================
+  # Job 1: Backend — Build, Test, Publish
+  # ================================================================
+  backend:
+    name: Backend (.NET 10)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: sporthub
+          POSTGRES_PASSWORD: sporthub_dev
+          POSTGRES_DB: sporthub
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sporthub -d sporthub"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore src/Api/SportHub.Api/SportHub.Api.csproj
+        working-directory: ${{ github.workspace }}
+
+      - name: Run unit tests (build + test)
+        run: >
+          dotnet test src/Api/SportHub.Api/SportHub.Api.csproj
+          -c Release
+          --filter "Category=Unit"
+          --logger "trx;LogFileName=test-results.trx"
+          --collect:"XPlat Code Coverage"
+          --settings coverlet.runsettings
+        working-directory: ${{ github.workspace }}
+        continue-on-error: false
+
+      - name: Run integration tests (build + test)
+        run: >
+          dotnet test src/Api/SportHub.Api/SportHub.Api.csproj
+          -c Release
+          --filter "Category=Integration"
+          --logger "trx;LogFileName=integration-test-results.trx"
+          --collect:"XPlat Code Coverage"
+          --settings coverlet.runsettings
+        working-directory: ${{ github.workspace }}
+        continue-on-error: true
+        env:
+          ConnectionStrings__PostgreSQL: "Host=localhost;Port=5432;Database=sporthub;Username=sporthub;Password=sporthub_dev"
+          ConnectionStrings__Redis: "localhost:6379"
+          ConnectionStrings__RabbitMQ: "amqp://sporthub:sporthub_dev@localhost:5672"
+
+      - name: Publish (Release)
+        run: dotnet publish src/Api/SportHub.Api/SportHub.Api.csproj -c Release -o ./publish --no-restore
+        working-directory: ${{ github.workspace }}
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-publish
+          path: ./publish
+          retention-days: 3
+
+  # ================================================================
+  # Job 2: Frontend — Build, Lint, Type-Check, Test
+  # ================================================================
+  frontend:
+    name: Frontend (Next.js 16)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend/sport-hub-web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/sport-hub-web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run unit tests (Vitest)
+        run: npm run test
+        env:
+          CI: true
+
+      - name: Build (standalone)
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+      - name: Upload .next artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/sport-hub-web/.next
+          retention-days: 3
+
+  # ================================================================
+  # Job 3: Security & Quality Scans (no bloqueante)
+  # ================================================================
+  security:
+    name: Security & Quality Scans
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner (fs)
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -v /tmp/trivy-cache:/root/.cache/trivy \
+            aquasec/trivy:latest \
+            filesystem --severity CRITICAL,HIGH --exit-code 1 --ignore-unfixed \
+            /workspace
+        continue-on-error: true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp, javascript, typescript
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:codeql"
+
+      - name: Run Gitleaks secrets scanner
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+
+  # ================================================================
+  # Job 4: Sanitize branch name (outputs para jobs siguientes)
+  # ================================================================
+  sanitize:
+    name: Sanitize branch name
+    runs-on: ubuntu-latest
+    # No necesita backend/frontend — corre en paralelo
+    outputs:
+      branch_safe: ${{ steps.sanitize.outputs.branch_safe }}
+      image_tag: ${{ steps.sanitize.outputs.image_tag }}
+      image_name_api: ${{ steps.sanitize.outputs.image_name_api }}
+      image_name_web: ${{ steps.sanitize.outputs.image_name_web }}
+
+    steps:
+      - name: Sanitize branch name for Azure naming
+        id: sanitize
+        shell: bash
+        run: |
+          BRANCH="${{ github.head_ref || github.ref_name }}"
+          echo "Original branch: $BRANCH"
+
+          # Lowercase repo name (Docker requires lowercase)
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "Lowercase repo: $REPO_LC"
+
+          # Convertir a lowercase, reemplazar / por -, quitar caracteres especiales
+          SAFE=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/\//-/g' | sed 's/[^a-z0-9-]//g' | cut -c1-16)
+          echo "Sanitized branch: $SAFE"
+
+          # Generar image tag: preview-{branch_safe}-{sha}
+          TAG="preview-${SAFE}-${{ github.sha }}"
+          echo "Image tag: $TAG"
+
+          echo "branch_safe=$SAFE" >> $GITHUB_OUTPUT
+          echo "image_tag=$TAG" >> $GITHUB_OUTPUT
+          echo "image_name_api=${REPO_LC}/api" >> $GITHUB_OUTPUT
+          echo "image_name_web=${REPO_LC}/web" >> $GITHUB_OUTPUT
+
+  # ================================================================
+  # Job 5: Build & Push API Docker (paralelo con build-web)
+  # ================================================================
+  build-api:
+    name: Build & Push API
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, security, sanitize]
+    if: github.event.action != 'closed'
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_PASSWORD || github.token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infrastructure/Dockerfile.api
+          target: production
+          push: ${{ secrets.GHCR_PASSWORD != '' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:${{ needs.sanitize.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+            type=registry,ref=${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:main
+            type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.branch=${{ github.head_ref || github.ref_name }}
+
+      - name: Smoke test API image
+        run: |
+          docker run -d --name preview-api-test -p 8080:8080 \
+            -e ASPNETCORE_ENVIRONMENT=Preview \
+            -e ASPNETCORE_URLS=http://+:8080 \
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_api }}:${{ needs.sanitize.outputs.image_tag }}
+          sleep 5
+          curl -f http://localhost:8080/health || (docker logs preview-api-test && exit 1)
+          echo "API health check passed!"
+          docker stop preview-api-test && docker rm preview-api-test
+
+  # ================================================================
+  # Job 6: Build & Push Web Docker (paralelo con build-api)
+  # ================================================================
+  build-web:
+    name: Build & Push Web
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, security, sanitize]
+    if: github.event.action != 'closed'
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_PASSWORD || github.token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push Web image
+        uses: docker/build-push-action@v6
+        with:
+          context: frontend/sport-hub-web
+          file: frontend/sport-hub-web/Dockerfile
+          target: production
+          push: ${{ secrets.GHCR_PASSWORD != '' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:${{ needs.sanitize.outputs.image_tag }}
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+          cache-from: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:preview-${{ needs.sanitize.outputs.branch_safe }}
+            type=registry,ref=${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:main
+            type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.branch=${{ github.head_ref || github.ref_name }}
+
+      - name: Smoke test Web image
+        continue-on-error: true
+        run: |
+          docker run -d --name preview-web-test -p 3000:3000 \
+            -e NODE_ENV=production \
+            -e NEXT_TELEMETRY_DISABLED=1 \
+            ${{ env.REGISTRY }}/${{ needs.sanitize.outputs.image_name_web }}:${{ needs.sanitize.outputs.image_tag }}
+          # Retry health check up to 12 times (2 min total)
+          for i in $(seq 1 12); do
+            sleep 10
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health || echo "000")
+            if [ "$HTTP_CODE" != "000" ]; then
+              echo "Web health check passed! (HTTP $HTTP_CODE)"
+              docker stop preview-web-test && docker rm preview-web-test
+              exit 0
+            fi
+            echo "Attempt $i: web not ready yet, waiting 10s..."
+          done
+          echo "Web did not become healthy in time"
+          docker logs preview-web-test
+          docker stop preview-web-test && docker rm preview-web-test
+          exit 1
+
+  # ================================================================
+  # Job 7: Deploy Preview a ACA
+  # ================================================================
+  deploy:
+    name: Deploy Preview (ACA)
+    runs-on: ubuntu-latest
+    needs: [sanitize, build-api, build-web]
+    if: github.event.action != 'closed'
+    timeout-minutes: 15
+
+    steps:
+      - name: Check if Azure credentials are set
+        id: check_secrets
+        shell: bash
+        run: |
+          if [[ "${{ secrets.AZURE_CREDENTIALS }}" == "" ]]; then
+            echo "AZURE_CREDENTIALS not set — skipping deploy"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        env:
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+      - name: Deploy API Container App
+        if: steps.check_secrets.outputs.skip != 'true'
+        shell: pwsh
+        run: |
+          $branchSafe = "${{ needs.sanitize.outputs.branch_safe }}"
+          $imageTag = "${{ needs.sanitize.outputs.image_tag }}"
+
+          & "${{ github.workspace }}/infrastructure/deploy-preview.ps1" `
+            -Action create `
+            -BranchName $branchSafe `
+            -ImageTag $imageTag `
+            -ResourceGroup "${{ env.AZURE_RESOURCE_GROUP }}" `
+            -EnvironmentName "${{ env.AZURE_CONTAINER_APP_ENV }}" `
+            -RegistryServer "${{ env.REGISTRY }}" `
+            -RegistryUsername "${{ github.repository_owner }}" `
+            -PostgresPassword "${{ secrets.POSTGRES_ADMIN_PASSWORD }}"
+        env:
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          GHCR_PASSWORD: ${{ secrets.GHCR_PASSWORD }}
+          AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
+          AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+
+      - name: Wait for health checks
+        if: steps.check_secrets.outputs.skip != 'true'
+        shell: bash
+        run: |
+          BRANCH_SAFE="${{ needs.sanitize.outputs.branch_safe }}"
+          API_NAME="pr-${BRANCH_SAFE}-api"
+          WEB_NAME="pr-${BRANCH_SAFE}-web"
+
+          # Obtener FQDNs
+          API_FQDN=$(az containerapp show --name "$API_NAME" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --query 'properties.configuration.ingress.fqdn' -o tsv)
+          WEB_FQDN=$(az containerapp show --name "$WEB_NAME" \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --query 'properties.configuration.ingress.fqdn' -o tsv)
+
+          echo "Waiting for API health check (max 3 min)..."
+          for i in $(seq 1 18); do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://${API_FQDN}/health" || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "API is healthy!"
+              break
+            fi
+            echo "Attempt $i: API returned $HTTP_CODE, waiting 10s..."
+            sleep 10
+          done
+
+          echo "Waiting for Web health check (max 3 min)..."
+          for i in $(seq 1 18); do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://${WEB_FQDN}/api/health" || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Web is healthy!"
+              break
+            fi
+            echo "Attempt $i: Web returned $HTTP_CODE, waiting 10s..."
+            sleep 10
+          done
+
+          # Set outputs for PR comment
+          echo "API_URL=https://${API_FQDN}" >> $GITHUB_ENV
+          echo "WEB_URL=https://${WEB_FQDN}" >> $GITHUB_ENV
+
+      - name: Setup Node.js for BDD tests
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: frontend/sport-hub-web/package-lock.json
+
+      - name: Run BDD tests against preview
+        if: steps.check_secrets.outputs.skip != 'true'
+        id: bdd
+        continue-on-error: true
+        timeout-minutes: 10
+        shell: bash
+        run: |
+          cd frontend/sport-hub-web
+          
+          echo "Installing dependencies..."
+          npm ci 2>&1
+          
+          echo "Installing Playwright browsers..."
+          npx playwright install chromium 2>&1
+          
+          echo "Running BDD tests against ${{ env.WEB_URL }}..."
+          BDD_BASE_URL="${{ env.WEB_URL }}" npm run test:bdd 2>&1
+          EXIT_CODE=$?
+          
+          echo "BDD exit code: $EXIT_CODE"
+          echo "status=$([ $EXIT_CODE -eq 0 ] && echo 'passed' || echo 'failed')" >> $GITHUB_OUTPUT
+          
+          # Mostrar resumen de escenarios
+          if [ -f "e2e/reports/cucumber-report.json" ]; then
+            node -e "
+              const fs = require('fs');
+              const features = JSON.parse(fs.readFileSync('./e2e/reports/cucumber-report.json','utf8'));
+              const scenarios = features.flatMap(f => f.elements || []);
+              const passed = scenarios.filter(s => s.steps && s.steps.every(st => st.result && st.result.status === 'passed')).length;
+              const failed = scenarios.filter(s => s.steps && s.steps.some(st => st.result && st.result.status === 'failed')).length;
+              const skipped = scenarios.filter(s => !s.steps || s.steps.length === 0).length;
+              console.log('BDD Summary: ' + passed + ' passed, ' + failed + ' failed, ' + skipped + ' empty');
+            "
+          fi
+          
+          exit $EXIT_CODE
+        env:
+          CI: true
+          BDD_BASE_URL: ${{ env.WEB_URL }}
+
+      - name: Upload BDD report
+        if: steps.check_secrets.outputs.skip != 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bdd-report-${{ needs.sanitize.outputs.branch_safe }}
+          path: frontend/sport-hub-web/e2e/reports/
+          retention-days: 7
+
+      - name: Write BDD summary to job summary
+        if: steps.check_secrets.outputs.skip != 'true' && always()
+        shell: bash
+        run: |
+          REPORT="frontend/sport-hub-web/e2e/reports/cucumber-report.json"
+
+          if [ ! -f "$REPORT" ]; then
+            {
+              echo "## ⚠️ BDD Test Results"
+              echo "**Branch:** \`${{ needs.sanitize.outputs.branch_safe }}\`"
+              echo ""
+              echo "No BDD report found (tests may have failed to run)."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # Extract summary data as JSON using node
+          node > /tmp/bdd-summary.json -e "
+            const fs = require('fs');
+            const feats = JSON.parse(fs.readFileSync('$REPORT','utf8'));
+            const scens = feats.flatMap(f => f.elements || []);
+            let passed=0,failed=0,skipped=0,total=0;
+            let stepsOk=0,stepsTotal=0;
+            const items = scens.map(s => {
+              total++;
+              const sts = (s.steps||[]).filter(st => !st.hidden && st.keyword !== 'Before' && st.keyword !== 'After');
+              const allOk = sts.every(st => st.result && st.result.status === 'passed');
+              const anyBad = sts.some(st => st.result && st.result.status === 'failed');
+              if (allOk) passed++; else if (anyBad) failed++; else skipped++;
+              sts.forEach(st => { stepsTotal++; if (st.result && st.result.status==='passed') stepsOk++; });
+              return {
+                name: s.name,
+                status: allOk ? 'passed' : (anyBad ? 'failed' : 'skipped'),
+                steps: sts.map(st => ({ status: st.result.status, text: st.keyword.trim() + ' ' + st.name }))
+              };
+            });
+            console.log(JSON.stringify({passed,failed,skipped,total,stepsOk,stepsTotal,items}));
+          "
+
+          # Read JSON and write markdown to GITHUB_STEP_SUMMARY
+          node -e "
+            const data = require('/tmp/bdd-summary.json');
+            const lines = [];
+            lines.push('## 🧪 BDD Test Results');
+            lines.push('');
+            lines.push('**Branch:** \`${{ needs.sanitize.outputs.branch_safe }}\`');
+            lines.push('**Preview:** [${{ env.WEB_URL }}](${{ env.WEB_URL }})');
+            lines.push('');
+            lines.push('| Result | Count |');
+            lines.push('|--------|------:|');
+            lines.push('| ✅ Passed | ' + data.passed + '/' + data.total + ' scenarios |');
+            lines.push('| 🔵 Steps | ' + data.stepsOk + '/' + data.stepsTotal + ' steps |');
+            if (data.failed > 0) lines.push('| ❌ Failed | ' + data.failed + ' |');
+            if (data.skipped > 0) lines.push('| ⏭️ Skipped | ' + data.skipped + ' |');
+            lines.push('');
+            lines.push('### Scenario Details');
+            lines.push('');
+            data.items.forEach(function(item) {
+              var icon = item.status === 'passed' ? '✅' : (item.status === 'failed' ? '❌' : '⏭️');
+              lines.push(icon + ' **' + item.name + '** (' + item.status + ')');
+              item.steps.forEach(function(st) {
+                var si = st.status === 'passed' ? '✅' : '❌';
+                lines.push('  - ' + si + ' ' + st.text);
+              });
+            });
+            lines.push('');
+            lines.push('---');
+            lines.push('📄 [Download HTML Report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})');
+            lines.push('');
+            require('fs').appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+          "
+
+      - name: Comment PR with preview URLs
+        if: steps.check_secrets.outputs.skip != 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const bddStatus = '${{ steps.bdd.outputs.status }}';
+            const bddIcon = bddStatus === 'passed' ? '✅' : (bddStatus === '' ? '⏳' : '❌');
+            const bddLabel = bddStatus === 'passed' ? 'Passed' : (bddStatus === '' ? 'Pending' : 'Failed');
+            
+            const body = [
+              '## ✅ Preview Environment Deployed',
+              '',
+              `**Branch:** \`${{ github.head_ref }}\``,
+              `**Image tag:** \`${{ needs.sanitize.outputs.image_tag }}\``,
+              '',
+              '| Service | URL |',
+              '|---------|-----|',
+              `| **API** | [${process.env.API_URL}](${process.env.API_URL}) |`,
+              `| **Web** | [${process.env.WEB_URL}](${process.env.WEB_URL}) |`,
+              `| **Swagger** | [${process.env.API_URL}/swagger](${process.env.API_URL}/swagger) |`,
+              '',
+              '### 🧪 BDD Tests',
+              '',
+              `${bddIcon} **${bddLabel}** — [Download HTML report](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`,
+              '',
+              '> ⏱️ Preview auto-scales to 0 after 5 min idle. Cold start may take ~10-30s.',
+              '> 🗑️ Preview will be destroyed when this PR is closed/merged.',
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const previewComment = comments.find(c => c.body.includes('Preview Environment Deployed'));
+            if (previewComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previewComment.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
+
+  # ================================================================
+  # Job 8: Destroy Preview on PR close
+  # ================================================================
+  destroy:
+    name: Destroy Preview
+    runs-on: ubuntu-latest
+    needs: [sanitize]
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    timeout-minutes: 10
+
+    steps:
+      - name: Check if Azure credentials are set
+        id: check_secrets
+        shell: bash
+        run: |
+          if [[ "${{ secrets.AZURE_CREDENTIALS }}" == "" ]]; then
+            echo "AZURE_CREDENTIALS not set — skipping destroy"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        if: steps.check_secrets.outputs.skip != 'true'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        env:
+          ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+      - name: Destroy preview infrastructure
+        if: steps.check_secrets.outputs.skip != 'true'
+        shell: pwsh
+        run: |
+          $branchSafe = "${{ needs.sanitize.outputs.branch_safe }}"
+
+          & "${{ github.workspace }}/infrastructure/deploy-preview.ps1" `
+            -Action destroy `
+            -BranchName $branchSafe `
+            -ResourceGroup "${{ env.AZURE_RESOURCE_GROUP }}" `
+            -EnvironmentName "${{ env.AZURE_CONTAINER_APP_ENV }}"
+
+      - name: Comment PR with destruction notice
+        if: steps.check_secrets.outputs.skip != 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '## 🗑️ Preview Environment Destroyed',
+              '',
+              `**Branch:** \`${{ github.head_ref }}\``,
+              '',
+              'The preview environment has been destroyed.',
+              'Container Apps and associated resources have been removed.',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });

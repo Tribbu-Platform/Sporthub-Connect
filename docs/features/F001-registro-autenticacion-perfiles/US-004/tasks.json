@@ -1,0 +1,105 @@
+{
+  "featureId": "F001",
+  "huId": "US-004",
+  "huTitle": "Registro e Inicio de Sesion con OAuth2 (Google, Microsoft, Facebook, Instagram)",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Extender entidad User con AuthProvider enum y soporte multi-proveedor",
+      "status": "pending",
+      "dependsOn": ["US-001/T001"],
+      "tddStep": null,
+      "description": "Agregar propiedad AuthProvider a User. Agregar lista de OAuthAccounts (value object). Factory method CreateFromOAuth(email, provider, auth0UserId). Metodo LinkOAuthAccount(provider, auth0UserId). Metodo GetLinkedProviders(). Evento OAuthAccountLinked.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/User.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Domain",
+      "title": "Crear Value Object OAuthAccount",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear OAuthAccount value object con propiedades: Provider (AuthProvider enum), Auth0UserId, LinkedAt. Implementar equality members.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/ValueObjects/OAuthAccount.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Application",
+      "title": "Crear comando OAuthCallbackCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T002"],
+      "tddStep": null,
+      "description": "Crear OAuthCallbackCommand con Provider, Code, RedirectUri. Handler: invocar IAuth0Service.ExchangeOAuthCodeAsync(provider, code, redirectUri) para obtener info del usuario. Verificar si email ya existe en sistema. Si no existe: crear User con CreateFromOAuth, generar tokens. Si existe y mismo provider: autenticar. Si existe y diferente provider: retornar error de email existente con otro metodo.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/OAuthCallback/OAuthCallbackCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/OAuthCallback/OAuthCallbackCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Application",
+      "title": "Crear comando LinkAccountCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T001", "T002"],
+      "tddStep": null,
+      "description": "Crear LinkAccountCommand con Provider, Code, RedirectUri. Handler: usuario autenticado (obtenido del claims), invocar Auth0 para vincular cuenta, agregar OAuthAccount a User, guardar.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/LinkAccount/LinkAccountCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/LinkAccount/LinkAccountCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Application",
+      "title": "Agregar ExchangeOAuthCodeAsync a IAuth0Service",
+      "status": "pending",
+      "dependsOn": ["US-001/T010"],
+      "tddStep": null,
+      "description": "Extender IAuth0Service con: ExchangeOAuthCodeAsync(provider, code, redirectUri) que retorna (email, provider, auth0UserId). GetAuthorizationUrlAsync(provider, redirectUri) para iniciar flujo OAuth.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Services/IAuth0Service.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Infrastructure",
+      "title": "Implementar OAuth flujos en Auth0Service",
+      "status": "pending",
+      "dependsOn": ["T005", "US-001/T013"],
+      "tddStep": null,
+      "description": "Implementar en Auth0Service: GetAuthorizationUrlAsync que construye URL de Auth0 con response_type=code y state. ExchangeOAuthCodeAsync que llama a /oauth/token de Auth0 con grant_type=authorization_code. Procesar respuesta para extraer email, provider, auth0UserId.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Services/Auth0Service.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Api",
+      "title": "Crear endpoints GET /api/identity/auth/{provider}, GET /api/identity/auth/callback, POST /api/identity/link-account",
+      "status": "pending",
+      "dependsOn": ["T003", "T004"],
+      "tddStep": null,
+      "description": "Crear endpoint GET auth/{provider}: genera URL de autorizacion y redirige (302) o retorna URL. GET auth/callback: recibe code y state, ejecuta OAuthCallbackCommand. POST link-account: autenticado, ejecuta LinkAccountCommand. Manejar estados de error con redirect a frontend con error en query params.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/OAuthEndpoints.cs"
+      ]
+    },
+    {
+      "id": "T008",
+      "layer": "Infrastructure",
+      "title": "Agregar migracion OAuthAccounts",
+      "status": "pending",
+      "dependsOn": ["T001", "T002"],
+      "tddStep": null,
+      "description": "Agregar columna auth0_user_id a users. Crear tabla oauth_accounts si se opta por tabla separada. O alternativamente almacenar como JSON column en users.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0004_AddOAuthSupport.cs"
+      ]
+    }
+  ]
+}

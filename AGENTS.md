@@ -437,6 +437,7 @@ mi-proyecto/
 - **Stack tecnologico en architecture.md**: definido durante `inception`
 - **Persistencia automatica**: cada cambio de fase, feature, HU, tarea o TDD se guarda en `.harness-state.json`
 - **Resiliencia entre sesiones**: al reabrir opencode se retoma el estado anterior, incluyendo la HU, tarea y paso TDD exacto
+- **Validacion de pipeline post-deploy**: al completar la fase `deploy` de una HU, el agente `deploy` debe monitorear el pipeline de GitHub Actions y verificar que su `conclusion` sea `success` antes de reportar exito. Si el pipeline falla, se reporta el error al leader y la HU queda en estado `blocked` hasta que se resuelva. El leader no debe marcar la HU como `in_review` ni crear PR si el pipeline no paso.
 - **Human in the Loop (HITL)**: opcional (excepto en inception, donde es obligatorio). Si esta activo, cada fase requiere aprobacion explicita
 
 ## Flujo de integracion (Git Flow)

@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+// Usar URL relativa para que pase por el rewrite de Next.js
+// (next.config.js redirige /api/* al backend en runtime)
+const API_BASE_URL = '';
 
 interface RequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
@@ -8,7 +10,7 @@ interface RequestOptions extends Omit<RequestInit, 'body'> {
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, body, headers, ...restOptions } = options;
 
-  const url = new URL(`${API_BASE_URL}${endpoint}`);
+  const url = new URL(`${API_BASE_URL}${endpoint}`, window.location.origin);
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {

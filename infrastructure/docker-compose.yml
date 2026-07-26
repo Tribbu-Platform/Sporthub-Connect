@@ -16,6 +16,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=sporthub;Username=sporthub;Password=sporthub_dev
+      - ConnectionStrings__Identity=Host=postgres;Port=5432;Database=sporthub;Username=sporthub;Password=sporthub_dev
+      - ConnectionStrings__Community=Host=postgres;Port=5432;Database=sporthub;Username=sporthub;Password=sporthub_dev
       - ConnectionStrings__Redis=redis:6379
       - ConnectionStrings__RabbitMQ=amqp://sporthub:sporthub_dev@rabbitmq:5672
       - Auth0__Domain=${AUTH0_DOMAIN:-sporthub-dev.auth0.com}

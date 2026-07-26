@@ -1,0 +1,94 @@
+{
+  "featureId": "F001",
+  "huId": "US-007",
+  "huTitle": "Auto-evaluacion de Nivel de Habilidad (SkillLevel)",
+  "tasks": [
+    {
+      "id": "T001",
+      "layer": "Domain",
+      "title": "Crear Value Object SkillLevel con enum y validacion",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear SkillLevel value object con propiedad Level (enum SkillLevelType: Beginner, Intermediate, Advanced, Expert, Professional) y AssessedAt (DateTime). Factory method Create(level). Metodo DisplayName para localizacion. Implementar equality members.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/ValueObjects/SkillLevel.cs",
+        "src/Modules/Identity/SportHub.Identity.Domain/Enums/SkillLevelType.cs"
+      ]
+    },
+    {
+      "id": "T002",
+      "layer": "Domain",
+      "title": "Agregar metodo UpdateSkillLevel a Profile",
+      "status": "pending",
+      "dependsOn": ["US-006/T001", "T001"],
+      "tddStep": null,
+      "description": "Agregar a la entidad Profile el metodo UpdateSkillLevel(SkillLevel) que actualiza SkillLevel y AssessedAt. Eleva evento SkillLevelChanged.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Entities/Profile.cs"
+      ]
+    },
+    {
+      "id": "T003",
+      "layer": "Domain",
+      "title": "Crear evento SkillLevelChanged",
+      "status": "pending",
+      "dependsOn": ["T001"],
+      "tddStep": null,
+      "description": "Crear SkillLevelChangedEvent con UserId, ProfileId, PreviousLevel, NewLevel, AssessedAt.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Domain/Events/SkillLevelChangedEvent.cs"
+      ]
+    },
+    {
+      "id": "T004",
+      "layer": "Application",
+      "title": "Crear comando UpdateSkillLevelCommand y handler",
+      "status": "pending",
+      "dependsOn": ["T002", "T003"],
+      "tddStep": null,
+      "description": "Crear UpdateSkillLevelCommand con SkillLevel. Validador: nivel debe ser valor valido del enum. Handler: obtener perfil del usuario autenticado, llamar UpdateSkillLevel, guardar, publicar SkillLevelChanged, retornar SkillLevelResponse.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateSkillLevel/UpdateSkillLevelCommand.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateSkillLevel/UpdateSkillLevelCommandValidator.cs",
+        "src/Modules/Identity/SportHub.Identity.Application/Commands/UpdateSkillLevel/UpdateSkillLevelCommandHandler.cs"
+      ]
+    },
+    {
+      "id": "T005",
+      "layer": "Application",
+      "title": "Crear DTO SkillLevelResponse",
+      "status": "pending",
+      "dependsOn": [],
+      "tddStep": null,
+      "description": "Crear SkillLevelResponse con SkillLevel, AssessedAt, Message.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Application/DTOs/SkillLevelResponse.cs"
+      ]
+    },
+    {
+      "id": "T006",
+      "layer": "Infrastructure",
+      "title": "Agregar migracion SkillLevel en Profiles",
+      "status": "pending",
+      "dependsOn": ["US-006/T009"],
+      "tddStep": null,
+      "description": "Si aun no existe, agregar columnas skill_level y assessed_at a profiles.",
+      "files": [
+        "src/Modules/Identity/SportHub.Identity.Infrastructure/Persistence/Migrations/0007_AddSkillLevel.cs"
+      ]
+    },
+    {
+      "id": "T007",
+      "layer": "Api",
+      "title": "Crear endpoint PUT /api/identity/profile/skill-level",
+      "status": "pending",
+      "dependsOn": ["T004"],
+      "tddStep": null,
+      "description": "Crear endpoint protegido. Recibe SkillLevel en body, ejecuta UpdateSkillLevelCommand. Retorna SkillLevelResponse.",
+      "files": [
+        "src/Api/SportHub.Api/Routes/Identity/SkillLevelEndpoints.cs"
+      ]
+    }
+  ]
+}
