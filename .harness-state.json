@@ -1,7 +1,7 @@
 {
   "project": "SportHub Connect",
   "createdAt": "2026-07-13T00:00:00Z",
-  "updatedAt": "2026-07-21T10:46:00Z",
+  "updatedAt": "2026-07-22T03:57:34Z",
   "humanInTheLoop": true,
   "inception": {
     "status": "completed",
@@ -41,10 +41,11 @@
         {
           "id": "US-001",
           "title": "Registro con Email y Contrasena",
-          "status": "in_review",
+          "status": "done",
           "branch": "hu/F001-US-001-registro-con-email-y-contrasena",
-          "prUrl": "https://github.com/Tribbu-Platform/Sporthub-Connect/pull/1",
+          "prUrl": "https://github.com/Tribbu-Platform/Sporthub-Connect/pull/2",
           "docsPath": "docs/features/F001-registro-autenticacion-perfiles/US-001/",
+          "completedAt": "2026-07-22T03:57:34Z",
           "phases": {
             "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-19T20:10:00Z", "completedAt": "2026-07-20T02:58:34Z" },
             "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-20T02:58:34Z", "completedAt": "2026-07-19T23:00:50Z" },
