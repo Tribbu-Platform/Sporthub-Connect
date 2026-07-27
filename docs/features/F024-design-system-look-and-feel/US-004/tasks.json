@@ -1,0 +1,87 @@
+{
+  "featureId": "F024",
+  "huId": "US-004",
+  "huTitle": "Componentes Base - Cards y Glassmorphism",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Crear componente Card base con soporte para prop elevation (0-3). Implementar glassmorphism para Level 2/3: fondo semi-transparente, backdrop-blur, borde 1px",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Implementar sub-componentes CardHeader (con prop gradientHeader opcional), CardTitle (headline-sm, 20px, weight 600), CardDescription (body-md), CardContent, CardFooter",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Implementar niveles de elevacion: Level 0 (#0c0e11 sin blur), Level 1 (#111317 shadow-level-1), Level 2 (glass 60% blur 20px shadow-level-2), Level 3 (glass 80% blur 30px borde tint esmeralda 20% shadow-level-3)",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Agregar clases utilitarias .glass-2 y .glass-3 en globals.css con reglas completas de glassmorphism reutilizables. Implementar fallback de color solido para navegadores sin soporte backdrop-filter",
+      "layer": "Styles",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T005",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios (Vitest + Testing Library) para cada nivel de elevacion: verificar background, border, box-shadow, backdrop-filter, z-index relativos",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/card.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T006",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios para CardHeader con gradiente, composicion de sub-componentes (CardHeader+CardContent+CardFooter), fallback de navegador sin backdrop-filter, y prop className",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/card.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T007",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 9 escenarios Gherkin de US-004 (Should_RenderDefaultGlassmorphismCard, Should_RenderLevel0Elevation, Should_RenderLevel1Elevation, Should_RenderLevel2Elevation, Should_RenderLevel3Elevation, Should_RenderCardWithHeader, Should_RenderCardWithOptionalGradientHeader, Should_NotApplyBackdropBlur, Should_BeComposable)",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "e2e/features/f024-us004-cards-glassmorphism.feature",
+      "startedAt": "2026-07-26T00:00:00Z",
+      "completedAt": "2026-07-26T00:00:00Z"
+    },
+    {
+      "id": "T008",
+      "tier": "BDD",
+      "description": "Implementar step definitions para cards: renderizado de cada elevacion, verificacion de glassmorphism, header gradiente, composicion con otros componentes via Playwright",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "e2e/step_definitions/f024-us004-cards-glassmorphism.steps.ts",
+      "startedAt": "2026-07-26T00:00:00Z",
+      "completedAt": "2026-07-26T00:00:00Z"
+    }
+  ]
+}

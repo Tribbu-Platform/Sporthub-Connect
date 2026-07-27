@@ -1,0 +1,80 @@
+{
+  "baseline": "2026-07-26",
+  "project": "SportHub Connect",
+  "phase": "Post-US-007 (Componentes Base - Status Indicators)",
+  "hu": "US-007",
+  "feature": "F024",
+  "modulesActive": ["Identity", "Community", "DesignSystem"],
+  "backend": {
+    "architecture": { "grade": "B+", "critical": 0, "high": 0, "medium": 3, "low": 5 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 3, "low": 2 }
+  },
+  "frontend": {
+    "architecture": { "grade": "B+", "critical": 0, "high": 1, "medium": 3, "low": 4 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 1, "low": 0 }
+  },
+  "testCoverage": {
+    "backend": { "domain": 95.6, "application": 85.5, "infrastructure": 72 },
+    "frontend": { "components": 88, "services": 82, "designTokens": 100 },
+    "overall": 88.6
+  },
+  "dependencies": {
+    "nuget": { "high": 2, "critical": 0, "details": ["Microsoft.OpenApi 2.0.0 (GHSA-v5pm-xwqc-g5wc)", "SQLitePCLRaw.lib.e_sqlite3 2.1.11 (GHSA-2m69-gcr7-jv3q)"] },
+    "npm": { "high": 15, "critical": 0, "moderate": 0, "details": ["next <16.3.0 (9 vulns)", "postcss <8.5.17 (3 vulns)", "sharp <0.35.0 (1 vuln)", "eslint <10.8.0 (minimatch/brace-expansion DoS)", "@vitest/coverage-v8 <=3.2.7 (test-exclude/glob/minimatch DoS)"] }
+  },
+  "totalTests": { "backend": 85, "frontend": 103, "total": 188 },
+  "f024_us007_metrics": {
+    "eslintErrors": 0,
+    "eslintWarnings": 0,
+    "eslintSourceWarnings": 0,
+    "typescriptErrors": 0,
+    "typescriptErrorsUS007": 0,
+    "typescriptErrorsPreExisting": 2,
+    "typescriptErrorsPreExistingSource": "card.test.tsx (pre-existing US-004)",
+    "prettierIssues": "Fixed during quality phase",
+    "vitestTests": 341,
+    "vitestPassed": 341,
+    "vitestFailed": 0,
+    "vitestFailedFiles": [],
+    "vitestStatusDotTests": 0,
+    "vitestStatusDotTestFile": "does not exist (T003, T004 pending)",
+    "bddScenarios": 9,
+    "bddPassed": 9,
+    "bddScenarioNames": [
+      "Should_RenderActiveStatusDot_When_VariantIsActive",
+      "Should_RenderPendingStatusDot_When_VariantIsPending",
+      "Should_RenderErrorStatusDot_When_VariantIsError",
+      "Should_RenderInactiveStatusDot_When_VariantIsInactive",
+      "Should_RenderSmallStatusDot_When_SizeIsSm",
+      "Should_RenderLargeStatusDot_When_SizeIsLg",
+      "Should_ShowTooltip_When_TooltipTextIsProvided",
+      "Should_AnimatePulse_When_PulsingPropIsEnabled",
+      "Should_BeAccessible_When_RenderedWithoutTooltip"
+    ],
+    "componentLines": 79,
+    "componentLinesWithoutComments": 65,
+    "propsCount": 6,
+    "variantColors": 4,
+    "variantSizes": 3,
+    "complexity": "< 3",
+    "accessibilityFeatures": ["role=status", "aria-label", "title (tooltip)", "data-testid"],
+    "designSpecDeviations": 0,
+    "noCodeDuplication": true,
+    "noDeadCode": true,
+    "noCircularDependencies": true,
+    "debtItems": 2,
+    "debtItemsCritical": 0,
+    "debtItemsHigh": 0,
+    "debtItemsMedium": 1,
+    "debtItemsMediumDetails": ["TD-001: Unit tests T003/T004 pending (1.5h)"],
+    "debtItemsLow": 1,
+    "debtItemsLowDetails": ["TD-002: glowColor = color redundant (line 59, 0.1h)"]
+  },
+  "targets": {
+    "backendArchitectureGrade": "A",
+    "backendSecurityGrade": "A",
+    "frontendArchitectureGrade": "A",
+    "frontendSecurityGrade": "A",
+    "testCoverage": ">=80%"
+  }
+}

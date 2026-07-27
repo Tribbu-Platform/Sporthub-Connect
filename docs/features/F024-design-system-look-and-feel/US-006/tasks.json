@@ -1,0 +1,87 @@
+{
+  "featureId": "F024",
+  "huId": "US-006",
+  "huTitle": "Componentes Base - Input Fields",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Crear componente Input (extendiendo shadcn/ui) con estados visuales: default (fondo #0c0e11, borde outline-variant, texto on-surface), focus (borde #00ff9d, glow box-shadow esmeralda 20-30%), transicion 200ms ease",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Implementar estados error (borde rojo error, glow rojo 20%, aria-invalid) y disabled (opacidad 40%, cursor-not-allowed, atributo disabled). Placeholder con color on-surface-variant al 60% opacity, no italic",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Asegurar compatibilidad con React Hook Form: forwardRef, propagacion de onChange/onBlur/name/value. Verificar que el Label de shadcn/ui use colores y tipografia del design system",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios (Vitest + Testing Library) para estados default y focus: verificar colores de fondo/borde/texto, glow en focus, transicion suave",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/input.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T005",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios para estados error y disabled, placeholder estilizado, y compatibilidad con React Hook Form (ref forwarding, validacion con Zod, mensaje de error)",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/input.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T006",
+      "tier": "Frontend",
+      "description": "Crear tests de accesibilidad: asociacion Label-Input via htmlFor/id, navegacion por teclado (Tab), atributos ARIA, focus visible",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/input.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T007",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 8 escenarios Gherkin de US-006 (Should_RenderDefaultInput, Should_ShowFocusState, Should_ShowErrorState, Should_ShowDisabledState, Should_StylePlaceholder, Should_TransitionSmoothly, Should_BeCompatibleWithReactHookForm, Should_BeAccessible)",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/e2e/features/f024-us006-input-fields.feature",
+      "startedAt": "2026-07-27T02:15:00Z",
+      "completedAt": "2026-07-27T02:30:00Z"
+    },
+    {
+      "id": "T008",
+      "tier": "BDD",
+      "description": "Implementar step definitions para inputs: interaccion focus/blur, validacion con formulario, verificacion de estados visuales y accesibilidad via Playwright",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/e2e/step_definitions/f024-us006-input-fields.steps.ts",
+      "startedAt": "2026-07-27T02:15:00Z",
+      "completedAt": "2026-07-27T02:30:00Z"
+    }
+  ]
+}

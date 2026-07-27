@@ -1,0 +1,87 @@
+{
+  "featureId": "F024",
+  "huId": "US-009",
+  "huTitle": "Tipografia y Jerarquia Visual (Montserrat)",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Cargar fuente Montserrat via next/font/google en src/app/layout.tsx. Configurar subsets: ['latin'], display: 'swap', variable: '--font-montserrat'. Reemplazar cualquier referencia existente a Inter",
+      "layer": "Pages",
+      "status": "completed",
+      "testFile": null,
+      "startedAt": "2026-07-27T01:00:00Z",
+      "completedAt": "2026-07-27T02:00:00Z"
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Crear clases utilitarias CSS para los 7 niveles tipograficos en globals.css: .text-display-lg (32px/700/1.2/-0.02em), .text-headline-md (24px/700/1.3), .text-headline-sm (20px/600/1.4), .text-body-lg (16px/400/1.6), .text-body-md (14px/400/1.5), .text-label-caps (11px/700/1.2/0.1em/uppercase), .text-meta-sm (12px/500/1.4)",
+      "layer": "Styles",
+      "status": "completed",
+      "testFile": null,
+      "startedAt": "2026-07-27T02:00:00Z",
+      "completedAt": "2026-07-27T02:00:00Z"
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Crear clase .text-metric para datos numericos (XP, scores, stats): font-weight 700, font-size 16px. Agregar media query mobile (< 768px): headlines (display-lg, headline-md, headline-sm) escalan -15% via font-size. Body texts NO escalan",
+      "layer": "Styles",
+      "status": "completed",
+      "testFile": null,
+      "startedAt": "2026-07-27T02:00:00Z",
+      "completedAt": "2026-07-27T02:00:00Z"
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Actualizar @theme en globals.css: --font-sans referencia a var(--font-montserrat). Asegurar que el body use font-family Montserrat y no queden referencias a Inter",
+      "layer": "Styles",
+      "status": "completed",
+      "testFile": null,
+      "startedAt": "2026-07-27T02:00:00Z",
+      "completedAt": "2026-07-27T02:00:00Z"
+    },
+    {
+      "id": "T005",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios (Vitest + Testing Library) para los 7 niveles tipograficos: verificar font-size, font-weight, line-height, letter-spacing, font-family computada. label-caps verificar text-transform uppercase",
+      "layer": "Tests",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/__tests__/typography.test.tsx",
+      "startedAt": "2026-07-27T01:50:00Z",
+      "completedAt": "2026-07-27T02:05:00Z"
+    },
+    {
+      "id": "T006",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios para .text-metric (font-weight 700) y responsive scaling: headlines -15% en viewport < 768px, body texts sin cambio",
+      "layer": "Tests",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/__tests__/typography.test.tsx",
+      "startedAt": "2026-07-27T01:50:00Z",
+      "completedAt": "2026-07-27T02:05:00Z"
+    },
+    {
+      "id": "T007",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 11 escenarios Gherkin de US-009 (Should_LoadMontserratFont, Should_RenderDisplayLgWithCorrectStyles, Should_RenderHeadlineMd, Should_RenderHeadlineSm, Should_RenderBodyLg, Should_RenderBodyMd, Should_RenderLabelCapsUppercase, Should_RenderMetaSm, Should_RenderMetricBold, Should_ScaleHeadlinesDownOnMobile, Should_NotScaleBodyTextOnMobile)",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "e2e/features/f024-us009-typography.feature",
+      "startedAt": "2026-07-27T02:15:00Z",
+      "completedAt": "2026-07-27T02:30:00Z"
+    },
+    {
+      "id": "T008",
+      "tier": "BDD",
+      "description": "Implementar step definitions para tipografia: verificacion de carga de Montserrat (font-family en body), estilos de cada nivel, clase metric, mobile scaling, y que body texts no escalen via Playwright con viewport emulation",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "e2e/step_definitions/f024-us009-typography.steps.ts",
+      "startedAt": "2026-07-27T02:15:00Z",
+      "completedAt": "2026-07-27T02:30:00Z"
+    }
+  ]
+}

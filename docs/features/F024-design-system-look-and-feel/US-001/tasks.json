@@ -1,0 +1,117 @@
+{
+  "featureId": "F024",
+  "huId": "US-001",
+  "huTitle": "Design Tokens (CSS Variables)",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Definir tipos TypeScript para los 47 tokens de color (ColorToken, ColorTokens) en src/types/design-tokens.ts",
+      "layer": "Types",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+      "startedAt": "2026-07-27T00:39:00Z",
+      "completedAt": "2026-07-27T00:40:00Z"
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Definir tipos TypeScript para glassmorphism, glow/sombras, espaciado, bordes, transiciones y tipografia en src/types/design-tokens.ts",
+      "layer": "Types",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+      "startedAt": "2026-07-27T00:39:00Z",
+      "completedAt": "2026-07-27T00:40:00Z"
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Definir los 47 tokens de color como CSS custom properties (--color-*) en el bloque :root de src/app/globals.css segun DESIGN.md",
+      "layer": "Styles",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+      "startedAt": "2026-07-27T00:40:00Z",
+      "completedAt": "2026-07-27T00:42:00Z"
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Definir tokens de glassmorphism (--glass-*), glow/sombras (--glow-*, --shadow-level-*), espaciado (--spacing-*, --sidebar-width), bordes (--radius-*) y transiciones (--transition-*) en :root de globals.css",
+      "layer": "Styles",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+      "startedAt": "2026-07-27T00:40:00Z",
+      "completedAt": "2026-07-27T00:42:00Z"
+    },
+    {
+      "id": "T005",
+      "tier": "Frontend",
+      "description": "Definir tokens de tipografia (--font-family-primary, --font-family-mono) y estilos base globales (body background, border-color) en globals.css",
+      "layer": "Styles",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+      "startedAt": "2026-07-27T00:40:00Z",
+      "completedAt": "2026-07-27T00:42:00Z"
+    },
+    {
+      "id": "T006",
+      "tier": "Frontend",
+      "description": "Crear test unitario que verifique los 47 tokens de color via getComputedStyle en el DOM (Vitest + jsdom)",
+      "layer": "Tests",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+      "startedAt": "2026-07-27T00:36:00Z",
+      "completedAt": "2026-07-27T00:44:00Z"
+    },
+    {
+      "id": "T007",
+      "tier": "Frontend",
+      "description": "Crear test unitario que verifique tokens de glassmorphism, glow, sombras y espaciado en el DOM",
+      "layer": "Tests",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+      "startedAt": "2026-07-27T00:36:00Z",
+      "completedAt": "2026-07-27T00:44:00Z"
+    },
+    {
+      "id": "T008",
+      "tier": "Frontend",
+      "description": "Crear test unitario que verifique tokens de bordes, transiciones y tipografia en el DOM",
+      "layer": "Tests",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+      "startedAt": "2026-07-27T00:36:00Z",
+      "completedAt": "2026-07-27T00:44:00Z"
+    },
+    {
+      "id": "T009",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 7 escenarios Gherkin de US-001 (Should_DefineAll47ColorTokens, Should_DefineGlassmorphismTokens, Should_DefineGlowTokens, Should_DefineSpacingTokens, Should_DefineRadiusTokens, Should_DefineTransitionTokens, Should_DefineTypographyTokens)",
+      "layer": "BDD",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/e2e/features/f024-us001-design-tokens.feature",
+      "startedAt": "2026-07-27T01:00:00Z",
+      "completedAt": "2026-07-27T01:10:00Z"
+    },
+    {
+      "id": "T010",
+      "tier": "BDD",
+      "description": "Implementar step definitions para verificar tokens CSS via getComputedStyle desde el frontend (Cucumber.js + Playwright). Incluye normalizacion de valores CSS para manejar serializacion del navegador.",
+      "layer": "BDD",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/e2e/step_definitions/f024-us001-design-tokens.steps.ts",
+      "startedAt": "2026-07-27T01:00:00Z",
+      "completedAt": "2026-07-27T01:15:00Z"
+    },
+    {
+      "id": "T011",
+      "tier": "BDD",
+      "description": "Configurar proyecto de tests BDD: verificado Cucumber.js, Playwright, cucumber.js config, hooks de setup. Todo ya estaba configurado. Verificacion exitosa con dry-run y ejecucion completa.",
+      "layer": "BDD",
+      "status": "done",
+      "testFile": "frontend/sport-hub-web/cucumber.js",
+      "startedAt": "2026-07-27T01:00:00Z",
+      "completedAt": "2026-07-27T01:20:00Z"
+    }
+  ]
+}

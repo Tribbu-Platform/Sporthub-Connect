@@ -1,0 +1,87 @@
+{
+  "featureId": "F024",
+  "huId": "US-002",
+  "huTitle": "Configuracion de Tailwind con Paleta Personalizada",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Configurar bloque @theme en globals.css para exponer los 45 tokens de color como clases Tailwind (bg-{color}, text-{color}, border-{color}) referenciando las CSS variables de US-001",
+      "layer": "Styles",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/__tests__/tailwind-config.test.tsx",
+      "startedAt": "2026-07-26T19:00:00Z",
+      "completedAt": "2026-07-26T19:02:00Z"
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Configurar @theme para fontFamily (Montserrat como --font-sans, JetBrains Mono como --font-mono), borderRadius (--radius-sm a --radius-full) y boxShadow (--shadow-level-1 a --shadow-level-3, --shadow-glow-primary)",
+      "layer": "Styles",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/__tests__/tailwind-config.test.tsx",
+      "startedAt": "2026-07-26T19:00:00Z",
+      "completedAt": "2026-07-26T19:02:00Z"
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Configurar @theme para backdrop-blur (--backdrop-blur-glass, --backdrop-blur-glass-modal) y verificar que shadcn/ui usa las CSS variables del design system via --color-* mapeo",
+      "layer": "Styles",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/__tests__/tailwind-config.test.tsx",
+      "startedAt": "2026-07-26T19:00:00Z",
+      "completedAt": "2026-07-26T19:02:00Z"
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Evaluar y limpiar tailwind.config.ts si existe (Tailwind v4 usa CSS-based config con @theme, el archivo .ts puede ser redundante o fuente de conflictos)",
+      "layer": "Styles",
+      "status": "completed",
+      "testFile": null,
+      "startedAt": "2026-07-26T19:02:00Z",
+      "completedAt": "2026-07-26T19:04:00Z"
+    },
+    {
+      "id": "T005",
+      "tier": "Frontend",
+      "description": "Crear test unitario que verifique clases Tailwind de color (bg-primary-container produce #00ff9d, text-on-surface produce #e2e2e6)",
+      "layer": "Tests",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/__tests__/tailwind-config.test.tsx",
+      "startedAt": "2026-07-26T18:55:00Z",
+      "completedAt": "2026-07-26T19:01:00Z"
+    },
+    {
+      "id": "T006",
+      "tier": "Frontend",
+      "description": "Crear test unitario que verifique fontFamily (font-sans es Montserrat), borderRadius (rounded-lg es 1rem), boxShadow (shadow-level-2 aplica sombra) y backdrop-blur (backdrop-blur-glass es blur(20px))",
+      "layer": "Tests",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/__tests__/tailwind-config.test.tsx",
+      "startedAt": "2026-07-26T19:01:00Z",
+      "completedAt": "2026-07-26T19:04:00Z"
+    },
+    {
+      "id": "T007",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 6 escenarios Gherkin de US-002 (Should_ExposeAllColorTokens, Should_ConfigureMontserratAsDefaultFont, Should_ConfigureCustomBorderRadius, Should_ConfigureGlassmorphismBoxShadows, Should_ConfigureBackdropBlurForGlassmorphism, Should_IntegrateShadcnUI)",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/e2e/features/f024-us002-tailwind-config.feature",
+      "startedAt": "2026-07-26T20:00:00Z",
+      "completedAt": "2026-07-26T20:45:00Z"
+    },
+    {
+      "id": "T008",
+      "tier": "BDD",
+      "description": "Implementar step definitions que renderizan elementos con clases Tailwind y verifican estilos computados via Playwright",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/e2e/step_definitions/f024-us002-tailwind-config.steps.ts",
+      "startedAt": "2026-07-26T20:00:00Z",
+      "completedAt": "2026-07-26T20:45:00Z"
+    }
+  ]
+}
