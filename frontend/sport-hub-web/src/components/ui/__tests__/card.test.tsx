@@ -46,8 +46,10 @@ describe('Card - Elevation Levels (T005)', () => {
     );
 
     // Level 0 should NOT have glass classes
-    expect(screen.queryByText(/Base Canvas/i).closest('.glass-2')).toBeNull();
-    expect(screen.queryByText(/Base Canvas/i).closest('.glass-3')).toBeNull();
+    const baseCanvasElement = screen.queryByText(/Base Canvas/i);
+    expect(baseCanvasElement).not.toBeNull();
+    expect(baseCanvasElement!.closest('.glass-2')).toBeNull();
+    expect(baseCanvasElement!.closest('.glass-3')).toBeNull();
 
     // Should have solid background class
     const card = screen.getByText('Base Canvas').closest('.bg-\\[\\#0c0e11\\]');
