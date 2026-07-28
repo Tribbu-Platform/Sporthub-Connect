@@ -1,7 +1,7 @@
 {
   "project": "SportHub Connect",
   "createdAt": "2026-07-13T00:00:00Z",
-  "updatedAt": "2026-07-22T03:57:34Z",
+  "updatedAt": "2026-07-27T03:25:00Z",
   "humanInTheLoop": true,
   "inception": {
     "status": "completed",
@@ -15,14 +15,14 @@
       "name": "Registro, Autenticacion y Perfiles de Usuario",
       "slug": "registro-autenticacion-perfiles",
       "description": "Registro con email/contraseña y OAuth2 (Google, Microsoft). Perfiles deportivos dinamicos con roles (admin, capitan, jugador, entrenador). Auto-evaluacion de nivel de habilidad. Gestion de identidad y sesiones.",
-      "status": "in_progress",
+      "status": "done",
       "assignedTo": null,
       "docsPath": "docs/features/F001-registro-autenticacion-perfiles/",
       "branch": "feature/F001-registro-autenticacion-perfiles",
-      "prUrl": null,
+      "prUrl": "https://github.com/Tribbu-Platform/Sporthub-Connect/pull/5",
       "createdAt": "2026-07-19T00:00:00Z",
       "startedAt": "2026-07-19T00:00:00Z",
-      "completedAt": null,
+      "completedAt": "2026-07-26T00:00:00Z",
       "phases": {
         "analysis": {
           "status": "completed",
@@ -219,6 +219,219 @@
         }
       },
       "userStories": []
+    },
+    {
+      "id": "F024",
+      "name": "Implementacion del Design System - Look & Feel",
+      "slug": "design-system-look-and-feel",
+      "description": "Implementar el design system 'Apex Athletic Intelligence' basado en el archivo prototipes/stitch_krewletics_sports_community/DESIGN.md. Incluye tokens de diseno (CSS variables para colores, tipografia, espaciado), configuracion de Tailwind con paleta personalizada, componentes base (botones, cards, badges, inputs, status indicators), layout principal (sidebar + main content) con glassmorphism, tipografia Montserrat, y estilos de elevacion. Todo orientado a un tema dark mode high-tech atletico con acentos verde esmeralda.",
+      "status": "in_progress",
+      "assignedTo": null,
+      "docsPath": "docs/features/F024-design-system-look-and-feel/",
+      "branch": "feature/F024-design-system-look-and-feel",
+      "prUrl": null,
+      "createdAt": "2026-07-26T00:00:00Z",
+      "startedAt": "2026-07-26T00:00:00Z",
+      "completedAt": null,
+      "phases": {
+        "analysis": {
+          "status": "completed",
+          "approved": true,
+          "startedAt": "2026-07-26T23:02:37Z",
+          "completedAt": "2026-07-27T00:05:00Z"
+        },
+        "design": {
+          "status": "completed",
+          "approved": true,
+          "startedAt": "2026-07-27T00:15:00Z",
+          "completedAt": "2026-07-27T00:30:00Z"
+        }
+      },
+      "userStories": [
+        {
+          "id": "US-001",
+          "title": "Design Tokens (CSS Variables)",
+          "status": "done",
+          "branch": "hu/F024-US-001-design-tokens-css-variables",
+          "prUrl": null,
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-001/",
+          "startedAt": "2026-07-27T00:35:00Z",
+          "completedAt": "2026-07-27T02:45:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T00:35:00Z", "completedAt": "2026-07-27T00:45:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:00:00Z", "completedAt": "2026-07-27T01:20:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "deploy":  { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-27T02:45:00Z" }
+          },
+          "tdd": {
+            "step": "green",
+            "class": "DesignTokens",
+            "method": "globals.css :root",
+            "testFile": "frontend/sport-hub-web/src/__tests__/design-tokens.test.ts",
+            "scenario": "All_89_Tests_Passing",
+            "scenariosCompleted": [
+              "T006_47_Color_Tokens",
+              "T007_Glassmorphism_Glow_Spacing",
+              "T008_Radius_Transitions_Typography",
+              "T001_ColorTokenNames_ColorTokens",
+              "T002_Glassmorphism_Shadow_Spacing_Radius_Transitions_Typography_Elevation"
+            ],
+            "scenariosPending": ["T009_BDD_Feature", "T010_BDD_Steps", "T011_BDD_Setup"]
+          }
+        },
+        {
+          "id": "US-002",
+          "title": "Configuracion de Tailwind con Paleta Personalizada",
+          "status": "in_review",
+          "branch": "hu/F024-US-002-configuracion-de-tailwind-con-paleta-personalizada",
+          "prUrl": "https://github.com/Tribbu-Platform/Sporthub-Connect/pull/6",
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-002/",
+          "startedAt": "2026-07-27T01:00:00Z",
+          "completedAt": "2026-07-27T03:25:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:00:00Z", "completedAt": "2026-07-27T01:20:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-27T03:00:00Z" },
+            "deploy":  { "status": "completed", "approved": true, "startedAt": "2026-07-27T03:00:00Z", "completedAt": "2026-07-27T03:20:00Z" }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-003",
+          "title": "Componentes Base - Botones",
+          "status": "in_progress",
+          "branch": "hu/F024-US-003-componentes-base-botones",
+          "prUrl": null,
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-003/",
+          "startedAt": "2026-07-27T01:30:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-27T03:00:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T03:00:00Z", "completedAt": "2026-07-27T03:25:00Z" },
+            "deploy":  { "status": "in_progress", "approved": false, "startedAt": "2026-07-27T03:25:00Z", "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-004",
+          "title": "Componentes Base - Cards y Glassmorphism",
+          "status": "in_progress",
+          "branch": "hu/F024-US-004-componentes-base-cards-y-glassmorphism",
+          "prUrl": null,
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-004/",
+          "startedAt": "2026-07-27T01:30:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-26T23:30:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T03:00:00Z", "completedAt": "2026-07-27T03:25:00Z" },
+            "deploy":  { "status": "in_progress", "approved": false, "startedAt": "2026-07-27T03:25:00Z", "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-005",
+          "title": "Componentes Base - Badges de Roles y Estados",
+          "status": "in_progress",
+          "branch": "hu/F024-US-005-componentes-base-badges-de-roles-y-estados",
+          "prUrl": null,
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-005/",
+          "startedAt": "2026-07-27T01:30:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-27T02:45:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T03:00:00Z", "completedAt": "2026-07-27T03:25:00Z" },
+            "deploy":  { "status": "in_progress", "approved": false, "startedAt": "2026-07-27T03:25:00Z", "completedAt": null }
+          },
+          "tdd": {
+            "step": "green",
+            "class": "Badge",
+            "method": "Badge (component)",
+            "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/badge.test.tsx",
+            "scenario": "All_25_Tests_Passing",
+            "scenariosCompleted": [
+              "Should_RenderOwnerBadge_When_VariantIsOwner",
+              "Should_RenderCaptainBadge_When_VariantIsCaptain",
+              "Should_RenderCoachBadge_When_VariantIsCoach",
+              "Should_RenderMemberBadge_When_VariantIsMember",
+              "Should_RenderSuccessBadge_When_VariantIsSuccess",
+              "Should_RenderWarningBadge_When_VariantIsWarning",
+              "Should_RenderErrorBadge_When_VariantIsError",
+              "Should_RenderInfoBadge_When_VariantIsInfo",
+              "Should_SupportDifferentSizes_When_SizePropIsProvided",
+              "Should_BeAccessible_When_RenderedWithScreenReader",
+              "T006_BDD_Feature",
+              "T007_BDD_Steps"
+            ],
+            "scenariosPending": []
+          }
+        },
+        {
+          "id": "US-006",
+          "title": "Componentes Base - Input Fields",
+          "status": "in_progress",
+          "branch": "hu/F024-US-006-componentes-base-input-fields",
+          "prUrl": null,
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-006/",
+          "startedAt": "2026-07-27T01:30:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-27T02:45:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T03:00:00Z", "completedAt": "2026-07-27T03:25:00Z" },
+            "deploy":  { "status": "in_progress", "approved": false, "startedAt": "2026-07-27T03:25:00Z", "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-007",
+          "title": "Componentes Base - Status Indicators",
+          "status": "in_progress",
+          "branch": "hu/F024-US-007-componentes-base-status-indicators",
+          "prUrl": null,
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-007/",
+          "startedAt": "2026-07-27T01:30:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-27T03:00:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T03:00:00Z", "completedAt": "2026-07-27T03:25:00Z" },
+            "deploy":  { "status": "in_progress", "approved": false, "startedAt": "2026-07-27T03:25:00Z", "completedAt": null }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-008",
+          "title": "Layout Principal - Sidebar + Main Content",
+          "status": "in_review",
+          "branch": "hu/F024-US-008-layout-principal-sidebar-main-content",
+          "prUrl": "https://github.com/Tribbu-Platform/Sporthub-Connect/pull/7",
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-008/",
+          "startedAt": "2026-07-27T01:00:00Z",
+          "completedAt": "2026-07-27T03:25:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:00:00Z", "completedAt": "2026-07-27T01:20:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-27T03:00:00Z" },
+            "deploy":  { "status": "completed", "approved": true, "startedAt": "2026-07-27T03:00:00Z", "completedAt": "2026-07-27T03:25:00Z" }
+          },
+          "tdd": null
+        },
+        {
+          "id": "US-009",
+          "title": "Tipografia y Jerarquia Visual (Montserrat)",
+          "status": "in_review",
+          "branch": "hu/F024-US-009-tipografia-y-jerarquia-visual-montserrat",
+          "prUrl": "https://github.com/Tribbu-Platform/Sporthub-Connect/pull/8",
+          "docsPath": "docs/features/F024-design-system-look-and-feel/US-009/",
+          "startedAt": "2026-07-27T01:00:00Z",
+          "completedAt": "2026-07-27T03:25:00Z",
+          "phases": {
+            "develop": { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:00:00Z", "completedAt": "2026-07-27T01:20:00Z" },
+            "test":    { "status": "completed", "approved": true, "startedAt": "2026-07-27T01:30:00Z", "completedAt": "2026-07-27T02:00:00Z" },
+            "quality": { "status": "completed", "approved": true, "startedAt": "2026-07-27T02:00:00Z", "completedAt": "2026-07-27T03:00:00Z" },
+            "deploy":  { "status": "completed", "approved": true, "startedAt": "2026-07-27T03:00:00Z", "completedAt": "2026-07-27T03:25:00Z" }
+          },
+          "tdd": null
+        }
+      ]
     }
   ]
 }

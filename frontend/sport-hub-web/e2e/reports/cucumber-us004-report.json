@@ -1,0 +1,984 @@
+[
+  {
+    "description": "  Como desarrollador frontend\n  Quiero crear un componente Card con efecto glassmorphism y niveles de elevacion\n  Para dar profundidad visual y jerarquia clara a los contenedores",
+    "elements": [
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_renderdefaultglassmorphismcard_when_noelevationisspecified",
+        "keyword": "Scenario",
+        "line": 13,
+        "name": "Should_RenderDefaultGlassmorphismCard_When_NoElevationIsSpecified",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 56829199
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7279799
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 833158199
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 9132299
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-default']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 15752800
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "el background-color debe ser semi-transparente con opacidad ~0.6",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:119"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 10476200
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "debe tener \"backdrop-filter\" con valor \"blur(20px)\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:136"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7285799
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "el border-color debe ser \"#1a1c1f\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:183"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 8576900
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "el border-radius debe ser \"1rem\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:200"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6984699
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_renderlevel0elevation_when_elevationislevel0",
+        "keyword": "Scenario",
+        "line": 23,
+        "name": "Should_RenderLevel0Elevation_When_ElevationIsLevel0",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 54599600
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3742699
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 730066600
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3546000
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 24,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-level-0']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3288400
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 25,
+            "name": "el background-color debe ser \"#0c0e11\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:105"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4379799
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 26,
+            "name": "no debe tener backdrop-filter",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:168"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 7738699
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 27,
+            "name": "el box-shadow es \"none\" (sin sombra)",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:218"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2367400
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_renderlevel1elevation_when_elevationislevel1",
+        "keyword": "Scenario",
+        "line": 32,
+        "name": "Should_RenderLevel1Elevation_When_ElevationIsLevel1",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 42572100
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3114999
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 738589799
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4715299
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 33,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-level-1']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4599699
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 34,
+            "name": "el background-color debe ser \"#111317\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:105"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4158400
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 35,
+            "name": "debe tener box-shadow distinto de \"none\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:241"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4278600
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 36,
+            "name": "no debe tener backdrop-filter",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:168"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2389100
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_renderlevel2elevation_when_elevationislevel2",
+        "keyword": "Scenario",
+        "line": 41,
+        "name": "Should_RenderLevel2Elevation_When_ElevationIsLevel2",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 42500699
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3809500
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 763770300
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4212300
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 42,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-level-2']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3647299
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 43,
+            "name": "el background-color debe ser semi-transparente con opacidad ~0.6",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:119"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2809900
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 44,
+            "name": "debe tener \"backdrop-filter\" con valor \"blur(20px)\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:136"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3835299
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 45,
+            "name": "debe tener box-shadow distinto de \"none\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:241"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3553899
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 46,
+            "name": "el border-color debe ser \"#1a1c1f\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:183"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2790799
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_renderlevel3elevation_when_elevationislevel3",
+        "keyword": "Scenario",
+        "line": 51,
+        "name": "Should_RenderLevel3Elevation_When_ElevationIsLevel3",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 54737900
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3920399
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 755547300
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3319500
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 52,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-level-3']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3010299
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 53,
+            "name": "el background-color debe ser semi-transparente con opacidad ~0.8",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:119"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2896800
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 54,
+            "name": "debe tener \"backdrop-filter\" con valor \"blur(30px)\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:136"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3356699
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 55,
+            "name": "debe tener box-shadow distinto de \"none\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:241"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3393100
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 56,
+            "name": "el border-color contiene tint esmeralda",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:260"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2570200
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_rendercardwithheader_when_headercontentisprovided",
+        "keyword": "Scenario",
+        "line": 61,
+        "name": "Should_RenderCardWithHeader_When_HeaderContentIsProvided",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 43155099
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3489199
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 772657299
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6750200
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 62,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-with-header']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6625399
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 63,
+            "name": "existe el sub-elemento \"[data-testid='card-header-block']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:282"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 9369800
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 64,
+            "name": "el CardTitle \"[data-testid='card-title']\" usa tipografia \"headline-sm\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:292"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6425300
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 65,
+            "name": "el CardContent \"[data-testid='card-content-block']\" contiene \"Contenido principal\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:302"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3088299
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_rendercardwithoptionalgradientheader_when_gradientheaderisenabled",
+        "keyword": "Scenario",
+        "line": 70,
+        "name": "Should_RenderCardWithOptionalGradientHeader_When_GradientHeaderIsEnabled",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 57247499
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3338999
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 771063099
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 11004499
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 71,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-gradient-header-block']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 11761399
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 72,
+            "name": "el header tiene gradiente de fondo \"card-header-gradient\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:314"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 8380400
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 73,
+            "name": "el gradiente respeta el border-radius",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:326"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 5938099
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_rendersolidfallback_when_backdropfilternotsupported",
+        "keyword": "Scenario",
+        "line": 78,
+        "name": "Should_RenderSolidFallback_When_BackdropFilterNotSupported",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 82724600
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6427200
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 739854699
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4311400
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 79,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-fallback']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 6076299
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 80,
+            "name": "el background-color cubre suficientemente para legibilidad",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:343"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 8958800
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 81,
+            "name": "el color de texto es legible sobre el fondo",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:354"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2757600
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004;should_becomposable_when_usedwithothercomponents",
+        "keyword": "Scenario",
+        "line": 86,
+        "name": "Should_BeComposable_When_UsedWithOtherComponents",
+        "steps": [
+          {
+            "result": {
+              "status": "passed",
+              "duration": 61012099
+            },
+            "keyword": "Before",
+            "hidden": true
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2992599
+            },
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "el frontend esta iniciado",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:43"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 747433400
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "el usuario navega a la pagina de cards",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:48"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 3551799
+            },
+            "arguments": [],
+            "keyword": "When ",
+            "line": 87,
+            "name": "se inspecciona el elemento de card \"[data-testid='card-composite']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:77"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 5707099
+            },
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 88,
+            "name": "el Card contiene un boton \"[data-testid='composite-edit-button']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:370"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2426800
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 89,
+            "name": "el Card contiene un badge \"[data-testid='composite-badge']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:382"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 4952199
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 90,
+            "name": "el Card contiene un boton secundario \"[data-testid='composite-cancel-button']\"",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:392"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 12251699
+            },
+            "arguments": [],
+            "keyword": "And ",
+            "line": 91,
+            "name": "el espaciado interno de la card es consistente",
+            "match": {
+              "location": "e2e\\step_definitions\\f024-us004-cards-glassmorphism.steps.ts:404"
+            }
+          },
+          {
+            "result": {
+              "status": "passed",
+              "duration": 2543699
+            },
+            "keyword": "After",
+            "hidden": true
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "componentes-base---cards-y-glassmorphism-—-f024-us-004",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Componentes Base - Cards y Glassmorphism — F024 US-004",
+    "tags": [],
+    "uri": "e2e\\features\\f024-us004-cards-glassmorphism.feature"
+  }
+]

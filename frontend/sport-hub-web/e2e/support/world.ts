@@ -8,6 +8,10 @@ export interface ICustomWorld extends World {
   baseUrl: string;
   email?: string;
   password?: string;
+  /** Stores the last computed style result from an element injection */
+  lastStyle?: Record<string, string>;
+  /** Selector stored by When steps for use in Then steps */
+  currentSelector?: string;
 }
 
 export class CustomWorld extends World implements ICustomWorld {
@@ -17,6 +21,7 @@ export class CustomWorld extends World implements ICustomWorld {
   baseUrl: string;
   email?: string;
   password?: string;
+  currentSelector?: string;
 
   constructor(options: IWorldOptions) {
     super(options);
