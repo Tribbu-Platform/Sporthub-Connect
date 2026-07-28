@@ -1,54 +1,436 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(222.2 84% 4.9%);
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222.2 84% 4.9%);
-  --color-primary: hsl(221.2 83.2% 53.3%);
-  --color-primary-foreground: hsl(210 40% 98%);
-  --color-secondary: hsl(210 40% 96.1%);
-  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-muted: hsl(210 40% 96.1%);
-  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-accent: hsl(210 40% 96.1%);
-  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(221.2 83.2% 53.3%);
-  --radius: 0.5rem;
+/* ============================================================
+   "Apex Athletic Intelligence" Design System
+   Design Tokens: CSS Custom Properties (:root)
+   Feature: F024 - US-001
+   Source: prototipes/stitch_krewletics_sports_community/DESIGN.md
+   ============================================================ */
+
+:root {
+  /* -----------------------------------------------------------------
+     SURFACE HIERARCHY (Material Design 3)
+     ----------------------------------------------------------------- */
+  --color-surface: #111317;
+  --color-surface-dim: #111317;
+  --color-surface-bright: #37393d;
+  --color-surface-container-lowest: #0c0e11;
+  --color-surface-container-low: #1a1c1f;
+  --color-surface-container: #1e2023;
+  --color-surface-container-high: #282a2d;
+  --color-surface-container-highest: #333538;
+  --color-on-surface: #e2e2e6;
+  --color-on-surface-variant: #b9cbbc;
+  --color-surface-variant: #333538;
+
+  /* -----------------------------------------------------------------
+     INVERSE SURFACE
+     ----------------------------------------------------------------- */
+  --color-inverse-surface: #e2e2e6;
+  --color-inverse-on-surface: #2f3034;
+
+  /* -----------------------------------------------------------------
+     OUTLINE
+     ----------------------------------------------------------------- */
+  --color-outline: #849587;
+  --color-outline-variant: #3b4a3f;
+
+  /* -----------------------------------------------------------------
+     SURFACE TINT
+     ----------------------------------------------------------------- */
+  --color-surface-tint: #00e38b;
+
+  /* -----------------------------------------------------------------
+     PRIMARY PALETTE (Emerald Neon)
+     ----------------------------------------------------------------- */
+  --color-primary: #f4fff3;
+  --color-on-primary: #00391f;
+  --color-primary-container: #00ff9d;
+  --color-on-primary-container: #007143;
+  --color-inverse-primary: #006d40;
+  --color-primary-fixed: #56ffa8;
+  --color-primary-fixed-dim: #00e38b;
+  --color-on-primary-fixed: #002110;
+  --color-on-primary-fixed-variant: #00522f;
+
+  /* -----------------------------------------------------------------
+     SECONDARY PALETTE
+     ----------------------------------------------------------------- */
+  --color-secondary: #c6c6ca;
+  --color-on-secondary: #2f3034;
+  --color-secondary-container: #47494c;
+  --color-on-secondary-container: #b7b8bc;
+  --color-secondary-fixed: #e2e2e6;
+  --color-secondary-fixed-dim: #c6c6ca;
+  --color-on-secondary-fixed: #1a1c1f;
+  --color-on-secondary-fixed-variant: #45474a;
+
+  /* -----------------------------------------------------------------
+     TERTIARY PALETTE
+     ----------------------------------------------------------------- */
+  --color-tertiary: #f4fff0;
+  --color-on-tertiary: #003915;
+  --color-tertiary-container: #67fb8c;
+  --color-on-tertiary-container: #007231;
+  --color-tertiary-fixed: #6bff8f;
+  --color-tertiary-fixed-dim: #4ae176;
+  --color-on-tertiary-fixed: #002109;
+  --color-on-tertiary-fixed-variant: #005321;
+
+  /* -----------------------------------------------------------------
+     ERROR PALETTE
+     ----------------------------------------------------------------- */
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  /* -----------------------------------------------------------------
+     BACKGROUND
+     ----------------------------------------------------------------- */
+  --color-background: #111317;
+  --color-on-background: #e2e2e6;
+
+  /* -----------------------------------------------------------------
+     GLASSMORPHISM
+     ----------------------------------------------------------------- */
+  --glass-opacity: 0.6;
+  --glass-blur: 20px;
+  --glass-border: #1a1c1f;
+  --glass-modal-opacity: 0.8;
+  --glass-modal-blur: 30px;
+
+  /* -----------------------------------------------------------------
+     GLOW & SHADOWS
+     ----------------------------------------------------------------- */
+  --glow-primary: 0 0 15px rgba(0, 255, 157, 0.3);
+  --glow-primary-strong: 0 0 30px rgba(0, 255, 157, 0.5);
+
+  /* Elevation shadows */
+  --shadow-level-0: none;
+  --shadow-level-1: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-level-2: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-level-3: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 8px rgba(0, 255, 157, 0.1);
+
+  /* -----------------------------------------------------------------
+     SPACING (8px strict grid)
+     ----------------------------------------------------------------- */
+  --spacing-base: 8px;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 32px;
+  --sidebar-width: 260px;
+
+  /* -----------------------------------------------------------------
+     BORDER RADIUS (Rounded shape language)
+     ----------------------------------------------------------------- */
+  --radius-sm: 0.25rem;
+  --radius-DEFAULT: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* -----------------------------------------------------------------
+     TRANSITIONS
+     ----------------------------------------------------------------- */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* -----------------------------------------------------------------
+     TYPOGRAPHY
+     ----------------------------------------------------------------- */
+  --font-family-primary: 'Montserrat', sans-serif;
+  --font-family-mono: 'JetBrains Mono', monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  .dark {
-    --color-background: hsl(222.2 84% 4.9%);
-    --color-foreground: hsl(210 40% 98%);
-    --color-card: hsl(222.2 84% 4.9%);
-    --color-card-foreground: hsl(210 40% 98%);
-    --color-primary: hsl(217.2 91.2% 59.8%);
-    --color-primary-foreground: hsl(222.2 47.4% 11.2%);
-    --color-secondary: hsl(217.2 32.6% 17.5%);
-    --color-secondary-foreground: hsl(210 40% 98%);
-    --color-muted: hsl(217.2 32.6% 17.5%);
-    --color-muted-foreground: hsl(215 20.2% 65.1%);
-    --color-accent: hsl(217.2 32.6% 17.5%);
-    --color-accent-foreground: hsl(210 40% 98%);
-    --color-destructive: hsl(0 62.8% 30.6%);
-    --color-destructive-foreground: hsl(210 40% 98%);
-    --color-border: hsl(217.2 32.6% 17.5%);
-    --color-input: hsl(217.2 32.6% 17.5%);
-    --color-ring: hsl(224.3 76.3% 48%);
+/* -----------------------------------------------------------------
+   TAILWIND v4 @theme — Full Design System Palette (US-002)
+   Maps all 47 design tokens from US-001 to Tailwind utilities.
+   Use: bg-{color}, text-{color}, border-{color}, font-sans, font-mono,
+        rounded-{size}, shadow-{name}, backdrop-blur-{name}
+   ----------------------------------------------------------------- */
+@theme {
+  /* ---- Surface Hierarchy (11 tokens) ---- */
+  --color-surface: var(--color-surface);
+  --color-surface-dim: var(--color-surface-dim);
+  --color-surface-bright: var(--color-surface-bright);
+  --color-surface-container-lowest: var(--color-surface-container-lowest);
+  --color-surface-container-low: var(--color-surface-container-low);
+  --color-surface-container: var(--color-surface-container);
+  --color-surface-container-high: var(--color-surface-container-high);
+  --color-surface-container-highest: var(--color-surface-container-highest);
+  --color-on-surface: var(--color-on-surface);
+  --color-on-surface-variant: var(--color-on-surface-variant);
+  --color-surface-variant: var(--color-surface-variant);
+
+  /* ---- Inverse Surface (2 tokens) ---- */
+  --color-inverse-surface: var(--color-inverse-surface);
+  --color-inverse-on-surface: var(--color-inverse-on-surface);
+
+  /* ---- Outline (2 tokens) ---- */
+  --color-outline: var(--color-outline);
+  --color-outline-variant: var(--color-outline-variant);
+
+  /* ---- Surface Tint (1 token) ---- */
+  --color-surface-tint: var(--color-surface-tint);
+
+  /* ---- Primary Palette (9 tokens) ---- */
+  --color-primary: var(--color-primary);
+  --color-on-primary: var(--color-on-primary);
+  --color-primary-container: var(--color-primary-container);
+  --color-on-primary-container: var(--color-on-primary-container);
+  --color-inverse-primary: var(--color-inverse-primary);
+  --color-primary-fixed: var(--color-primary-fixed);
+  --color-primary-fixed-dim: var(--color-primary-fixed-dim);
+  --color-on-primary-fixed: var(--color-on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--color-on-primary-fixed-variant);
+
+  /* ---- Secondary Palette (8 tokens) ---- */
+  --color-secondary: var(--color-secondary);
+  --color-on-secondary: var(--color-on-secondary);
+  --color-secondary-container: var(--color-secondary-container);
+  --color-on-secondary-container: var(--color-on-secondary-container);
+  --color-secondary-fixed: var(--color-secondary-fixed);
+  --color-secondary-fixed-dim: var(--color-secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--color-on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--color-on-secondary-fixed-variant);
+
+  /* ---- Tertiary Palette (8 tokens) ---- */
+  --color-tertiary: var(--color-tertiary);
+  --color-on-tertiary: var(--color-on-tertiary);
+  --color-tertiary-container: var(--color-tertiary-container);
+  --color-on-tertiary-container: var(--color-on-tertiary-container);
+  --color-tertiary-fixed: var(--color-tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--color-tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--color-on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--color-on-tertiary-fixed-variant);
+
+  /* ---- Error Palette (4 tokens) ---- */
+  --color-error: var(--color-error);
+  --color-on-error: var(--color-on-error);
+  --color-error-container: var(--color-error-container);
+  --color-on-error-container: var(--color-on-error-container);
+
+  /* ---- Background (2 tokens) ---- */
+  --color-background: var(--color-background);
+  --color-on-background: var(--color-on-background);
+
+  /* ---- Shadcn/ui semantic aliases (keep backward compat) ---- */
+  --color-foreground: var(--color-on-background);
+  --color-primary-foreground: var(--color-on-primary-container);
+  --color-destructive: var(--color-error);
+  --color-destructive-foreground: var(--color-on-error);
+  --color-border: var(--color-outline-variant);
+  --color-input: var(--color-outline-variant);
+  --color-ring: var(--color-primary-container);
+  --color-muted: var(--color-surface-container-low);
+  --color-muted-foreground: var(--color-on-surface-variant);
+  --color-accent: var(--color-secondary-container);
+  --color-accent-foreground: var(--color-on-secondary-container);
+
+  /* ---- Border Radius ---- */
+  --radius-sm: var(--radius-sm);
+  --radius-DEFAULT: var(--radius-DEFAULT);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-full: var(--radius-full);
+  --radius: var(--radius-DEFAULT);
+
+  /* ---- Font Family ---- */
+  --font-sans: var(--font-family-primary);
+  --font-mono: var(--font-family-mono);
+
+  /* ---- Box Shadows (Elevation) ---- */
+  --shadow-level-0: var(--shadow-level-0);
+  --shadow-level-1: var(--shadow-level-1);
+  --shadow-level-2: var(--shadow-level-2);
+  --shadow-level-3: var(--shadow-level-3);
+
+  /* ---- Glow Shadows ---- */
+  --shadow-glow-primary: var(--glow-primary);
+  --shadow-glow-primary-strong: var(--glow-primary-strong);
+
+  /* ---- Backdrop Blur (Glassmorphism) ---- */
+  --backdrop-blur-glass: var(--glass-blur);
+  --backdrop-blur-glass-modal: var(--glass-modal-blur);
+}
+
+/* -----------------------------------------------------------------
+   GLOBAL BASE STYLES
+   Wrapped in @layer base so Tailwind utilities (utilities layer)
+   can override them — e.g., border-{color} must win over the default
+   border-color set by the universal * selector.
+   ----------------------------------------------------------------- */
+
+@layer base {
+  * {
+    border-color: var(--color-outline-variant);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+    font-family: var(--font-family-primary, 'Montserrat', ui-sans-serif, system-ui, sans-serif);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Selection color */
+  ::selection {
+    background-color: var(--color-primary-container);
+    color: var(--color-on-primary-container);
+  }
+
+  /* Scrollbar styling (Webkit) */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface-container-lowest);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-surface-container-high);
+    border-radius: var(--radius-full);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-surface-container-highest);
   }
 }
 
-* {
-  border-color: var(--color-border);
+/* ============================================================
+   GLASSMORPHISM UTILITY CLASSES (US-004)
+   .glass-2: Cards estandar (60% opacity, blur 20px)
+   .glass-3: Modales/popovers (80% opacity, blur 30px, borde tint esmeralda)
+   Includes solid color fallback for browsers without backdrop-filter support
+   ============================================================ */
+
+@utility glass-2 {
+  /* Solid fallback for browsers without backdrop-filter support */
+  background-color: #1a1c1f;
+  /* Glassmorphism: semi-transparent bg over the fallback */
+  background-color: rgba(26, 28, 31, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid #1a1c1f;
 }
 
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-feature-settings: "rlig" 1, "calt" 1;
+@utility glass-3 {
+  /* Solid fallback for browsers without backdrop-filter support */
+  background-color: #1a1c1f;
+  /* Glassmorphism: higher opacity (80%) with emerald-tinted border */
+  background-color: rgba(26, 28, 31, 0.8);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(0, 255, 157, 0.2);
+}
+
+/* Card header gradient: secondary dark gradient to anchor titles */
+@utility card-header-gradient {
+  background: linear-gradient(to bottom, rgba(40, 42, 45, 0.4), rgba(26, 28, 31, 0));
+}
+
+/* ============================================================
+   TYPOGRAPHY UTILITY CLASSES (US-009)
+   7 niveles tipograficos + .text-metric + responsive scaling
+   ============================================================ */
+
+/* --- Display Large: 32px / 700 / 1.2 / -0.02em --- */
+@utility text-display-lg {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* --- Headline Medium: 24px / 700 / 1.3 --- */
+@utility text-headline-md {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* --- Headline Small: 20px / 600 / 1.4 --- */
+@utility text-headline-sm {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* --- Body Large: 16px / 400 / 1.6 --- */
+@utility text-body-lg {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* --- Body Medium: 14px / 400 / 1.5 --- */
+@utility text-body-md {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* --- Label Caps: 11px / 700 / 1.2 / 0.1em / uppercase --- */
+@utility text-label-caps {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* --- Meta Small: 12px / 500 / 1.4 --- */
+@utility text-meta-sm {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* --- Metric: Bold weight for numeric data (XP, scores, stats) --- */
+@utility text-metric {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* ============================================================
+   RESPONSIVE SCALING: Headlines scale -15% on mobile (< 768px)
+   Body texts (body-lg, body-md, meta-sm, label-caps) DO NOT scale
+   ============================================================ */
+@media (max-width: 767px) {
+  .text-display-lg {
+    font-size: 27.2px;
+  }
+
+  .text-headline-md {
+    font-size: 20.4px;
+  }
+
+  .text-headline-sm {
+    font-size: 17px;
+  }
+}
+
+/* ============================================================
+   STATUS DOT PULSE ANIMATION (US-007)
+   Subtle glow pulse for the LED status indicator
+   ============================================================ */
+
+@keyframes status-dot-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@utility animate-pulse-status {
+  animation: status-dot-pulse 2s ease-in-out infinite;
 }

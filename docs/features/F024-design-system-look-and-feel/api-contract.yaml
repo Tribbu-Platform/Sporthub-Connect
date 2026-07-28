@@ -1,0 +1,35 @@
+# ============================================================
+# API Contract: F024 - Design System Look & Feel
+# ============================================================
+#
+# NO APLICA — Feature 100% Frontend
+#
+# Esta feature es puramente de presentacion (UI) y no expone
+# ni consume endpoints de API REST. Los unicos "contratos" son
+# las interfaces TypeScript de componentes definidas en:
+#
+#   docs/features/F024-design-system-look-and-feel/data-model.md
+#
+# Secciones relevantes:
+#   - Seccion 4: Interfaces de Componentes (TypeScript Props)
+#   - Seccion 6: Estados de Componentes
+#   - Seccion 8: Integracion con shadcn/ui
+#
+# Los componentes definidos aqui seran consumidos por features
+# posteriores que si implementaran endpoints de API REST.
+# ============================================================
+
+openapi: "3.0.0"
+info:
+  title: "F024 - Design System Look & Feel"
+  description: >
+    Placeholder. Esta feature es 100% frontend. No hay endpoints REST,
+    gRPC ni GraphQL. Los contratos de componentes se definen en
+    `data-model.md` como interfaces TypeScript.
+  version: "1.0.0"
+
+# Sin paths porque no hay API
+paths: {}
+
+# Sin componentes porque no hay API
+components: {}

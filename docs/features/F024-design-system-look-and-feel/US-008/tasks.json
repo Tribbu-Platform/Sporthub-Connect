@@ -1,0 +1,107 @@
+{
+  "featureId": "F024",
+  "huId": "US-008",
+  "huTitle": "Layout Principal - Sidebar + Main Content",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Crear componente Sidebar: fijo a la izquierda, ancho 260px, altura 100vh, fondo #111317 (Level 1), posicion fixed. Contiene slots para logo, navegacion y perfil de usuario",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Crear componente SidebarNav: lista de links de navegacion con indicador esmeralda en el item activo (basado en currentPath). Cada item incluye icono + label. Soporta estado disabled",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Crear componente MainContent: wrapper del contenido principal con margin-left 260px (desktop), padding responsive (32px desktop, 16px mobile), gutter 24px entre modulos hijos",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Crear componente MobileSidebar: drawer/overlay para viewports < 1024px. Hamburguer menu trigger, overlay semi-transparente, transicion slide 300ms ease. Click fuera o boton cerrar para ocultar",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T005",
+      "tier": "Frontend",
+      "description": "Reemplazar layout actual (src/app/layout.tsx) por el nuevo Layout wrapper que integra Sidebar + MainContent + MobileSidebar. Verificar que paginas existentes (login, registro) no tengan regresion visual",
+      "layer": "Pages",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T006",
+      "tier": "Frontend",
+      "description": "Agregar reglas responsive en globals.css: media queries para sidebar (>=1024px visible, <1024px oculta), padding responsive en MainContent, transiciones de colapso/expansion",
+      "layer": "Styles",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T007",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios para Sidebar: renderizado en desktop (width 260px, background #111317, fixed position), slots de contenido. SidebarNav: links renderizados, indicador activo esmeralda en currentPath",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/layout/__tests__/sidebar.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T008",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios para MainContent (padding y gutter) y MobileSidebar: visibilidad condicional por viewport, toggle hamburguer, overlay, cierre al click fuera. Accesibilidad: navegacion teclado, focus trap en drawer",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/layout/__tests__/layout.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T009",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 8 escenarios Gherkin de US-008 (Should_RenderSidebar, Should_RenderMainContent, Should_HideSidebar, Should_ToggleSidebar, Should_ApplyGutterBetweenContentModules, Should_ContainLogoAndNavigation, Should_ScrollContentIndependently, Should_BeResponsive)",
+      "layer": "BDD",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T010",
+      "tier": "BDD",
+      "description": "Implementar step definitions para layout: verificacion de sidebar en desktop/mobile, toggle hamburguer, gutter entre modulos, scroll independiente, resize responsive via Playwright con viewport emulation",
+      "layer": "BDD",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    }
+  ]
+}

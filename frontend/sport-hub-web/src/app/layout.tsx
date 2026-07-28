@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Inter } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({
+const montserrat = Montserrat({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-montserrat',
+  weight: ['400', '500', '600', '700'],
 });
 
 export const metadata: Metadata = {
@@ -38,42 +38,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={inter.variable}>
-      <body className="min-h-screen bg-background font-sans antialiased">
-        {/* Main navigation bar */}
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <nav className="container mx-auto flex h-16 items-center px-4">
-            <Link href="/" className="flex items-center space-x-2 font-bold text-xl text-primary">
-              <span className="text-2xl">⚽</span>
-              <span>SportHub</span>
-            </Link>
-            <div className="flex-1" />
-            <div className="flex items-center space-x-4">
-              <Link href="/auth/login" className="text-sm font-medium hover:text-primary transition-colors">
-                Iniciar sesion
-              </Link>
-              <Link
-                href="/auth/register"
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                Registrarse
-              </Link>
-            </div>
-          </nav>
-        </header>
-
-        {/* Main content */}
-        <main className="container mx-auto px-4 py-8">
-          {children}
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t py-8 mt-16">
-          <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} SportHub Connect. Todos los derechos reservados.</p>
-          </div>
-        </footer>
+    <html lang="es" className={`${montserrat.variable} dark`}>
+      <body className="min-h-screen bg-[#0c0e11] font-sans antialiased">
+        {/* 
+          The AppLayout (client component) provides the Sidebar + MainContent layout.
+          It is dynamically imported to keep the root layout as a server component.
+        */}
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );
 }
+
+/**
+ * Client-side layout wrapper.
+ * Uses dynamic import with ssr:false to handle browser-dependent sidebar state
+ * without hydration mismatches.
+ */
+import dynamic from 'next/dynamic';
+
+const LayoutWrapper = dynamic(
+  () => import('@/components/layout/layout').then((mod) => mod.AppLayout),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center min-h-screen bg-[#0c0e11]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-2 border-[#00ff9d] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-[#b9cbbc]">Cargando...</p>
+        </div>
+      </div>
+    ),
+  }
+);

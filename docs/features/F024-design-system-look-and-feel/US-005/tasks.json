@@ -1,0 +1,77 @@
+{
+  "featureId": "F024",
+  "huId": "US-005",
+  "huTitle": "Componentes Base - Badges de Roles y Estados",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Crear componente Badge (extendiendo shadcn/ui) con variantes de rol: owner (gold/dorado), captain (esmeralda), coach (azul/tertiary), member (gris/secundario). Cada una con fondo al 15% opacity y texto saturado. Forma pill (rounded-full)",
+      "layer": "Components",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/components/ui/badge.tsx",
+      "startedAt": "2026-07-27T01:30:00Z",
+      "completedAt": "2026-07-27T00:30:00Z"
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Agregar variantes de estado al Badge: success (esmeralda), warning (ambar), error (rojo), info (tertiary). Mismo patron glass-tag: fondo 15% opacity, texto saturado, pill shape",
+      "layer": "Components",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/components/ui/badge.tsx",
+      "startedAt": "2026-07-27T01:30:00Z",
+      "completedAt": "2026-07-27T00:30:00Z"
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Implementar soporte de tamanos sm/default/lg con font-size y padding proporcionales. Asegurar padding horizontal >= 12px para legibilidad",
+      "layer": "Components",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/components/ui/badge.tsx",
+      "startedAt": "2026-07-27T01:30:00Z",
+      "completedAt": "2026-07-27T00:30:00Z"
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios (Vitest + Testing Library) para las 4 variantes de rol: verificar colores de fondo/texto, forma pill, padding, texto visible",
+      "layer": "Tests",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/badge.test.tsx",
+      "startedAt": "2026-07-27T01:30:00Z",
+      "completedAt": "2026-07-27T00:35:00Z"
+    },
+    {
+      "id": "T005",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios para las 4 variantes de estado y los 3 tamanos. Verificar accesibilidad: role semantico, aria-label, texto legible (no solo color)",
+      "layer": "Tests",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/badge.test.tsx",
+      "startedAt": "2026-07-27T01:30:00Z",
+      "completedAt": "2026-07-27T00:35:00Z"
+    },
+    {
+      "id": "T006",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 10 escenarios Gherkin de US-005 (Should_RenderOwnerBadge, Should_RenderCaptainBadge, Should_RenderCoachBadge, Should_RenderMemberBadge, Should_RenderSuccessBadge, Should_RenderWarningBadge, Should_RenderErrorBadge, Should_RenderInfoBadge, Should_SupportDifferentSizes, Should_BeAccessible)",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/e2e/features/f024-us005-badges.feature",
+      "startedAt": "2026-07-27T02:30:00Z",
+      "completedAt": "2026-07-27T02:35:00Z"
+    },
+    {
+      "id": "T007",
+      "tier": "BDD",
+      "description": "Implementar step definitions para badges: verificacion de colores y forma por variante, soporte de tamanos, prueba de accesibilidad con lector de pantalla via Playwright",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "frontend/sport-hub-web/e2e/step_definitions/f024-us005-badges.steps.ts",
+      "startedAt": "2026-07-27T02:35:00Z",
+      "completedAt": "2026-07-27T02:40:00Z"
+    }
+  ]
+}

@@ -4,7 +4,7 @@ import nextPlugin from '@next/eslint-plugin-next';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['.next', 'node_modules', 'out', '*.config.*', 'cucumber.js'] },
+  { ignores: ['.next', 'node_modules', 'out', 'coverage', '*.config.*', 'cucumber.js'] },
   {
     extends: [
       js.configs.recommended,

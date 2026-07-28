@@ -1,5 +1,12 @@
-export function cn(...inputs: (string | undefined | null | boolean)[]): string {
-  return inputs.filter(Boolean).join(' ');
+/**
+ * Utility to merge Tailwind CSS classes safely.
+ * Filters out falsy values and joins valid class strings.
+ */
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs));
 }
 
 export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
