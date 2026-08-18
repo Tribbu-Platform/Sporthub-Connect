@@ -1,0 +1,90 @@
+{
+  "baseline": "2026-07-27",
+  "project": "SportHub Connect",
+  "phase": "Post-US-003 (Componentes Base - Botones)",
+  "hu": "US-003",
+  "feature": "F024",
+  "modulesActive": ["Identity", "Community", "DesignSystem"],
+  "backend": {
+    "architecture": { "grade": "B+", "critical": 0, "high": 0, "medium": 3, "low": 5 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 3, "low": 2 }
+  },
+  "frontend": {
+    "architecture": { "grade": "A-", "critical": 0, "high": 1, "medium": 2, "low": 4 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 1, "low": 0 }
+  },
+  "testCoverage": {
+    "backend": { "domain": 95.6, "application": 85.5, "infrastructure": 72 },
+    "frontend": { "components": 90, "services": 82, "designTokens": 100, "tailwindConfig": 100, "buttonComponent": 100 },
+    "overall": 89.1
+  },
+  "dependencies": {
+    "nuget": { "high": 2, "critical": 0, "details": ["Microsoft.OpenApi 2.0.0 (GHSA-v5pm-xwqc-g5wc)", "SQLitePCLRaw.lib.e_sqlite3 2.1.11 (GHSA-2m69-gcr7-jv3q)"] },
+    "npm": { "high": 15, "critical": 0, "moderate": 0, "details": ["next <16.3.0 (9 vulns: DoS, SSRF, Server Action leak, Cache confusion)", "postcss <8.5.17 (3 vulns: XSS, File read)", "sharp <0.35.0 (1 vuln: libvips CVEs)", "brace-expansion <=5.0.7 (1 vuln: DoS via unbounded expansion)"] }
+  },
+  "totalTests": { "backend": 85, "frontend": 128, "total": 213 },
+  "f024_us003_metrics": {
+    "eslintErrors": 0,
+    "eslintWarnings": 0,
+    "typescriptErrors": 0,
+    "typescriptErrorsUS003": 0,
+    "typescriptErrorsGlobal": 2,
+    "typescriptErrorsGlobalSource": "card.test.tsx (pre-existing US-004)",
+    "vitestTests": 25,
+    "vitestPassed": 25,
+    "vitestFailed": 0,
+    "bddScenarios": 10,
+    "bddPassed": 10,
+    "bddScenarioNames": [
+      "Should_RenderPrimaryButton",
+      "Should_ShowHoverState (primary)",
+      "Should_ShowFocusState (primary)",
+      "Should_ShowActiveState (primary)",
+      "Should_RenderDisabledState (primary)",
+      "Should_RenderSecondaryButton",
+      "Should_ShowHoverState (secondary)",
+      "Should_RenderIconButton",
+      "Should_ShowHoverState (icon)",
+      "Should_SupportAllButtonSizes"
+    ],
+    "buttonVariants": ["primary", "secondary", "ghost", "icon"],
+    "buttonSizes": ["sm", "default", "lg", "icon"],
+    "interactiveStates": ["hover", "focus-visible", "active", "disabled"],
+    "accessibilityFeatures": ["focus-visible:ring", "aria-disabled", "role=button", "asChild (Radix compat)", "Tab navigation"],
+    "codeQuality": {
+      "buttonLines": 97,
+      "testLines": 341,
+      "complexityCyclomatic": 3,
+      "maxFunctionLines": 25,
+      "duplication": 0,
+      "deadCode": 0,
+      "designSpecDeviations": 0
+    },
+    "debtItems": 3,
+    "debtItemsCritical": 0,
+    "debtItemsHigh": 0,
+    "debtItemsMedium": 0,
+    "debtItemsLow": 3,
+    "debtDescriptions": [
+      "DT-003-01: ghost y secondary tienen CSS identico — evaluar consolidacion",
+      "DT-003-02: Compound variant icon+sm/lg fuerza h-10 w-10 — validar con diseno",
+      "DT-003-03: Evaluar migracion de React.cloneElement a Slot de Radix para asChild"
+    ]
+  },
+  "qualityGateResults": {
+    "eslintPassed": true,
+    "typescriptPassed": true,
+    "vitestPassed": true,
+    "bddPassed": true,
+    "scaNoNewVulnerabilities": true,
+    "owaspTop10Passed": true,
+    "solidAdherence": true
+  },
+  "targets": {
+    "backendArchitectureGrade": "A",
+    "backendSecurityGrade": "A",
+    "frontendArchitectureGrade": "A",
+    "frontendSecurityGrade": "A",
+    "testCoverage": ">=80%"
+  }
+}

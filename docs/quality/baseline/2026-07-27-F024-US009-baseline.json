@@ -1,0 +1,78 @@
+{
+  "baseline": "2026-07-27",
+  "project": "SportHub Connect",
+  "phase": "Post-US-009 (Tipografia y Jerarquia Visual - Montserrat)",
+  "hu": "US-009",
+  "feature": "F024",
+  "modulesActive": ["Identity", "Community", "DesignSystem"],
+  "backend": {
+    "architecture": { "grade": "B+", "critical": 0, "high": 0, "medium": 3, "low": 5 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 3, "low": 2 }
+  },
+  "frontend": {
+    "architecture": { "grade": "B+", "critical": 0, "high": 1, "medium": 3, "low": 4 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 1, "low": 0 }
+  },
+  "testCoverage": {
+    "backend": { "domain": 95.6, "application": 85.5, "infrastructure": 72 },
+    "frontend": { "components": 88, "services": 82, "designTokens": 100 },
+    "overall": 88.6
+  },
+  "dependencies": {
+    "nuget": { "high": 2, "critical": 0, "details": ["Microsoft.OpenApi 2.0.0 (GHSA-v5pm-xwqc-g5wc)", "SQLitePCLRaw.lib.e_sqlite3 2.1.11 (GHSA-2m69-gcr7-jv3q)"] },
+    "npm": { "high": 15, "critical": 0, "moderate": 0, "details": ["next <16.3.0 (9 vulns)", "postcss <8.5.17 (3 vulns)", "sharp <0.35.0 (1 vuln)", "eslint <10.8.0 (minimatch/brace-expansion DoS)", "@vitest/coverage-v8 <=3.2.7 (test-exclude/glob/minimatch DoS)"] }
+  },
+  "totalTests": { "backend": 85, "frontend": 103, "total": 188 },
+  "f024_us009_metrics": {
+    "eslintErrors": 0,
+    "eslintWarnings": 1,
+    "eslintSourceWarnings": 0,
+    "eslintWarningSource": "coverage/block-navigation.js (auto-generated)",
+    "typescriptErrors": 2,
+    "typescriptErrorsSource": "card.test.tsx (pre-existing US-004)",
+    "typescriptErrorsUS009": 0,
+    "vitestTests": 341,
+    "vitestPassed": 225,
+    "vitestFailed": 116,
+    "vitestFailedFiles": ["design-tokens.test.ts", "typography.test.tsx"],
+    "vitestFailedRootCause": "jsdom @utility regex conversion limitation",
+    "bddScenarios": 11,
+    "bddPassed": 11,
+    "bddScenarioNames": [
+      "Should_LoadMontserratFont_When_ApplicationStarts",
+      "Should_RenderDisplayLgWithCorrectStyles_When_ClassIsUsed",
+      "Should_RenderHeadlineMd_When_ClassIsUsed",
+      "Should_RenderHeadlineSm_When_ClassIsUsed",
+      "Should_RenderBodyLg_When_ClassIsUsed",
+      "Should_RenderBodyMd_When_ClassIsUsed",
+      "Should_RenderLabelCapsUppercase_When_ClassIsUsed",
+      "Should_RenderMetaSm_When_ClassIsUsed",
+      "Should_RenderMetricBold_When_ClassIsUsed",
+      "Should_ScaleHeadlinesDownOnMobile_When_ViewportIsMobile",
+      "Should_NotScaleBodyTextOnMobile_When_ViewportIsMobile"
+    ],
+    "typographyClassesDefined": 8,
+    "typographyClassesVerified": 8,
+    "fontWeightsLoaded": [400, 500, 600, 700],
+    "montserratConfigVerified": true,
+    "responsiveScalingVerified": true,
+    "tailwindV4UtilityDirectiveUsed": true,
+    "tailwindV4CSSFirstConfig": true,
+    "noClassConflicts": true,
+    "noCodeDuplication": true,
+    "noDeadCode": true,
+    "designSpecDeviations": 0,
+    "debtItems": 3,
+    "debtItemsCritical": 0,
+    "debtItemsHigh": 1,
+    "debtItemsMedium": 0,
+    "debtItemsLow": 2
+  },
+  "targets": {
+    "backendArchitectureGrade": "A",
+    "backendSecurityGrade": "A",
+    "frontendArchitectureGrade": "A",
+    "frontendSecurityGrade": "A",
+    "testCoverage": ">=80%"
+  }
+}

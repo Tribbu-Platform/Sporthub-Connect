@@ -3,6 +3,11 @@
  * Lee API_UPSTREAM_URL en runtime (seteado en ACA) y reenvia
  * la peticion al backend.
  *
+ * Orden de resolucion del upstream (centralizado):
+ *   1. API_UPSTREAM_URL      → runtime server-side (ACA, docker-compose)
+ *   2. NEXT_PUBLIC_API_URL   → variable publica documentada (.env.example)
+ *   3. http://localhost:5000 → fallback de desarrollo local
+ *
  * NOTA: Las rutas especificas (ej. /api/health) tienen su propio
  * handler y toman prioridad sobre este catch-all.
  */
@@ -42,7 +47,10 @@ export async function DELETE(
 }
 
 async function proxyRequest(request: Request, params: { path?: string[] }) {
-  const upstream = process.env.API_UPSTREAM_URL || 'http://localhost:5000';
+  const upstream =
+    process.env.API_UPSTREAM_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:5000';
 
   // Construir el path manteniendo /api/ para que coincida con las
   // rutas del backend (ej. /api/community/info)

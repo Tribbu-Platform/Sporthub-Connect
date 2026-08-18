@@ -1,0 +1,97 @@
+{
+  "featureId": "F024",
+  "huId": "US-003",
+  "huTitle": "Componentes Base - Botones",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Crear variante 'primary' del componente Button (extendiendo shadcn/ui): fondo #00ff9d, texto on-primary-container oscuro bold, sin borde. Estilos via cva (class-variance-authority) con Tailwind",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Crear variante 'secondary/ghost' del componente Button: fondo transparente, borde 1px esmeralda, texto esmeralda. Hover: fondo esmeralda al 10% opacity",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Crear variante 'icon' del componente Button: circular (rounded-full), transparente, hover tint esmeralda 15%. Soporte para tamanos sm/default/lg/icon",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Implementar estados interactivos en todas las variantes: hover (glow esmeralda en primary, tint en secondary/icon), focus-visible (outline 2px + glow), active (scale 0.98), disabled (opacity 40%, cursor-not-allowed, aria-disabled). Transicion 200ms ease",
+      "layer": "Components",
+      "status": "pending",
+      "testFile": null,
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T005",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios (Vitest + Testing Library) para variante primary: renderizado, hover glow, focus outline, active scale, disabled no interactivo",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/button.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T006",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios para variantes secondary, ghost e icon: renderizado, hover, focus, disabled. Verificar tamanos sm/default/lg/icon",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/button.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T007",
+      "tier": "Frontend",
+      "description": "Crear tests de accesibilidad: focus-visible con teclado (Tab), aria-disabled en estado disabled, role='button', compatibilidad con asChild de Radix",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/button.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T008",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 10 escenarios Gherkin de US-003 (Should_RenderPrimaryButton, Should_ShowHoverState, Should_ShowFocusState, Should_ShowActiveState, Should_RenderDisabledState, Should_RenderSecondaryButton, Should_ShowHoverState_When_SecondaryButtonIsHovered, Should_RenderIconButton, Should_ShowHoverState_When_IconButtonIsHovered, Should_SupportAllButtonSizes)",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "e2e/features/f024-us003-botones.feature",
+      "startedAt": "2026-07-27T02:30:00Z",
+      "completedAt": "2026-07-27T02:35:00Z"
+    },
+    {
+      "id": "T009",
+      "tier": "BDD",
+      "description": "Implementar step definitions para botones: renderizado de cada variante, interacciones hover/focus/active/disabled, verificacion de estilos computados via Playwright",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "e2e/step_definitions/f024-us003-botones.steps.ts",
+      "startedAt": "2026-07-27T02:35:00Z",
+      "completedAt": "2026-07-27T02:40:00Z"
+    }
+  ]
+}

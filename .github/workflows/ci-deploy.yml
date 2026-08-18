@@ -7,6 +7,11 @@
 # ADR-005: Azure Container Apps como plataforma única de despliegue.
 # Section 10: Preview environments design in architecture.md.
 #
+# KILL-SWITCH: Variable de repositorio DEPLOY_AZURE_ENABLED
+#   - 'false'  → NO crea ni destruye previews en Azure (el CI sigue completo)
+#   - ausente o cualquier otro valor → previews habilitados (default)
+#   Configurar en: GitHub → Settings → Secrets and variables → Actions → Variables
+#
 # Flujo:
 #   backend ─┐
 #   frontend ─┤──► build-api ─┐
@@ -396,7 +401,7 @@ jobs:
     name: Deploy Preview (ACA)
     runs-on: ubuntu-latest
     needs: [sanitize, build-api, build-web]
-    if: github.event.action != 'closed'
+    if: github.event.action != 'closed' && vars.DEPLOY_AZURE_ENABLED != 'false'
     timeout-minutes: 15
 
     steps:
@@ -675,7 +680,7 @@ jobs:
     name: Destroy Preview
     runs-on: ubuntu-latest
     needs: [sanitize]
-    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && vars.DEPLOY_AZURE_ENABLED != 'false'
     timeout-minutes: 10
 
     steps:

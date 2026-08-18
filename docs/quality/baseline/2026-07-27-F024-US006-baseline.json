@@ -1,0 +1,80 @@
+{
+  "baseline": "2026-07-27",
+  "project": "SportHub Connect",
+  "phase": "Post-US-006 (Componentes Base - Input Fields)",
+  "hu": "US-006",
+  "feature": "F024",
+  "modulesActive": ["Identity", "Community", "DesignSystem"],
+  "backend": {
+    "architecture": { "grade": "B+", "critical": 0, "high": 0, "medium": 3, "low": 5 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 3, "low": 2 }
+  },
+  "frontend": {
+    "architecture": { "grade": "B+", "critical": 0, "high": 1, "medium": 3, "low": 4 },
+    "security": { "grade": "B", "critical": 0, "high": 1, "medium": 1, "low": 0 }
+  },
+  "testCoverage": {
+    "backend": { "domain": 95.6, "application": 85.5, "infrastructure": 72 },
+    "frontend": { "components": 88, "services": 82, "designTokens": 100 },
+    "overall": 88.6
+  },
+  "dependencies": {
+    "nuget": { "high": 2, "critical": 0, "details": ["Microsoft.OpenApi 2.0.0 (GHSA-v5pm-xwqc-g5wc)", "SQLitePCLRaw.lib.e_sqlite3 2.1.11 (GHSA-2m69-gcr7-jv3q)"] },
+    "npm": { "high": 15, "critical": 0, "moderate": 0, "details": ["next <16.3.0 (9 vulns)", "postcss <8.5.17 (3 vulns)", "sharp <0.35.0 (1 vuln)", "eslint <10.8.0 (minimatch/brace-expansion DoS)", "@vitest/coverage-v8 <=3.2.7 (test-exclude/glob/minimatch DoS)"] }
+  },
+  "totalTests": { "backend": 85, "frontend": 133, "total": 218 },
+  "f024_us006_metrics": {
+    "eslintErrors": 0,
+    "eslintWarnings": 1,
+    "eslintWarningSource": "input.tsx:11 (errorMessage declared but never used - @typescript-eslint/no-unused-vars)",
+    "typescriptErrors": 2,
+    "typescriptErrorsSource": "card.test.tsx (pre-existing US-004)",
+    "typescriptErrorsUS006": 0,
+    "vitestTests": 371,
+    "vitestPassed": 255,
+    "vitestFailed": 116,
+    "vitestFailedFiles": ["design-tokens.test.ts", "typography.test.tsx"],
+    "vitestFailedRootCause": "jsdom @utility regex conversion limitation",
+    "vitestInputTests": 30,
+    "vitestInputPassed": 30,
+    "bddScenarios": 8,
+    "bddPassed": 8,
+    "bddScenarioNames": [
+      "Should_RenderDefaultInput_When_NoSpecialStateIsActive",
+      "Should_ShowFocusState_When_InputIsFocused",
+      "Should_ShowErrorState_When_InputIsInvalid",
+      "Should_ShowDisabledState_When_InputIsDisabled",
+      "Should_StylePlaceholder_When_InputHasPlaceholderText",
+      "Should_TransitionSmoothly_When_StateChanges",
+      "Should_BeCompatibleWithReactHookForm_When_UsedInForm",
+      "Should_BeAccessible_When_UsedWithLabel"
+    ],
+    "inputStatesImplemented": ["default", "focus", "error", "disabled", "placeholder", "transition"],
+    "inputAccessibility": ["aria-invalid", "aria-label via htmlFor", "keyboard navigation (Tab)", "focus visible"],
+    "refForwarding": true,
+    "displayName": "Input",
+    "reactHookFormCompatible": true,
+    "designSpecDeviations": 1,
+    "designSpecDeviationDetail": "errorMessage prop declared but not rendered (decision: delegate to parent form)",
+    "noCodeDuplication": true,
+    "noDeadCode": false,
+    "deadCodeItems": ["errorMessage prop (input.tsx:7) - declared but never rendered"],
+    "componentLines": 52,
+    "componentBodyLines": 30,
+    "componentCyclomaticComplexity": 4,
+    "componentProps": 4,
+    "debtItems": 1,
+    "debtItemsCritical": 0,
+    "debtItemsHigh": 0,
+    "debtItemsMedium": 0,
+    "debtItemsLow": 1,
+    "debtItemDetail": "TD-001: errorMessage prop unused. Either render inline or remove from interface."
+  },
+  "targets": {
+    "backendArchitectureGrade": "A",
+    "backendSecurityGrade": "A",
+    "frontendArchitectureGrade": "A",
+    "frontendSecurityGrade": "A",
+    "testCoverage": ">=80%"
+  }
+}

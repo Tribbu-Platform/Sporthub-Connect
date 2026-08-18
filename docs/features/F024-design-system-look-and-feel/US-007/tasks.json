@@ -1,0 +1,67 @@
+{
+  "featureId": "F024",
+  "huId": "US-007",
+  "huTitle": "Componentes Base - Status Indicators",
+  "tasks": [
+    {
+      "id": "T001",
+      "tier": "Frontend",
+      "description": "Crear componente StatusDot: circulo de 8px (default) con border-radius 9999px, efecto LED con box-shadow del mismo color al 50% opacity. Variantes: active (#00ff9d), pending (#eab308), error (#ffb4ab), inactive (#849587)",
+      "layer": "Components",
+      "status": "completed",
+      "testFile": null,
+      "startedAt": "2026-07-26T00:00:00Z",
+      "completedAt": "2026-07-26T00:00:00Z"
+    },
+    {
+      "id": "T002",
+      "tier": "Frontend",
+      "description": "Implementar tamanos sm (6px), default (8px), lg (12px). Prop opcional tooltip (usa atributo title nativo como fallback, muestra texto descriptivo en hover). Prop pulsing (animacion CSS de pulso sutil en el glow)",
+      "layer": "Components",
+      "status": "completed",
+      "testFile": null,
+      "startedAt": "2026-07-26T00:00:00Z",
+      "completedAt": "2026-07-26T00:00:00Z"
+    },
+    {
+      "id": "T003",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios (Vitest + Testing Library) para las 4 variantes de color: verificar background-color, box-shadow (LED glow), border-radius, y diametro",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/status-dot.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T004",
+      "tier": "Frontend",
+      "description": "Crear tests unitarios para tamanos sm/default/lg, tooltip en hover (atributo title), prop pulsing (verificar clase de animacion CSS), y accesibilidad (role='status', aria-label)",
+      "layer": "Tests",
+      "status": "pending",
+      "testFile": "frontend/sport-hub-web/src/components/ui/__tests__/status-dot.test.tsx",
+      "startedAt": null,
+      "completedAt": null
+    },
+    {
+      "id": "T005",
+      "tier": "BDD",
+      "description": "Crear archivo .feature con los 9 escenarios Gherkin de US-007 (Should_RenderActiveStatusDot, Should_RenderPendingStatusDot, Should_RenderErrorStatusDot, Should_RenderInactiveStatusDot, Should_RenderSmallStatusDot, Should_RenderLargeStatusDot, Should_ShowTooltip, Should_AnimatePulse, Should_BeAccessible)",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "e2e/features/f024-us007-status-dot.feature",
+      "startedAt": "2026-07-26T00:00:00Z",
+      "completedAt": "2026-07-26T00:00:00Z"
+    },
+    {
+      "id": "T006",
+      "tier": "BDD",
+      "description": "Implementar step definitions para status dots: verificacion de color y glow por variante, tamanos, tooltip en hover, animacion de pulso, accesibilidad via Playwright",
+      "layer": "BDD",
+      "status": "completed",
+      "testFile": "e2e/step_definitions/f024-us007-status-dot.steps.ts",
+      "startedAt": "2026-07-26T00:00:00Z",
+      "completedAt": "2026-07-26T00:00:00Z"
+    }
+  ]
+}

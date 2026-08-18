@@ -1,65 +1,62 @@
-# SportHub Connect - Docker Web
-
-# ============================================================
-# Stage 1: Dependencies
-# ============================================================
-FROM node:22-alpine AS deps
-WORKDIR /app
-
-COPY package.json package-lock.json* ./
-RUN npm ci
-
-# ============================================================
-# Stage 2: Build
-# ============================================================
+# ============================================================================
+# Stage 1: Builder — Compile Next.js application
+# ============================================================================
 FROM node:22-alpine AS builder
+
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
+# Install dependencies (cached layer)
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+# Copy source code
 COPY . .
 
-# Ensure public/ directory exists (Git doesn't track empty directories)
-RUN mkdir -p /app/public
-
+# Build Next.js (standalone output for minimal runtime)
 ENV NEXT_TELEMETRY_DISABLED=1
-
 RUN npm run build
 
-# ============================================================
-# Stage 3: Production
-# ============================================================
+# ============================================================================
+# Stage 2: Production — Minimal runtime image (target: production)
+# ============================================================================
 FROM node:22-alpine AS production
+
 WORKDIR /app
 
+# Create non-root user
+RUN addgroup -g 1001 -S appgroup \
+    && adduser -u 1001 -S appuser -G appgroup
+
+# Copy only standalone output and static files from builder
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
+
+# Runtime environment
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-
-RUN addgroup --system --gid 1001 nextjs && \
-    adduser --system --uid 1001 nextjs
-
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nextjs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nextjs /app/.next/static ./.next/static
-
-USER nextjs
+ENV PORT=3000
 
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+# Non-root user for security
+USER appuser
 
+# Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
 CMD ["node", "server.js"]
 
-# ============================================================
-# Stage 4: Development
-# ============================================================
+# ============================================================================
+# Stage 3: Development — Hot reload (target: development, docker-compose dev)
+# ============================================================================
 FROM node:22-alpine AS development
+
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+# Install dependencies
+COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
