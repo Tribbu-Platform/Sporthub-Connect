@@ -267,7 +267,7 @@ Then(
 
 Then(
   'el outline computado debe ser {string} o {string}',
-  async function (this: ICustomWorld, value1: string, value2: string) {
+  async function (this: ICustomWorld, _value1: string, _value2: string) {
     const selector = this.currentSelector!;
     expect(selector).toBeDefined();
 
@@ -304,10 +304,7 @@ Then(
 
 Then(
   'el indicador de focus {string} debe estar visible',
-  async function (this: ICustomWorld, testId: string) {
-    const clean = stripQuotes(testId);
-    const sel = `[data-testid="${clean}"]`;
-
+  async function (this: ICustomWorld, _testId: string) {
     // The focus indicator is a hidden span that appears when focused;
     // we verify the input actually received focus by checking the
     // focused element in the document
@@ -424,7 +421,7 @@ Then(
 
 Then(
   'el placeholder debe tener color {string} con opacidad reducida',
-  async function (this: ICustomWorld, expectedHex: string) {
+  async function (this: ICustomWorld, _expectedHex: string) {
     const selector = this.currentSelector!;
     expect(selector).toBeDefined();
 

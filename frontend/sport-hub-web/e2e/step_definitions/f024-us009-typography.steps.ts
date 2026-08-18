@@ -33,28 +33,6 @@ async function getComputedStyleProperty(
 }
 
 /**
- * Retrieves all computed styles at once for an element.
- */
-async function getComputedStyles(
-  page: ICustomWorld['page'],
-  selector: string,
-  properties: string[],
-): Promise<Record<string, string>> {
-  return page.$eval(
-    selector,
-    (el, props) => {
-      const styles = window.getComputedStyle(el);
-      const result: Record<string, string> = {};
-      for (const prop of props) {
-        result[prop] = styles.getPropertyValue(prop);
-      }
-      return result;
-    },
-    properties,
-  );
-}
-
-/**
  * Reads a CSS custom property from :root via getComputedStyle.
  */
 async function getCssCustomProperty(

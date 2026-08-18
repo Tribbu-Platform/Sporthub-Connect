@@ -406,11 +406,7 @@ Then(
   async function (this: ICustomWorld) {
     const selector = this.currentSelector!;
     expect(selector).toBeDefined();
-    const paddingTop = await getComputedStyleProperty(this.page, selector, 'padding-top');
-    const paddingBottom = await getComputedStyleProperty(this.page, selector, 'padding-bottom');
-    // Accept 0 if the card's internal padding is on sub-elements, not the card wrapper itself
-    const topPx = parseInt(paddingTop, 10);
-    const bottomPx = parseInt(paddingBottom, 10);
+    // Accept 0 if the card's internal padding is on sub-elements, not the card wrapper itself.
     // The card wrapper may have 0 padding if sub-elements handle it.
     // Verify structure instead: check that card has flex-column layout
     const display = await getComputedStyleProperty(this.page, selector, 'display');

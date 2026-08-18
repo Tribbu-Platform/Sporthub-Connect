@@ -1,3 +1,4 @@
+/* global module, process */
 module.exports = {
   default: {
     paths: ['e2e/features/f024-us005-badges.feature'],

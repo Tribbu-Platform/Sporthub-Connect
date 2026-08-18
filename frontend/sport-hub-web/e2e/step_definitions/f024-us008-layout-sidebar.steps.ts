@@ -4,13 +4,6 @@ import type { Page } from '@playwright/test';
 import type { ICustomWorld } from '../support/world';
 
 // ═════════════════════════════════════════════════════════════════════
-// Constants
-// ═════════════════════════════════════════════════════════════════════
-
-const DESKTOP_VIEWPORT = { width: 1280, height: 720 };
-const MOBILE_VIEWPORT = { width: 375, height: 812 };
-
-// ═════════════════════════════════════════════════════════════════════
 // Helpers
 // ═════════════════════════════════════════════════════════════════════
 
@@ -62,10 +55,10 @@ async function injectScrollContent(page: Page): Promise<void> {
 
     // Crear 5 modulos de contenido adicionales
     for (let i = 1; i <= 5; i++) {
-      const module = document.createElement('div');
-      module.className = 'scroll-test-module';
-      module.setAttribute('data-testid', `scroll-module-${i}`);
-      module.style.cssText = `
+      const moduleEl = document.createElement('div');
+      moduleEl.className = 'scroll-test-module';
+      moduleEl.setAttribute('data-testid', `scroll-module-${i}`);
+      moduleEl.style.cssText = `
         min-height: 300px;
         background: #1e2023;
         border-radius: 12px;
@@ -80,8 +73,8 @@ async function injectScrollContent(page: Page): Promise<void> {
         font-weight: 600;
         flex-shrink: 0;
       `;
-      module.textContent = `Modulo de Contenido ${i}`;
-      main.appendChild(module);
+      moduleEl.textContent = `Modulo de Contenido ${i}`;
+      main.appendChild(moduleEl);
     }
   });
 }
@@ -102,26 +95,6 @@ async function getComputedStyleValue(
     },
     { sel: selector, prop: property },
   );
-}
-
-/**
- * Obtiene la posicion (x, y) de un elemento relativa al viewport.
- */
-async function getElementPosition(
-  page: Page,
-  selector: string,
-): Promise<{ x: number; y: number; width: number; height: number }> {
-  return page.evaluate((sel) => {
-    const el = document.querySelector(sel);
-    if (!el) return { x: 0, y: 0, width: 0, height: 0 };
-    const rect = el.getBoundingClientRect();
-    return {
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height,
-    };
-  }, selector);
 }
 
 // ═════════════════════════════════════════════════════════════════════
@@ -199,11 +172,7 @@ Then('el sidebar debe ser visible', async function (this: ICustomWorld) {
   const sidebar = this.page.locator('aside[role="navigation"][aria-label="Sidebar"]');
   await sidebar.waitFor({ state: 'visible', timeout: 10000 });
 
-  // Verificar que no esta traducido fuera de pantalla
-  const transform = await sidebar.evaluate((el) =>
-    getComputedStyle(el).transform,
-  );
-  // En desktop, translateX debe ser 0 (o no tener transform de translate)
+  // Verificar que no esta traducido fuera de pantalla (en desktop, translateX = 0)
   const bbox = await sidebar.boundingBox();
   expect(bbox).not.toBeNull();
   if (bbox) {

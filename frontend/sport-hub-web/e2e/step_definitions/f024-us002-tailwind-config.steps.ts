@@ -19,38 +19,6 @@ function hexToRgb(hex: string): string {
 }
 
 /**
- * Normalizes a CSS value for comparison.
- * Handles:
- *   - rem → px conversion check (1rem = 16px at default font size)
- *   - Hex → rgb color normalization
- */
-function normalizeCssValue(value: string, property: string): string {
-  let normalized = value.trim();
-
-  // Colors: allow both rgb() and hex comparison
-  // Browser always returns rgb() for computed colors
-
-  // Border-radius: browser may convert rem to px
-  // Accept both forms for rem-based values
-  if (property === 'border-radius') {
-    // "1rem" = "16px", "0.75rem" = "12px", "0.25rem" = "4px", "1.5rem" = "24px"
-    const remToPx: Record<string, string> = {
-      '1rem': '16px',
-      '0.75rem': '12px',
-      '0.5rem': '8px',
-      '0.25rem': '4px',
-      '1.5rem': '24px',
-    };
-    if (remToPx[normalized]) {
-      // Accept either the rem value or the px equivalent
-      return normalized; // We'll handle rem/px equivalence in the assertion
-    }
-  }
-
-  return normalized;
-}
-
-/**
  * Checks if two CSS values match, with special handling for:
  * - Colors (hex vs rgb)
  * - Border-radius (rem vs px)
