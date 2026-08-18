@@ -88,11 +88,12 @@ next-env.d.ts
 coverage/
 *.lcov
 
-# Playwright
+# Playwright / Cucumber E2E
 playwright-report/
 test-results/
 frontend/sport-hub-web/playwright-report/
 frontend/sport-hub-web/test-results/
+frontend/sport-hub-web/e2e/reports/
 
 # ============================================================
 # Docker
