@@ -95,11 +95,14 @@ jobs:
 
   # ==========================================================================
   # Stage 3: E2E Tests — Playwright + BDD (Cucumber.js)
+  # Deshabilitadas temporalmente via variable de repo RUN_E2E_TESTS=false
+  # (no hay ambiente desplegado de momento)
   # ==========================================================================
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: build
+    if: vars.RUN_E2E_TESTS != 'false'
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR }}
