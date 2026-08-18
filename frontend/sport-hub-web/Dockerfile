@@ -17,9 +17,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # ============================================================================
-# Stage 2: Runner — Minimal production image
+# Stage 2: Production — Minimal runtime image (target: production)
 # ============================================================================
-FROM node:22-alpine AS runner
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
@@ -47,3 +47,31 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
 CMD ["node", "server.js"]
+
+# ============================================================================
+# Stage 3: Development — Hot reload (target: development, docker-compose dev)
+# ============================================================================
+FROM node:22-alpine AS development
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+EXPOSE 3000
+
+# En desarrollo con bind mount, node_modules local sobrescribe al de la imagen.
+# Este entrypoint reinstala dependencias y luego inicia dev.
+# Se ubica fuera de /app para no ser sobrescrito por el bind mount.
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo 'cd /app && npm install --no-audit --no-fund 2>&1' >> /entrypoint.sh && \
+    echo 'exec npm run dev' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+CMD ["sh", "/entrypoint.sh"]
